@@ -14,6 +14,7 @@ import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Referral from "./pages/Referral";
 import Achievements from "./pages/Achievements";
+import Programs from "./pages/Programs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/home" element={<Home />} />
             <Route path="/library" element={<VideoLibrary />} />
+            <Route path="/programs" element={<Programs />} />
             <Route path="/planner" element={<Planner />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/profile" element={<Profile />} />
