@@ -12,6 +12,7 @@ import VideoLibrary from "./pages/VideoLibrary";
 import Planner from "./pages/Planner";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
+import Referral from "./pages/Referral";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/planner" element={<Planner />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/referral" element={<Referral />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
