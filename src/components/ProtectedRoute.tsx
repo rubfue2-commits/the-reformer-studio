@@ -1,11 +1,10 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requireSubscription?: boolean;
+  requireSubscription?: boolean; // réservé pour plus tard — ignoré pour l'instant
 }
 
 function FullscreenLoader() {
@@ -16,28 +15,23 @@ function FullscreenLoader() {
   );
 }
 
-export default function ProtectedRoute({ children, requireSubscription = false }: ProtectedRouteProps) {
-  const { user, loading: authLoading } = useAuth();
-  const { subscription, loading: subLoading, isActive } = useSubscription();
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, loading } = useAuth();
   const location = useLocation();
 
-  // 1. Auth loading
-  if (authLoading) return <FullscreenLoader />;
+  if (loading) return <FullscreenLoader />;
 
-  // 2. Not logged in → auth page
+  // Non connecté → page d'auth
   if (!user) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  // 3. Subscription check required
-  if (requireSubscription) {
-    if (subLoading) return <FullscreenLoader />;
-
-    // No subscription or not active → subscription page
-    if (!isActive) {
-      return <Navigate to="/subscription" replace />;
-    }
-  }
+  // ⚠️  Vérification d'abonnement désactivée temporairement.
+  // À réactiver une fois Stripe + Swikly configurés :
+  //
+  //   if (requireSubscription && !isActive) {
+  //     return <Navigate to="/subscription" replace />;
+  //   }
 
   return <>{children}</>;
 }
