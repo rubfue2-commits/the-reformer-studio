@@ -19,7 +19,10 @@ export default function Profile() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [showSignOut, setShowSignOut] = useState(false);
+
+  const initials = [profile?.first_name, profile?.last_name]
+    .filter(Boolean).map(s => s![0].toUpperCase()).join('') || '?';
 
   const startEdit = () => {
     setFirstName(profile?.first_name ?? '');
@@ -34,259 +37,195 @@ export default function Profile() {
     setEditing(false);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
+  const handleLangToggle = async () => {
+    const nl = language === 'fr' ? 'en' : 'fr';
+    setLanguage(nl);
+    await updateProfile({ language: nl });
   };
 
-  const handleLanguageToggle = async () => {
-    const newLang = language === 'fr' ? 'en' : 'fr';
-    setLanguage(newLang);
-    await updateProfile({ language: newLang });
-  };
-
-  const initials = [profile?.first_name, profile?.last_name]
-    .filter(Boolean)
-    .map(s => s![0].toUpperCase())
-    .join('') || '?';
-
-  const difficultyLabel = (d: string | null) => {
+  const diffLabel = (d: string | null) => {
     if (!d) return '—';
-    if (language === 'fr') {
-      return d === 'beginner' ? 'Débutante' : d === 'intermediate' ? 'Intermédiaire' : 'Avancée';
-    }
-    return d === 'beginner' ? 'Beginner' : d === 'intermediate' ? 'Intermediate' : 'Advanced';
+    return language === 'fr'
+      ? d === 'beginner' ? 'Débutante' : d === 'intermediate' ? 'Intermédiaire' : 'Avancée'
+      : d === 'beginner' ? 'Beginner' : d === 'intermediate' ? 'Intermediate' : 'Advanced';
   };
 
-  const goalLabel = (g: string) => {
-    const map: Record<string, [string, string]> = {
-      weight_loss:    ['Perte de poids',  'Weight loss'],
-      strength:       ['Renforcement',    'Strength'],
-      flexibility:    ['Souplesse',       'Flexibility'],
-      posture:        ['Posture',         'Posture'],
-      rehabilitation: ['Rééducation',     'Rehabilitation'],
-      relaxation:     ['Relaxation',      'Relaxation'],
-    };
-    const entry = map[g];
-    return entry ? (language === 'fr' ? entry[0] : entry[1]) : g;
+  const rowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '14px 16px',
+    borderBottom: '0.5px solid var(--ios-separator)',
+    cursor: 'pointer' as const,
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="px-6 pt-12 pb-6">
-        <h1 className="font-display text-3xl text-foreground">
-          {t('Mon profil', 'My profile')}
-        </h1>
+    <div className="ios-page">
+      {/* Nav */}
+      <div className="ios-nav" style={{ top: 44 }}>
+        <span className="ios-nav-title">{t('Profil', 'Profile')}</span>
+        {!editing ? (
+          <button className="ios-nav-btn" onClick={startEdit}>{t('Modifier', 'Edit')}</button>
+        ) : (
+          <button className="ios-nav-btn" onClick={handleSave} style={{ fontWeight: 600 }}>
+            {saving ? '...' : t('OK', 'Done')}
+          </button>
+        )}
       </div>
 
-      <div className="px-6 space-y-4">
-        {/* Avatar + name card */}
-        <div className="rounded-3xl bg-card border border-border p-5">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center">
-              <span className="font-display text-2xl text-black">{initials}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              {editing ? (
-                <div className="space-y-2">
-                  <input
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    placeholder={t('Prénom', 'First name')}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-2 font-body text-sm text-foreground"
-                  />
-                  <input
-                    value={lastName}
-                    onChange={e => setLastName(e.target.value)}
-                    placeholder={t('Nom', 'Last name')}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-2 font-body text-sm text-foreground"
-                  />
-                </div>
-              ) : (
-                <>
-                  <p className="font-display text-xl text-foreground truncate">
-                    {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || t('Sans nom', 'No name')}
-                  </p>
-                  <p className="font-body text-sm text-muted-foreground truncate">
-                    {profile?.email ?? ''}
-                  </p>
-                </>
-              )}
-            </div>
+      <div style={{ paddingTop: 12 }}>
+        {/* Avatar section */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 20px 24px' }}>
+          <div style={{
+            width: 88, height: 88,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #C4963A, #8B6B2A)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 12,
+            boxShadow: '0 0 0 4px rgba(196,150,58,0.2)',
+          }}>
+            <span style={{ fontFamily: 'Cormorant Garamond', fontSize: 36, color: '#000', fontWeight: 400 }}>
+              {initials}
+            </span>
           </div>
 
           {editing ? (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setEditing(false)}
-                className="flex-1 rounded-xl border border-border py-2 font-body text-sm text-muted-foreground"
-              >
-                {t('Annuler', 'Cancel')}
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 rounded-xl bg-yellow-500 text-black py-2 font-body text-sm font-semibold disabled:opacity-40"
-              >
-                {saving ? '...' : t('Enregistrer', 'Save')}
-              </button>
+            <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 260 }}>
+              <input className="ios-input" style={{ height: 42, fontSize: 15, textAlign: 'center' }}
+                value={firstName} onChange={e => setFirstName(e.target.value)}
+                placeholder={t('Prénom', 'First name')} />
+              <input className="ios-input" style={{ height: 42, fontSize: 15, textAlign: 'center' }}
+                value={lastName} onChange={e => setLastName(e.target.value)}
+                placeholder={t('Nom', 'Last name')} />
             </div>
           ) : (
-            <button
-              onClick={startEdit}
-              className="w-full rounded-xl border border-border py-2 font-body text-sm text-muted-foreground"
-            >
-              ✏️ {t('Modifier le profil', 'Edit profile')}
-            </button>
+            <>
+              <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 26, color: '#fff', margin: '0 0 3px', letterSpacing: -0.3 }}>
+                {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || t('Ton nom', 'Your name')}
+              </p>
+              <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)', margin: 0 }}>
+                {profile?.email}
+              </p>
+            </>
           )}
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, margin: '0 16px 20px' }}>
           {[
             { label: t('Séances', 'Sessions'), value: stats.totalSessions },
-            { label: t('Minutes', 'Minutes'),  value: stats.totalMinutes },
-            { label: t('Streak', 'Streak'),    value: stats.currentStreakDays },
+            { label: t('Minutes', 'Minutes'), value: stats.totalMinutes },
+            { label: t('Streak', 'Streak'), value: stats.currentStreakDays },
           ].map(s => (
-            <div key={s.label} className="rounded-2xl bg-card border border-border p-4 text-center">
-              <p className="font-display text-3xl text-foreground">{s.value}</p>
-              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{s.label}</p>
+            <div key={s.label} className="ios-stat">
+              <div className="ios-stat-value">{s.value}</div>
+              <div className="ios-stat-label">{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Objectives */}
+        {/* Preferences */}
         {preferences && (
-          <div className="rounded-3xl bg-card border border-border p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-body text-sm font-semibold text-foreground">
-                {t('Mes objectifs', 'My goals')}
-              </p>
-              <button
-                onClick={() => navigate('/onboarding')}
-                className="font-body text-xs text-yellow-500"
-              >
-                {t('Modifier', 'Edit')}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {(preferences.goals ?? []).map(g => (
-                <span key={g} className="font-body text-xs bg-yellow-500/10 text-yellow-600 border border-yellow-500/30 rounded-full px-3 py-1">
-                  {goalLabel(g)}
+          <>
+            <div className="ios-section-header">{t('Mes objectifs', 'My goals')}</div>
+            <div className="ios-list" style={{ margin: '0 16px 16px' }}>
+              <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--ios-separator)' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {(preferences.goals ?? []).map(g => (
+                    <span key={g} style={{ background: 'var(--ios-gold-light)', color: 'var(--ios-gold)', fontFamily: 'DM Sans', fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 20, border: '0.5px solid rgba(196,150,58,0.3)' }}>
+                      {g}
+                    </span>
+                  ))}
+                  {!preferences.goals?.length && (
+                    <span style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)' }}>
+                      {t('Aucun objectif', 'No goals')}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div style={{ ...rowStyle, cursor: 'default' }}>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Niveau', 'Level')}</span>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text-3)' }}>{diffLabel(preferences.experience_level)}</span>
+              </div>
+              <div style={{ ...rowStyle, borderBottom: 'none', cursor: 'default' }}>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Fréquence', 'Frequency')}</span>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text-3)' }}>
+                  {preferences.weekly_frequency}× / {t('sem.', 'week')}
                 </span>
-              ))}
-              {(preferences.goals ?? []).length === 0 && (
-                <span className="font-body text-xs text-muted-foreground">
-                  {t('Aucun objectif défini', 'No goals set')}
-                </span>
-              )}
+              </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-border">
-              <p className="font-body text-sm text-muted-foreground">{t('Niveau', 'Level')}</p>
-              <p className="font-body text-sm text-foreground">{difficultyLabel(preferences.experience_level)}</p>
-            </div>
-            <div className="flex items-center justify-between pt-2">
-              <p className="font-body text-sm text-muted-foreground">{t('Fréquence', 'Frequency')}</p>
-              <p className="font-body text-sm text-foreground">
-                {preferences.weekly_frequency}× / {t('semaine', 'week')}
-              </p>
-            </div>
-          </div>
+          </>
         )}
 
         {/* Settings */}
-        <div className="rounded-3xl bg-card border border-border overflow-hidden">
-          {/* Language toggle */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <p className="font-body text-sm text-foreground">
-              {t('Langue', 'Language')}
-            </p>
-            <button
-              onClick={handleLanguageToggle}
-              className="flex items-center gap-2 rounded-full bg-background border border-border px-4 py-1.5"
-            >
-              <span className="font-body text-sm text-foreground">
-                {language === 'fr' ? '🇫🇷 Français' : '🇬🇧 English'}
+        <div className="ios-section-header">{t('Réglages', 'Settings')}</div>
+        <div className="ios-list" style={{ margin: '0 16px 16px' }}>
+          {/* Language */}
+          <div style={rowStyle} onClick={handleLangToggle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>🌍</div>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Langue', 'Language')}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 14, color: 'var(--ios-text-3)' }}>
+                {language === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN'}
               </span>
-              <span className="font-body text-xs text-muted-foreground">
-                → {language === 'fr' ? 'EN' : 'FR'}
-              </span>
-            </button>
+              <span className="ios-list-chevron">›</span>
+            </div>
           </div>
 
-          {/* Progress link */}
-          <button
-            onClick={() => navigate('/progress')}
-            className="w-full flex items-center justify-between px-5 py-4 border-b border-border"
-          >
-            <p className="font-body text-sm text-foreground">
-              📊 {t('Mes mesures', 'My measurements')}
-            </p>
-            <span className="text-muted-foreground">›</span>
-          </button>
+          {/* Progress */}
+          <div style={rowStyle} onClick={() => navigate('/progress')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>📊</div>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Mes mesures', 'Measurements')}</span>
+            </div>
+            <span className="ios-list-chevron">›</span>
+          </div>
+
+          {/* Subscription */}
+          <div style={rowStyle} onClick={() => navigate('/subscription')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>💳</div>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Abonnement', 'Subscription')}</span>
+            </div>
+            <span className="ios-list-chevron">›</span>
+          </div>
 
           {/* Sign out */}
-          <button
-            onClick={() => setShowSignOutConfirm(true)}
-            className="w-full flex items-center justify-between px-5 py-4"
-          >
-            <p className="font-body text-sm text-red-400">
-              {t('Se déconnecter', 'Sign out')}
-            </p>
-            <span className="text-red-400">›</span>
-          </button>
+          <div style={{ ...rowStyle, borderBottom: 'none' }} onClick={() => setShowSignOut(true)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="ios-list-icon" style={{ background: 'rgba(255,69,58,0.15)' }}>🚪</div>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: '#FF453A' }}>{t('Se déconnecter', 'Sign out')}</span>
+            </div>
+            <span style={{ color: '#FF453A' }}>›</span>
+          </div>
         </div>
+
+        <div style={{ height: 20 }} />
       </div>
 
-      {/* Sign out confirmation */}
-      {showSignOutConfirm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6">
-          <div className="w-full max-w-sm bg-background rounded-3xl p-6 space-y-4">
-            <h2 className="font-display text-2xl text-foreground">
+      {/* Sign out sheet */}
+      {showSignOut && (
+        <div onClick={() => setShowSignOut(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#1C1C1E', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px' }}>
+            <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 24px' }} />
+            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 26, color: '#fff', margin: '0 0 8px' }}>
               {t('Se déconnecter ?', 'Sign out?')}
-            </h2>
-            <p className="font-body text-sm text-muted-foreground">
+            </p>
+            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)', margin: '0 0 24px' }}>
               {t('Tu pourras te reconnecter à tout moment.', 'You can sign back in at any time.')}
             </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSignOutConfirm(false)}
-                className="flex-1 rounded-xl border border-border py-3 font-body text-sm text-muted-foreground"
-              >
-                {t('Annuler', 'Cancel')}
-              </button>
-              <button
-                onClick={handleSignOut}
-                className="flex-1 rounded-xl bg-red-500 text-white py-3 font-body text-sm font-semibold"
-              >
-                {t('Déconnecter', 'Sign out')}
-              </button>
-            </div>
+            <button onClick={async () => { await signOut(); navigate('/auth'); }}
+              style={{ width: '100%', height: 54, background: 'rgba(255,69,58,0.15)', border: '0.5px solid rgba(255,69,58,0.3)', borderRadius: 14, color: '#FF453A', fontFamily: 'DM Sans', fontSize: 16, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>
+              {t('Déconnecter', 'Sign out')}
+            </button>
+            <button onClick={() => setShowSignOut(false)} className="ios-btn-secondary">
+              {t('Annuler', 'Cancel')}
+            </button>
           </div>
         </div>
       )}
-
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
-        {[
-          { path: '/home',     label: t('Accueil','Home'),    active: false },
-          { path: '/library',  label: t('Vidéos','Videos'),   active: false },
-          { path: '/progress', label: t('Progrès','Progress'),active: false },
-          { path: '/profile',  label: t('Profil','Profile'),  active: true  },
-        ].map(item => (
-          <button
-            key={item.path}
-            onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${
-              item.active ? 'text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-yellow-500' : 'bg-transparent'}`} />
-            {item.label}
-          </button>
-        ))}
-      </nav>
     </div>
   );
 }
