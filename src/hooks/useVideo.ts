@@ -105,7 +105,7 @@ export function useVideoUpload() {
 
     const { error: dbErr } = await supabase
       .from('workouts')
-      .update(updatePayload)
+      .update(updatePayload as any)
       .eq('slug', workoutSlug);
 
     if (dbErr) {

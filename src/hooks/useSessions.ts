@@ -68,7 +68,7 @@ export function useSessions(): UseSessionsResult {
     if (!user) return { error: 'Not authenticated', data: null };
     const { data, error: err } = await supabase
       .from('sessions')
-      .insert({ ...entry, user_id: user.id })
+      .insert({ ...entry, user_id: user.id } as any)
       .select()
       .single();
     if (err) return { error: err.message, data: null };

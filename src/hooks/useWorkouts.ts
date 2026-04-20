@@ -94,7 +94,7 @@ export function useFavorites() {
       await supabase.from('favorites').delete().eq('user_id', userId).eq('workout_id', workoutId);
       setFavoriteIds(prev => { const s = new Set(prev); s.delete(workoutId); return s; });
     } else {
-      await supabase.from('favorites').insert({ user_id: userId, workout_id: workoutId });
+      await supabase.from('favorites').insert({ user_id: userId, workout_id: workoutId } as any);
       setFavoriteIds(prev => new Set(prev).add(workoutId));
     }
   }, [favoriteIds]);

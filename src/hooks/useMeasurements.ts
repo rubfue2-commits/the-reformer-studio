@@ -40,7 +40,7 @@ export function useMeasurements(): UseMeasurementsResult {
     if (!user) return { error: 'Not authenticated', data: null };
     const { data, error: err } = await supabase
       .from('measurements')
-      .upsert({ ...entry, user_id: user.id }, { onConflict: 'user_id,measured_at' })
+      .upsert({ ...entry, user_id: user.id } as any, { onConflict: 'user_id,measured_at' })
       .select()
       .single();
     if (err) return { error: err.message, data: null };
