@@ -1,188 +1,292 @@
-import { motion } from "framer-motion";
-import {
-  ChevronRight, Crown, Settings, Bell, HelpCircle,
-  LogOut, Globe, Gift, Award, Heart, Layers
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
-import { useLanguage } from "@/i18n/LanguageContext";
-import { Language } from "@/i18n/translations";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { usePreferences } from '@/hooks/usePreferences';
+import { useSessions } from '@/hooks/useSessions';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-const Profile = () => {
-  const { t, language, setLanguage } = useLanguage();
+export default function Profile() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { profile, updateProfile } = useProfile();
+  const { preferences } = usePreferences();
+  const { stats } = useSessions();
+  const { language, setLanguage } = useLanguage();
+  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
-  const menuItems = [
-    { icon: Bell, label: t.profile.notifications, action: () => {} },
-    { icon: Settings, label: t.profile.preferences, action: () => {} },
-    { icon: HelpCircle, label: t.profile.help, action: () => {} },
-  ];
+  const [editing, setEditing] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
-  const quickLinks = [
-    {
-      icon: Award, label: "Badges & Achievements",
-      sub: "9 obtenus · Niveau 3 · 1 525 XP",
-      path: "/achievements", color: "#B8973E", bg: "#FAEEDA",
-      extra: "🏅⭐🔥",
-    },
-    {
-      icon: Heart, label: "Journal bien-être",
-      sub: "Énergie, humeur, sommeil...",
-      path: "/wellness", color: "#EC4899", bg: "#FDF2F8",
-      extra: "😊💧🌙",
-    },
-    {
-      icon: Layers, label: "Mes programmes",
-      sub: "Débutante · Semaine 2/4",
-      path: "/programs", color: "#6366F1", bg: "#EEF2FF",
-      extra: "50% ▶",
-    },
-  ];
+  const startEdit = () => {
+    setFirstName(profile?.first_name ?? '');
+    setLastName(profile?.last_name ?? '');
+    setEditing(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    await updateProfile({ first_name: firstName, last_name: lastName });
+    setSaving(false);
+    setEditing(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  const handleLanguageToggle = async () => {
+    const newLang = language === 'fr' ? 'en' : 'fr';
+    setLanguage(newLang);
+    await updateProfile({ language: newLang });
+  };
+
+  const initials = [profile?.first_name, profile?.last_name]
+    .filter(Boolean)
+    .map(s => s![0].toUpperCase())
+    .join('') || '?';
+
+  const difficultyLabel = (d: string | null) => {
+    if (!d) return '—';
+    if (language === 'fr') {
+      return d === 'beginner' ? 'Débutante' : d === 'intermediate' ? 'Intermédiaire' : 'Avancée';
+    }
+    return d === 'beginner' ? 'Beginner' : d === 'intermediate' ? 'Intermediate' : 'Advanced';
+  };
+
+  const goalLabel = (g: string) => {
+    const map: Record<string, [string, string]> = {
+      weight_loss:    ['Perte de poids',  'Weight loss'],
+      strength:       ['Renforcement',    'Strength'],
+      flexibility:    ['Souplesse',       'Flexibility'],
+      posture:        ['Posture',         'Posture'],
+      rehabilitation: ['Rééducation',     'Rehabilitation'],
+      relaxation:     ['Relaxation',      'Relaxation'],
+    };
+    const entry = map[g];
+    return entry ? (language === 'fr' ? entry[0] : entry[1]) : g;
+  };
 
   return (
-    <MobileLayout>
-      <div className="px-6 pt-14">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <h1 className="font-display text-3xl font-light text-foreground">{t.profile.title}</h1>
-        </motion.div>
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <div className="px-6 pt-12 pb-6">
+        <h1 className="font-display text-3xl text-foreground">
+          {t('Mon profil', 'My profile')}
+        </h1>
+      </div>
 
-        {/* User card */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="mt-6 rounded-3xl bg-card p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted font-display text-xl text-foreground">C</div>
-            <div>
-              <h2 className="font-display text-xl font-light text-foreground">Camille Laurent</h2>
-              <p className="font-body text-xs text-muted-foreground">camille@email.com</p>
+      <div className="px-6 space-y-4">
+        {/* Avatar + name card */}
+        <div className="rounded-3xl bg-card border border-border p-5">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center">
+              <span className="font-display text-2xl text-black">{initials}</span>
             </div>
-          </div>
-        </motion.div>
-
-        {/* Subscription */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="mt-4 rounded-3xl border border-gold/30 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Crown size={16} className="text-gold" />
-            <span className="font-body text-xs tracking-widest uppercase text-gold">{t.profile.annualMember}</span>
-          </div>
-          <p className="mt-2 font-display text-lg font-light text-foreground">{t.profile.premiumSub}</p>
-          <p className="mt-1 font-body text-xs text-muted-foreground">{t.profile.renews}</p>
-          <div className="mt-4 flex items-center gap-2">
-            <div className="rounded-full bg-gold/10 px-3 py-1">
-              <span className="font-body text-[10px] font-medium text-gold">{t.profile.active}</span>
-            </div>
-            <div className="rounded-full bg-muted px-3 py-1">
-              <span className="font-body text-[10px] text-muted-foreground">{t.profile.unlimited}</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Quick links */}
-        <div className="mt-4 space-y-3">
-          {quickLinks.map(({ icon: Icon, label, sub, path, color, bg, extra }, i) => (
-            <motion.button key={path} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18 + i * 0.05 }}
-              onClick={() => navigate(path)}
-              className="w-full rounded-2xl bg-card p-4 shadow-sm flex items-center justify-between border border-border">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: bg }}>
-                  <Icon size={18} strokeWidth={1.5} style={{ color }} />
+            <div className="flex-1 min-w-0">
+              {editing ? (
+                <div className="space-y-2">
+                  <input
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    placeholder={t('Prénom', 'First name')}
+                    className="w-full bg-background border border-border rounded-xl px-3 py-2 font-body text-sm text-foreground"
+                  />
+                  <input
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    placeholder={t('Nom', 'Last name')}
+                    className="w-full bg-background border border-border rounded-xl px-3 py-2 font-body text-sm text-foreground"
+                  />
                 </div>
-                <div className="text-left">
-                  <p className="font-body text-sm font-medium text-foreground">{label}</p>
-                  <p className="font-body text-[10px] text-muted-foreground">{sub}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-body text-xs text-muted-foreground">{extra}</span>
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </div>
-            </motion.button>
+              ) : (
+                <>
+                  <p className="font-display text-xl text-foreground truncate">
+                    {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || t('Sans nom', 'No name')}
+                  </p>
+                  <p className="font-body text-sm text-muted-foreground truncate">
+                    {profile?.email ?? ''}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {editing ? (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditing(false)}
+                className="flex-1 rounded-xl border border-border py-2 font-body text-sm text-muted-foreground"
+              >
+                {t('Annuler', 'Cancel')}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 rounded-xl bg-yellow-500 text-black py-2 font-body text-sm font-semibold disabled:opacity-40"
+              >
+                {saving ? '...' : t('Enregistrer', 'Save')}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={startEdit}
+              className="w-full rounded-xl border border-border py-2 font-body text-sm text-muted-foreground"
+            >
+              ✏️ {t('Modifier le profil', 'Edit profile')}
+            </button>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: t('Séances', 'Sessions'), value: stats.totalSessions },
+            { label: t('Minutes', 'Minutes'),  value: stats.totalMinutes },
+            { label: t('Streak', 'Streak'),    value: stats.currentStreakDays },
+          ].map(s => (
+            <div key={s.label} className="rounded-2xl bg-card border border-border p-4 text-center">
+              <p className="font-display text-3xl text-foreground">{s.value}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{s.label}</p>
+            </div>
           ))}
         </div>
 
-        {/* Parrainage CTA */}
-        <motion.button initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.33 }}
-          onClick={() => navigate("/referral")}
-          className="mt-3 w-full rounded-3xl p-5 shadow-sm flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20">
-              <Gift size={18} className="text-gold" strokeWidth={1.5} />
+        {/* Objectives */}
+        {preferences && (
+          <div className="rounded-3xl bg-card border border-border p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-body text-sm font-semibold text-foreground">
+                {t('Mes objectifs', 'My goals')}
+              </p>
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="font-body text-xs text-yellow-500"
+              >
+                {t('Modifier', 'Edit')}
+              </button>
             </div>
-            <div className="text-left">
-              <p className="font-body text-sm font-medium text-white">Inviter une amie</p>
-              <p className="font-body text-[10px] text-white/50">Gagne 1 mois offert par parrainage</p>
-            </div>
-          </div>
-          <ChevronRight size={16} className="text-white/40" />
-        </motion.button>
-
-        {/* Stats */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="mt-4 flex gap-3">
-          {[
-            { value: "64", label: t.profile.totalSessions },
-            { value: "48h", label: t.profile.timeInvested },
-            { value: "12", label: t.profile.dayStreak },
-          ].map(({ value, label }) => (
-            <div key={label} className="flex-1 rounded-2xl bg-card p-4 text-center shadow-sm">
-              <p className="font-display text-2xl text-foreground">{value}</p>
-              <p className="font-body text-[10px] text-muted-foreground">{label}</p>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Language */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }}
-          className="mt-4 rounded-3xl bg-card shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
-              <Globe size={18} strokeWidth={1.5} className="text-muted-foreground" />
-              <span className="font-body text-sm text-foreground">Language</span>
-            </div>
-            <div className="flex gap-2">
-              {(["en", "fr"] as Language[]).map((lang) => (
-                <button key={lang} onClick={() => setLanguage(lang)}
-                  className={`rounded-full px-3 py-1 font-body text-xs transition-all ${
-                    language === lang ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                  }`}>
-                  {lang === "en" ? "EN" : "FR"}
-                </button>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {(preferences.goals ?? []).map(g => (
+                <span key={g} className="font-body text-xs bg-yellow-500/10 text-yellow-600 border border-yellow-500/30 rounded-full px-3 py-1">
+                  {goalLabel(g)}
+                </span>
               ))}
+              {(preferences.goals ?? []).length === 0 && (
+                <span className="font-body text-xs text-muted-foreground">
+                  {t('Aucun objectif défini', 'No goals set')}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center justify-between pt-3 border-t border-border">
+              <p className="font-body text-sm text-muted-foreground">{t('Niveau', 'Level')}</p>
+              <p className="font-body text-sm text-foreground">{difficultyLabel(preferences.experience_level)}</p>
+            </div>
+            <div className="flex items-center justify-between pt-2">
+              <p className="font-body text-sm text-muted-foreground">{t('Fréquence', 'Frequency')}</p>
+              <p className="font-body text-sm text-foreground">
+                {preferences.weekly_frequency}× / {t('semaine', 'week')}
+              </p>
             </div>
           </div>
-        </motion.div>
+        )}
 
-        {/* Menu */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="mt-4 rounded-3xl bg-card shadow-sm">
-          {menuItems.map(({ icon: Icon, label, action }, i) => (
-            <button key={label} onClick={action}
-              className={`flex w-full items-center justify-between px-5 py-4 ${
-                i < menuItems.length - 1 ? "border-b border-border" : ""
-              }`}>
-              <div className="flex items-center gap-3">
-                <Icon size={18} strokeWidth={1.5} className="text-muted-foreground" />
-                <span className="font-body text-sm text-foreground">{label}</span>
-              </div>
-              <ChevronRight size={16} className="text-muted-foreground" />
+        {/* Settings */}
+        <div className="rounded-3xl bg-card border border-border overflow-hidden">
+          {/* Language toggle */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <p className="font-body text-sm text-foreground">
+              {t('Langue', 'Language')}
+            </p>
+            <button
+              onClick={handleLanguageToggle}
+              className="flex items-center gap-2 rounded-full bg-background border border-border px-4 py-1.5"
+            >
+              <span className="font-body text-sm text-foreground">
+                {language === 'fr' ? '🇫🇷 Français' : '🇬🇧 English'}
+              </span>
+              <span className="font-body text-xs text-muted-foreground">
+                → {language === 'fr' ? 'EN' : 'FR'}
+              </span>
             </button>
-          ))}
-        </motion.div>
+          </div>
 
-        {/* Logout */}
-        <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-          className="mt-6 mb-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-3 font-body text-sm text-muted-foreground">
-          <LogOut size={16} strokeWidth={1.5} />
-          {t.profile.signOut}
-        </motion.button>
+          {/* Progress link */}
+          <button
+            onClick={() => navigate('/progress')}
+            className="w-full flex items-center justify-between px-5 py-4 border-b border-border"
+          >
+            <p className="font-body text-sm text-foreground">
+              📊 {t('Mes mesures', 'My measurements')}
+            </p>
+            <span className="text-muted-foreground">›</span>
+          </button>
+
+          {/* Sign out */}
+          <button
+            onClick={() => setShowSignOutConfirm(true)}
+            className="w-full flex items-center justify-between px-5 py-4"
+          >
+            <p className="font-body text-sm text-red-400">
+              {t('Se déconnecter', 'Sign out')}
+            </p>
+            <span className="text-red-400">›</span>
+          </button>
+        </div>
       </div>
-      <BottomNav />
-    </MobileLayout>
-  );
-};
 
-export default Profile;
+      {/* Sign out confirmation */}
+      {showSignOutConfirm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6">
+          <div className="w-full max-w-sm bg-background rounded-3xl p-6 space-y-4">
+            <h2 className="font-display text-2xl text-foreground">
+              {t('Se déconnecter ?', 'Sign out?')}
+            </h2>
+            <p className="font-body text-sm text-muted-foreground">
+              {t('Tu pourras te reconnecter à tout moment.', 'You can sign back in at any time.')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSignOutConfirm(false)}
+                className="flex-1 rounded-xl border border-border py-3 font-body text-sm text-muted-foreground"
+              >
+                {t('Annuler', 'Cancel')}
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="flex-1 rounded-xl bg-red-500 text-white py-3 font-body text-sm font-semibold"
+              >
+                {t('Déconnecter', 'Sign out')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
+        {[
+          { path: '/home',     label: t('Accueil','Home'),    active: false },
+          { path: '/library',  label: t('Vidéos','Videos'),   active: false },
+          { path: '/progress', label: t('Progrès','Progress'),active: false },
+          { path: '/profile',  label: t('Profil','Profile'),  active: true  },
+        ].map(item => (
+          <button
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${
+              item.active ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-yellow-500' : 'bg-transparent'}`} />
+            {item.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
