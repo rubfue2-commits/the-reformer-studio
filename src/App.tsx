@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Referral from "./pages/Referral";
 import Achievements from "./pages/Achievements";
 import Programs from "./pages/Programs";
+import Wellness from "./pages/Wellness";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/programs" element={<Programs />} />
             <Route path="/planner" element={<Planner />} />
             <Route path="/progress" element={<Progress />} />
+            <Route path="/wellness" element={<Wellness />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/referral" element={<Referral />} />
             <Route path="/achievements" element={<Achievements />} />
