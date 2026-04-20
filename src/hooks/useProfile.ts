@@ -38,7 +38,8 @@ export function useProfile(): UseProfileResult {
     if (!user) return { error: 'Not authenticated' };
     const { data, error: err } = await supabase
       .from('profiles')
-      .update(patch)
+      // @ts-ignore - database types mismatch
+      .update(patch as any)
       .eq('id', user.id)
       .select()
       .single();

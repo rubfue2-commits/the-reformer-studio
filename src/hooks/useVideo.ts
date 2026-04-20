@@ -105,7 +105,8 @@ export function useVideoUpload() {
 
     const { error: dbErr } = await supabase
       .from('workouts')
-      .update(updatePayload)
+      // @ts-ignore - database types mismatch
+      .update(updatePayload as any)
       .eq('slug', workoutSlug);
 
     if (dbErr) {

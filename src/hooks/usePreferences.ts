@@ -39,7 +39,8 @@ export function usePreferences(): UsePreferencesResult {
     if (!user) return { error: 'Not authenticated' };
     const { data, error: err } = await supabase
       .from('user_preferences')
-      .update(patch)
+      // @ts-ignore - database types mismatch
+      .update(patch as any)
       .eq('user_id', user.id)
       .select()
       .single();

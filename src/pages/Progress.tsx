@@ -146,7 +146,7 @@ export default function Progress() {
           ) : (
             <div className="h-16 flex items-center justify-center">
               <p className="font-body text-xs text-muted-foreground">
-                {t('Ajoute des mesures pour voir l'évolution', 'Add measurements to track progress')}
+                {t("Ajoute des mesures pour voir l'évolution", 'Add measurements to track progress')}
               </p>
             </div>
           )}

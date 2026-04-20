@@ -202,7 +202,7 @@ const Achievements = () => {
                 )}
 
                 {badge.achieved && (
-                  <p style={{ fontSize: 8 }} className="mt-1 font-medium" style={{ color: rarity.color }}>
+                  <p style={{ fontSize: 8, color: rarity.color }} className="mt-1 font-medium">
                     +{badge.xp} XP
                   </p>
                 )}
