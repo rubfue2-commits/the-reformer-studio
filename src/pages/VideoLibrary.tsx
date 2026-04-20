@@ -1,88 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useWorkouts } from '@/hooks/useWorkouts';
+import { useWorkouts, useFavorites } from '@/hooks/useWorkouts';
 import { useVideoUrl, getThumbnailUrl } from '@/hooks/useVideo';
 import { useSessions } from '@/hooks/useSessions';
-import { useFavorites } from '@/hooks/useWorkouts';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { Workout } from '@/lib/database.types';
 
-type FilterDiff = 'all' | 'beginner' | 'intermediate' | 'advanced';
+type Filter = 'all' | 'beginner' | 'intermediate' | 'advanced';
 
-function VideoCard({
-  workout,
-  onPlay,
-  onFavorite,
-  isFavorite,
-}: {
-  workout: Workout;
-  onPlay: (w: Workout) => void;
-  onFavorite: (id: string) => void;
-  isFavorite: boolean;
-}) {
-  const { language } = useLanguage();
-  const name = language === 'fr' ? workout.name_fr : workout.name_en;
-  const thumbSrc = workout.thumbnail_url ? getThumbnailUrl(workout.thumbnail_url) : null;
-  const diffLabel =
-    workout.difficulty === 'beginner' ? (language === 'fr' ? 'Débutant' : 'Beginner') :
-    workout.difficulty === 'intermediate' ? (language === 'fr' ? 'Intermédiaire' : 'Intermediate') :
-    (language === 'fr' ? 'Avancé' : 'Advanced');
-
-  return (
-    <div className="rounded-2xl bg-card border border-border overflow-hidden">
-      {/* Thumbnail */}
-      <div
-        className="relative h-40 bg-border flex items-center justify-center cursor-pointer"
-        onClick={() => onPlay(workout)}
-        style={thumbSrc ? { backgroundImage: 'url(' + thumbSrc + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-      >
-        {!thumbSrc && (
-          <span className="text-4xl opacity-30">🎬</span>
-        )}
-        {/* Play button overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {workout.video_url ? (
-            <div className="w-14 h-14 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
-              <span className="text-black text-xl ml-1">▶</span>
-            </div>
-          ) : (
-            <div className="rounded-full bg-black/60 px-3 py-1">
-              <span className="font-body text-xs text-white">
-                {language === 'fr' ? 'Bientôt' : 'Coming soon'}
-              </span>
-            </div>
-          )}
-        </div>
-        {/* Duration badge */}
-        <div className="absolute bottom-2 right-2 bg-black/70 rounded-full px-2 py-0.5">
-          <span className="font-body text-[10px] text-white">{workout.duration_minutes} min</span>
-        </div>
-      </div>
-
-      {/* Info */}
-      <div className="p-3 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-body font-semibold text-foreground text-sm truncate">{name}</p>
-          <p className="font-body text-xs text-muted-foreground mt-0.5">{diffLabel}</p>
-        </div>
-        <button
-          onClick={() => onFavorite(workout.id)}
-          className="text-lg flex-shrink-0 mt-0.5"
-        >
-          {isFavorite ? '❤️' : '🤍'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function VideoPlayer({ workout, onClose }: { workout: Workout; onClose: () => void }) {
-  const { url, loading, error, load } = useVideoUrl(workout.video_url);
+function PlayerModal({ workout, onClose }: { workout: Workout; onClose: () => void }) {
+  const { url, loading, load } = useVideoUrl(workout.video_url);
   const { logSession } = useSessions();
   const { language } = useLanguage();
+  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
-  // Load signed URL when component mounts
-  if (!url && !loading && !error && workout.video_url) load();
+  if (!url && !loading && workout.video_url) load();
 
   const handleDone = async () => {
     await logSession({
@@ -95,168 +26,207 @@ function VideoPlayer({ workout, onClose }: { workout: Workout; onClose: () => vo
   };
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-5 pt-12 pb-4">
-        <button onClick={onClose} className="text-white text-2xl">✕</button>
-        <p className="font-body text-sm text-white">
+    <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 300, display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '52px 20px 16px' }}>
+        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 36, height: 36, color: '#fff', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          ✕
+        </button>
+        <p style={{ fontFamily: 'DM Sans', fontSize: 15, fontWeight: 500, color: '#fff', margin: 0, flex: 1, textAlign: 'center', padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {language === 'fr' ? workout.name_fr : workout.name_en}
         </p>
-        <div className="w-8" />
+        <div style={{ width: 36 }} />
       </div>
 
-      {/* Video */}
-      <div className="flex-1 flex items-center justify-center px-4">
+      {/* Video area */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
         {loading && (
-          <div className="text-center">
-            <div className="w-10 h-10 rounded-full border-2 border-yellow-500 border-t-transparent animate-spin mx-auto mb-3" />
-            <p className="font-body text-sm text-white/60">
-              {language === 'fr' ? 'Chargement...' : 'Loading...'}
-            </p>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: 40, height: 40, border: '3px solid var(--ios-gold)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('Chargement...', 'Loading...')}</p>
           </div>
         )}
-        {error && (
-          <p className="font-body text-sm text-red-400 text-center">{error}</p>
-        )}
         {!workout.video_url && (
-          <div className="text-center">
-            <span className="text-6xl block mb-4">🎬</span>
-            <p className="font-body text-white/60 text-sm">
-              {language === 'fr' ? 'Vidéo bientôt disponible' : 'Video coming soon'}
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: 56, display: 'block', marginBottom: 12 }}>🎬</span>
+            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 24, color: '#fff', margin: '0 0 6px' }}>
+              {t('Bientôt disponible', 'Coming soon')}
+            </p>
+            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+              {t('La vidéo sera ajoutée prochainement', 'Video will be added soon')}
             </p>
           </div>
         )}
         {url && (
-          <video
-            src={url}
-            controls
-            autoPlay
-            className="w-full max-h-full rounded-2xl"
-            style={{ maxHeight: 'calc(100vh - 250px)' }}
-          />
+          <video src={url} controls autoPlay style={{ width: '100%', borderRadius: 16, maxHeight: 'calc(100vh - 220px)' }} />
         )}
       </div>
 
       {/* Done button */}
-      <div className="px-6 pb-10 pt-4">
-        <button
-          onClick={handleDone}
-          className="w-full rounded-xl bg-yellow-500 text-black font-body font-semibold py-4"
-        >
-          ✓ {language === 'fr' ? 'Séance terminée !' : 'Session done!'}
+      <div style={{ padding: '16px 20px 36px' }}>
+        <button onClick={handleDone} className="ios-btn-primary" style={{ background: 'var(--ios-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <span>✓</span>
+          {t('Séance terminée !', 'Session done!')}
         </button>
+      </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+function WorkoutCard({ workout, onPlay, onFav, isFav }: { workout: Workout; onPlay: () => void; onFav: () => void; isFav: boolean }) {
+  const { language } = useLanguage();
+  const name = language === 'fr' ? workout.name_fr : workout.name_en;
+  const thumbSrc = workout.thumbnail_url ? getThumbnailUrl(workout.thumbnail_url) : null;
+  const diffColor = workout.difficulty === 'beginner' ? '#30D158' : workout.difficulty === 'intermediate' ? '#FF9F0A' : '#FF453A';
+  const diffLabel = workout.difficulty === 'beginner'
+    ? (language === 'fr' ? 'Débutant' : 'Beginner')
+    : workout.difficulty === 'intermediate'
+    ? (language === 'fr' ? 'Intermédiaire' : 'Intermediate')
+    : (language === 'fr' ? 'Avancé' : 'Advanced');
+
+  return (
+    <div style={{ background: 'var(--ios-card)', borderRadius: 18, overflow: 'hidden', flexShrink: 0 }}>
+      {/* Thumbnail */}
+      <div
+        onClick={onPlay}
+        className="ios-pressable"
+        style={{
+          height: 150,
+          background: thumbSrc ? undefined : 'linear-gradient(135deg, #1A1A1A 0%, #252525 100%)',
+          backgroundImage: thumbSrc ? `url(${thumbSrc})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+        }}
+      >
+        {!thumbSrc && <span style={{ fontSize: 36, opacity: 0.3 }}>🧘</span>}
+        {/* Play button */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          {workout.video_url ? (
+            <div style={{ width: 48, height: 48, background: 'var(--ios-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#000', fontSize: 18, marginLeft: 3 }}>▶</span>
+            </div>
+          ) : (
+            <div style={{ background: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: '4px 12px' }}>
+              <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: '#fff' }}>{language === 'fr' ? 'Bientôt' : 'Soon'}</span>
+            </div>
+          )}
+        </div>
+        {/* Duration badge */}
+        <div style={{ position: 'absolute', bottom: 8, left: 10, background: 'rgba(0,0,0,0.65)', borderRadius: 8, padding: '3px 8px' }}>
+          <span style={{ fontFamily: 'DM Sans', fontSize: 11, fontWeight: 500, color: '#fff' }}>{workout.duration_minutes} min</span>
+        </div>
+        {/* Fav */}
+        <button onClick={e => { e.stopPropagation(); onFav(); }} style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 32, height: 32, fontSize: 16, cursor: 'pointer' }}>
+          {isFav ? '❤️' : '🤍'}
+        </button>
+      </div>
+      {/* Info */}
+      <div style={{ padding: '12px 14px 14px' }}>
+        <p style={{ fontFamily: 'DM Sans', fontSize: 14, fontWeight: 500, color: '#fff', margin: '0 0 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {name}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: diffColor, flexShrink: 0 }} />
+          <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--ios-text-3)' }}>{diffLabel}</span>
+          {workout.estimated_calories && (
+            <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--ios-text-3)', marginLeft: 'auto' }}>
+              ~{workout.estimated_calories} kcal
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 export default function VideoLibrary() {
-  const navigate = useNavigate();
   const { language } = useLanguage();
   const t = (fr: string, en: string) => language === 'fr' ? fr : en;
-
-  const [filter, setFilter] = useState<FilterDiff>('all');
+  const [filter, setFilter] = useState<Filter>('all');
   const [playing, setPlaying] = useState<Workout | null>(null);
+  const { workouts, loading } = useWorkouts(filter !== 'all' ? { difficulty: filter } : {});
+  const { isFavorite, toggle } = useFavorites();
 
-  const { workouts, loading } = useWorkouts(
-    filter !== 'all' ? { difficulty: filter } : {}
-  );
-  const { isFavorite, toggle: toggleFavorite } = useFavorites();
-
-  const filters: { id: FilterDiff; fr: string; en: string }[] = [
-    { id: 'all',          fr: 'Toutes',        en: 'All'          },
-    { id: 'beginner',     fr: 'Débutant',      en: 'Beginner'     },
-    { id: 'intermediate', fr: 'Intermédiaire', en: 'Intermediate' },
-    { id: 'advanced',     fr: 'Avancé',        en: 'Advanced'     },
+  const filters: { id: Filter; fr: string; en: string }[] = [
+    { id: 'all', fr: 'Toutes', en: 'All' },
+    { id: 'beginner', fr: 'Débutant', en: 'Beginner' },
+    { id: 'intermediate', fr: 'Inter.', en: 'Inter.' },
+    { id: 'advanced', fr: 'Avancé', en: 'Advanced' },
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="px-6 pt-12 pb-4">
-        <h1 className="font-display text-3xl text-foreground mb-1">
-          {t('Bibliothèque', 'Library')}
-        </h1>
-        <p className="font-body text-sm text-muted-foreground">
-          {workouts.length} {t('séance(s)', 'session(s)')}
-        </p>
+    <div className="ios-page">
+      {/* Nav */}
+      <div className="ios-nav" style={{ top: 44 }}>
+        <span className="ios-nav-title">{t('Séances', 'Sessions')}</span>
+        <span style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)' }}>
+          {workouts.length}
+        </span>
       </div>
 
-      <div className="px-6 space-y-4">
+      <div style={{ paddingTop: 8 }}>
         {/* Filter tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div className="ios-segment" style={{ marginBottom: 16, marginTop: 12 }}>
           {filters.map(f => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={`whitespace-nowrap rounded-full px-4 py-2 font-body text-xs transition-all border flex-shrink-0 ${
-                filter === f.id
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'bg-card text-muted-foreground border-border'
-              }`}
-            >
+            <button key={f.id} className={`ios-segment-btn ${filter === f.id ? 'active' : ''}`}
+              onClick={() => setFilter(f.id)}>
               {language === 'fr' ? f.fr : f.en}
             </button>
           ))}
         </div>
 
-        {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="rounded-2xl bg-card border border-border h-48 animate-pulse" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ background: 'var(--ios-card)', borderRadius: 18, height: 200, animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.5 }} />
             ))}
           </div>
         ) : workouts.length === 0 ? (
-          <div className="rounded-3xl bg-card border border-border p-8 text-center">
-            <span className="text-4xl block mb-3">🎬</span>
-            <p className="font-display text-xl text-foreground mb-1">
+          <div style={{ margin: '40px 20px', textAlign: 'center' }}>
+            <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🎬</span>
+            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 26, color: '#fff', margin: '0 0 6px' }}>
               {t('Bientôt disponible', 'Coming soon')}
             </p>
-            <p className="font-body text-sm text-muted-foreground">
-              {t('Les vidéos arrivent très bientôt !', 'Videos are coming very soon!')}
+            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)' }}>
+              {t('Les vidéos arrivent très bientôt', 'Videos coming very soon')}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
             {workouts.map(w => (
-              <VideoCard
+              <WorkoutCard
                 key={w.id}
                 workout={w}
-                onPlay={setPlaying}
-                onFavorite={toggleFavorite}
-                isFavorite={isFavorite(w.id)}
+                onPlay={() => setPlaying(w)}
+                onFav={() => toggle(w.id)}
+                isFav={isFavorite(w.id)}
               />
             ))}
           </div>
         )}
+
+        <div style={{ height: 20 }} />
       </div>
 
-      {/* Video player modal */}
-      {playing && (
-        <VideoPlayer workout={playing} onClose={() => setPlaying(null)} />
-      )}
+      {playing && <PlayerModal workout={playing} onClose={() => setPlaying(null)} />}
 
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
-        {[
-          { path: '/home',     label: t('Accueil','Home'),    active: false },
-          { path: '/library',  label: t('Vidéos','Videos'),   active: true  },
-          { path: '/progress', label: t('Progrès','Progress'),active: false },
-          { path: '/profile',  label: t('Profil','Profile'),  active: false },
-        ].map(item => (
-          <button
-            key={item.path}
-            onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${
-              item.active ? 'text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-yellow-500' : 'bg-transparent'}`} />
-            {item.label}
-          </button>
-        ))}
-      </nav>
+      <style>{`
+        @keyframes pulse { 0%,100% { opacity:0.5; } 50% { opacity:0.3; } }
+      `}</style>
     </div>
   );
 }
