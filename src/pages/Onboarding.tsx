@@ -126,7 +126,7 @@ export default function Onboarding() {
               {t('Ton niveau', 'Your level')}
             </h1>
             <p className="font-body text-sm text-muted-foreground mb-6">
-              {t('Sois honnête, aucun niveau n'est meilleur qu'un autre.', 'Be honest, no level is better than another.')}
+              {t("Sois honnête, aucun niveau n'est meilleur qu'un autre.", 'Be honest, no level is better than another.')}
             </p>
             <div className="space-y-3">
               {LEVELS.map(l => (

@@ -93,7 +93,7 @@ export default function Subscription() {
           <p className="font-body text-sm text-muted-foreground">
             {t(
               'Préinscris-toi maintenant — tu seras parmi les premiers à accéder à la plateforme.',
-              {"Pre-register now — you'll be among the first to access the platform."}
+              "Pre-register now — you'll be among the first to access the platform."
             )}
           </p>
         </div>
