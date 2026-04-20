@@ -123,7 +123,7 @@ export default function Home() {
           ) : workouts.length === 0 ? (
             <div className="rounded-2xl bg-card border border-border p-5 text-center">
               <p className="font-body text-sm text-muted-foreground">
-                {t('Aucune séance disponible pour l'instant.', 'No sessions available yet.')}
+                {t("Aucune séance disponible pour l'instant.", 'No sessions available yet.')}
               </p>
             </div>
           ) : (

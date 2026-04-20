@@ -35,7 +35,7 @@ export const PLANS = {
     commitment: false,
     badge_fr: 'Meilleur prix',
     badge_en: 'Best value',
-    description_fr: 'Payé en une fois · 49€/mois · 12 mois d'accès',
+    description_fr: "Payé en une fois · 49€/mois · 12 mois d'accès",
     description_en: 'Paid once · 49€/month · 12 months access',
     color: '#B8973E',
     popular: true,

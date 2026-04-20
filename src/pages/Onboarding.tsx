@@ -19,7 +19,7 @@ const GOALS: { id: Goal; fr: string; en: string; emoji: string }[] = [
 const LEVELS: { id: Level; fr: string; en: string; desc_fr: string; desc_en: string }[] = [
   { id: 'beginner',     fr: 'Débutante',      en: 'Beginner',      desc_fr: 'Je commence le pilates',           desc_en: 'Just starting pilates' },
   { id: 'intermediate', fr: 'Intermédiaire',  en: 'Intermediate',  desc_fr: 'Je pratique depuis quelques mois', desc_en: 'Practicing for a few months' },
-  { id: 'advanced',     fr: 'Avancée',        en: 'Advanced',      desc_fr: 'Je pratique depuis plus d'un an',  desc_en: 'Practicing for over a year' },
+  { id: 'advanced',     fr: 'Avancée',        en: 'Advanced',      desc_fr: "Je pratique depuis plus d'un an",  desc_en: 'Practicing for over a year' },
 ];
 
 const FOCUSES: { id: Focus; fr: string; en: string; emoji: string }[] = [

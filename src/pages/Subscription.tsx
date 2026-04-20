@@ -25,7 +25,7 @@ const PLANS = [
     label_en: 'Paid once',
     badge_fr: '⭐ Recommandé',
     badge_en: '⭐ Recommended',
-    desc_fr: '49€/mois · 12 mois d'accès · Sans engagement',
+    desc_fr: "49€/mois · 12 mois d\u2019accès · Sans engagement",
     desc_en: '49€/month · 12 months access · No commitment',
     color: '#B8973E',
     popular: true,
@@ -72,7 +72,7 @@ export default function Subscription() {
           {t('Préinscription confirmée !', 'Pre-registration confirmed!')}
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          {t('Tu seras contacté dès l'ouverture des paiements.', 'You will be contacted when payments open.')}
+          {t("Tu seras contacté dès l'ouverture des paiements.", 'You will be contacted when payments open.')}
         </p>
       </div>
     );
@@ -93,7 +93,7 @@ export default function Subscription() {
           <p className="font-body text-sm text-muted-foreground">
             {t(
               'Préinscris-toi maintenant — tu seras parmi les premiers à accéder à la plateforme.',
-              'Pre-register now — you'll be among the first to access the platform.'
+              {"Pre-register now — you'll be among the first to access the platform."}
             )}
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function Subscription() {
             </p>
             <p className="font-body text-xs text-muted-foreground">
               {t(
-                'Pré-autorisation via Swikly · Non débitée · Libérée en fin d'abonnement',
+                "Pré-autorisation via Swikly · Non débitée · Libérée en fin d'abonnement",
                 'Pre-authorization via Swikly · Not charged · Released at subscription end'
               )}
             </p>
@@ -206,7 +206,7 @@ export default function Subscription() {
           onClick={() => navigate('/home')}
           className="w-full text-center font-body text-xs text-muted-foreground mt-4 underline"
         >
-          {t('Accéder à la plateforme pour l'instant', 'Access the platform for now')}
+          {t("Accéder à la plateforme pour l'instant", 'Access the platform for now')}
         </button>
 
       </div>
