@@ -1,80 +1,113 @@
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/i18n/LanguageContext";
-import { Language } from "@/i18n/translations";
-import MobileLayout from "@/components/MobileLayout";
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-const LanguageSelect = () => {
+export default function LanguageSelect() {
   const navigate = useNavigate();
   const { setLanguage } = useLanguage();
 
-  const handleSelect = (lang: Language) => {
+  const choose = (lang: 'fr' | 'en') => {
     setLanguage(lang);
-    navigate("/auth");
+    navigate('/auth');
   };
 
   return (
-    <MobileLayout showNav={false}>
-      <div className="flex min-h-screen flex-col items-center justify-center px-8 pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
-        >
-          <p className="font-body text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3">
-            The Reformer Studio
-          </p>
-          <h1 className="font-display text-4xl font-light text-foreground leading-tight">
-            Choose your<br />language
-          </h1>
-          <div className="mt-3 mx-auto h-[1px] w-12 bg-gold" />
-        </motion.div>
+    <div style={{
+      minHeight: '100%',
+      background: 'linear-gradient(180deg, #0F0F0F 0%, #141414 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 28px',
+      textAlign: 'center',
+    }}>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full space-y-4"
-        >
+      {/* Gold line */}
+      <div style={{ width: 40, height: 2, background: 'var(--ios-gold)', borderRadius: 2, marginBottom: 32 }} />
+
+      {/* Logo */}
+      <p style={{
+        fontFamily: 'DM Sans',
+        fontSize: 11,
+        fontWeight: 600,
+        color: 'var(--ios-gold)',
+        letterSpacing: 4,
+        textTransform: 'uppercase',
+        margin: '0 0 8px',
+      }}>
+        THE REFORMER
+      </p>
+      <h1 style={{
+        fontFamily: 'Cormorant Garamond',
+        fontSize: 56,
+        fontWeight: 300,
+        color: '#fff',
+        margin: '0 0 6px',
+        letterSpacing: -1,
+      }}>
+        Studio
+      </h1>
+      <p style={{
+        fontFamily: 'DM Sans',
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.35)',
+        letterSpacing: 2,
+        margin: '0 0 56px',
+        textTransform: 'uppercase',
+      }}>
+        Pilates &amp; Wellness
+      </p>
+
+      {/* Language cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 300 }}>
+        {[
+          { lang: 'fr' as const, flag: '🇫🇷', label: 'Français', sub: 'Continuer en français' },
+          { lang: 'en' as const, flag: '🇬🇧', label: 'English', sub: 'Continue in English' },
+        ].map(({ lang, flag, label, sub }) => (
           <button
-            onClick={() => handleSelect("en")}
-            className="group w-full rounded-2xl border border-border bg-card px-6 py-5 text-left transition-all hover:border-gold active:scale-[0.98]"
+            key={lang}
+            onClick={() => choose(lang)}
+            className="ios-pressable"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              background: 'rgba(255,255,255,0.06)',
+              border: '0.5px solid rgba(255,255,255,0.1)',
+              borderRadius: 18,
+              padding: '18px 20px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              width: '100%',
+              transition: 'background 0.2s',
+            }}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-body text-[10px] tracking-widest uppercase text-muted-foreground mb-1">English</p>
-                <p className="font-display text-2xl font-light text-foreground">English</p>
-              </div>
-              <span className="text-3xl">🇬🇧</span>
+            <span style={{ fontSize: 32, flexShrink: 0 }}>{flag}</span>
+            <div>
+              <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 22, fontWeight: 400, color: '#fff', margin: '0 0 2px' }}>
+                {label}
+              </p>
+              <p style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                {sub}
+              </p>
             </div>
+            <div style={{ marginLeft: 'auto', color: 'var(--ios-gold)', fontSize: 18 }}>›</div>
           </button>
-
-          <button
-            onClick={() => handleSelect("fr")}
-            className="group w-full rounded-2xl border border-border bg-card px-6 py-5 text-left transition-all hover:border-gold active:scale-[0.98]"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-body text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Français</p>
-                <p className="font-display text-2xl font-light text-foreground">Français</p>
-              </div>
-              <span className="text-3xl">🇫🇷</span>
-            </div>
-          </button>
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="mt-10 font-body text-xs text-muted-foreground text-center"
-        >
-          You can change this later in your profile
-        </motion.p>
+        ))}
       </div>
-    </MobileLayout>
-  );
-};
 
-export default LanguageSelect;
+      <p style={{
+        fontFamily: 'DM Sans',
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.2)',
+        marginTop: 48,
+        letterSpacing: 0.5,
+      }}>
+        You can change this later in your profile
+      </p>
+
+      {/* Bottom gold line */}
+      <div style={{ width: 40, height: 2, background: 'var(--ios-gold)', borderRadius: 2, marginTop: 40, opacity: 0.4 }} />
+    </div>
+  );
+}
