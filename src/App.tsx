@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import LanguageSelect from "./pages/LanguageSelect";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
+import Subscription from "./pages/Subscription";
 import Home from "./pages/Home";
 import VideoLibrary from "./pages/VideoLibrary";
 import Planner from "./pages/Planner";
@@ -38,18 +39,33 @@ const App = () => (
               <Route path="/language" element={<LanguageSelect />} />
               <Route path="/auth" element={<Auth />} />
 
-              {/* Protected: require auth */}
-              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-              <Route path="/home"       element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/library"   element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
-              <Route path="/programs"  element={<ProtectedRoute><Programs /></ProtectedRoute>} />
-              <Route path="/planner"   element={<ProtectedRoute><Planner /></ProtectedRoute>} />
-              <Route path="/progress"  element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-              <Route path="/wellness"  element={<ProtectedRoute><Wellness /></ProtectedRoute>} />
-              <Route path="/profile"   element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-              <Route path="/referral"  element={<ProtectedRoute><Referral /></ProtectedRoute>} />
-              <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+              {/* Authenticated — no subscription required */}
+              <Route path="/onboarding"
+                element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+              <Route path="/subscription"
+                element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+
+              {/* Authenticated + subscription required */}
+              <Route path="/home"
+                element={<ProtectedRoute requireSubscription><Home /></ProtectedRoute>} />
+              <Route path="/library"
+                element={<ProtectedRoute requireSubscription><VideoLibrary /></ProtectedRoute>} />
+              <Route path="/programs"
+                element={<ProtectedRoute requireSubscription><Programs /></ProtectedRoute>} />
+              <Route path="/planner"
+                element={<ProtectedRoute requireSubscription><Planner /></ProtectedRoute>} />
+              <Route path="/progress"
+                element={<ProtectedRoute requireSubscription><Progress /></ProtectedRoute>} />
+              <Route path="/wellness"
+                element={<ProtectedRoute requireSubscription><Wellness /></ProtectedRoute>} />
+              <Route path="/profile"
+                element={<ProtectedRoute requireSubscription><Profile /></ProtectedRoute>} />
+              <Route path="/notifications"
+                element={<ProtectedRoute requireSubscription><Notifications /></ProtectedRoute>} />
+              <Route path="/referral"
+                element={<ProtectedRoute requireSubscription><Referral /></ProtectedRoute>} />
+              <Route path="/achievements"
+                element={<ProtectedRoute requireSubscription><Achievements /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
