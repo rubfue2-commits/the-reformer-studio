@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { IOSLayout } from "@/components/IOSLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 import LanguageSelect from "./pages/LanguageSelect";
@@ -33,42 +34,29 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Navigate to="/language" replace />} />
-              <Route path="/language" element={<LanguageSelect />} />
-              <Route path="/auth" element={<Auth />} />
+            <IOSLayout>
+              <Routes>
+                {/* Public */}
+                <Route path="/" element={<Navigate to="/language" replace />} />
+                <Route path="/language" element={<LanguageSelect />} />
+                <Route path="/auth" element={<Auth />} />
 
-              {/* Authenticated — no subscription required */}
-              <Route path="/onboarding"
-                element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-              <Route path="/subscription"
-                element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-
-              {/* Authenticated + subscription required */}
-              <Route path="/home"
-                element={<ProtectedRoute requireSubscription><Home /></ProtectedRoute>} />
-              <Route path="/library"
-                element={<ProtectedRoute requireSubscription><VideoLibrary /></ProtectedRoute>} />
-              <Route path="/programs"
-                element={<ProtectedRoute requireSubscription><Programs /></ProtectedRoute>} />
-              <Route path="/planner"
-                element={<ProtectedRoute requireSubscription><Planner /></ProtectedRoute>} />
-              <Route path="/progress"
-                element={<ProtectedRoute requireSubscription><Progress /></ProtectedRoute>} />
-              <Route path="/wellness"
-                element={<ProtectedRoute requireSubscription><Wellness /></ProtectedRoute>} />
-              <Route path="/profile"
-                element={<ProtectedRoute requireSubscription><Profile /></ProtectedRoute>} />
-              <Route path="/notifications"
-                element={<ProtectedRoute requireSubscription><Notifications /></ProtectedRoute>} />
-              <Route path="/referral"
-                element={<ProtectedRoute requireSubscription><Referral /></ProtectedRoute>} />
-              <Route path="/achievements"
-                element={<ProtectedRoute requireSubscription><Achievements /></ProtectedRoute>} />
-
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                {/* Auth required */}
+                <Route path="/onboarding"    element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                <Route path="/subscription"  element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+                <Route path="/home"          element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                <Route path="/library"       element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
+                <Route path="/programs"      element={<ProtectedRoute><Programs /></ProtectedRoute>} />
+                <Route path="/planner"       element={<ProtectedRoute><Planner /></ProtectedRoute>} />
+                <Route path="/progress"      element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+                <Route path="/wellness"      element={<ProtectedRoute><Wellness /></ProtectedRoute>} />
+                <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+                <Route path="/referral"      element={<ProtectedRoute><Referral /></ProtectedRoute>} />
+                <Route path="/achievements"  element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+                <Route path="*"              element={<NotFound />} />
+              </Routes>
+            </IOSLayout>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
