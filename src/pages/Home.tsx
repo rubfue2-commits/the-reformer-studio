@@ -1,242 +1,188 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Flame, TrendingUp, Award, ChevronRight, Zap, Target, Star } from "lucide-react";
-import { AreaChart, Area, ResponsiveContainer, LineChart, Line } from "recharts";
-import { useNavigate } from "react-router-dom";
-import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
-import { useLanguage } from "@/i18n/LanguageContext";
-import heroWorkout from "@/assets/hero-workout.jpg";
+import { useNavigate } from 'react-router-dom';
+import { useSessions } from '@/hooks/useSessions';
+import { useProfile } from '@/hooks/useProfile';
+import { useWorkouts } from '@/hooks/useWorkouts';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-const weekData = [
-  { day: "L", sessions: 1, score: 72 },
-  { day: "M", sessions: 1, score: 78 },
-  { day: "M", sessions: 1, score: 65 },
-  { day: "J", sessions: 0, score: 82 },
-  { day: "V", sessions: 0, score: 0 },
-  { day: "S", sessions: 0, score: 0 },
-  { day: "D", sessions: 0, score: 0 },
-];
-
-const recentBadges = [
-  { icon: Flame, label: "7 jours", color: "#B8973E" },
-  { icon: Target, label: "Objectif", color: "#60A5FA" },
-  { icon: Star, label: "10 séances", color: "#A78BFA" },
-];
-
-const SCORE = 82;
-
-const getScoreColor = (score: number) => {
-  if (score >= 80) return "#4CAF50";
-  if (score >= 60) return "#B8973E";
-  return "#EF4444";
-};
-
-const getScoreLabel = (score: number) => {
-  if (score >= 80) return "Optimal";
-  if (score >= 60) return "Bon";
-  return "À améliorer";
-};
-
-const getScoreAdvice = (score: number) => {
-  if (score >= 80) return "Ton corps est prêt. C'est le bon moment pour une séance intense.";
-  if (score >= 60) return "Bonne forme générale. Une séance modérée sera idéale aujourd'hui.";
-  return "Pense à récupérer. Une séance douce ou du repos s'impose.";
-};
-
-const Home = () => {
-  const { t } = useLanguage();
+export default function Home() {
   const navigate = useNavigate();
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? t.home.morning : hour < 18 ? t.home.afternoon : t.home.evening;
-  const scoreColor = getScoreColor(SCORE);
-  const circumference = 2 * Math.PI * 40;
-  const dashOffset = circumference - (SCORE / 100) * circumference;
-  const completedDays = weekData.filter(d => d.sessions > 0).length;
+  const { signOut } = useAuth();
+  const { profile } = useProfile();
+  const { stats, sessions, logSession } = useSessions();
+  const { workouts, loading: workoutsLoading } = useWorkouts();
+  const { language } = useLanguage();
+  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
+
+  const firstName = profile?.first_name ?? t('toi', 'you');
+
+  // Days of the week for streak display
+  const weekDays = language === 'fr'
+    ? ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+    : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  // Last 7 days activity
+  const last7 = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = d.toDateString();
+    const done = sessions.some(s => new Date(s.completed_at).toDateString() === dateStr);
+    const isToday = i === 6;
+    return { done, isToday };
+  });
+
+  const handleQuickLog = async (workoutId: string, durationMinutes: number) => {
+    await logSession({
+      workout_id: workoutId,
+      completed_at: new Date().toISOString(),
+      duration_minutes: durationMinutes,
+    });
+  };
 
   return (
-    <MobileLayout>
-      <div className="px-6 pt-14">
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-          className="flex items-center justify-between">
-          <div>
-            <p className="font-body text-xs tracking-widest uppercase text-muted-foreground">{greeting}</p>
-            <h1 className="mt-0.5 font-display text-3xl font-light text-foreground">Camille</h1>
-          </div>
-          <button onClick={() => navigate("/achievements")}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-sm">
-            <Award size={18} className="text-gold" strokeWidth={1.5} />
-          </button>
-        </motion.div>
-
-        {/* Score du jour — hero card */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-          className="mt-5 overflow-hidden rounded-3xl shadow-sm"
-          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
-          <div className="p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="font-body text-[10px] tracking-widest uppercase text-white/50">Score du jour</p>
-                <p className="font-body text-xs text-white/70 mt-0.5">{getScoreAdvice(SCORE)}</p>
-              </div>
-              {/* Ring */}
-              <div className="relative flex-shrink-0">
-                <svg width="88" height="88" viewBox="0 0 88 88">
-                  <circle cx="44" cy="44" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6"/>
-                  <motion.circle
-                    cx="44" cy="44" r="40" fill="none"
-                    stroke={scoreColor} strokeWidth="6"
-                    strokeDasharray={circumference}
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: dashOffset }}
-                    transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
-                    strokeLinecap="round"
-                    transform="rotate(-90 44 44)"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="font-display text-2xl font-light text-white">{SCORE}</span>
-                  <span className="font-body text-[8px] uppercase tracking-wider" style={{ color: scoreColor }}>
-                    {getScoreLabel(SCORE)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="flex gap-3 border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2">
-                <Flame size={14} className="text-gold" />
-                <span className="font-body text-xs text-white">12 {t.home.streak}</span>
-              </div>
-              <div className="w-[0.5px] bg-white/10" />
-              <div className="flex items-center gap-2">
-                <Zap size={14} className="text-blue-400" />
-                <span className="font-body text-xs text-white">{completedDays}/7 cette semaine</span>
-              </div>
-              <div className="w-[0.5px] bg-white/10" />
-              <div className="flex items-center gap-2">
-                <TrendingUp size={14} className="text-green-400" />
-                <span className="font-body text-xs text-white">-2.2 kg</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Mini graphique semaine */}
-          <div className="px-5 pb-1">
-            <p className="font-body text-[9px] uppercase tracking-widest text-white/30 mb-2">Score cette semaine</p>
-            <ResponsiveContainer width="100%" height={40}>
-              <AreaChart data={weekData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={scoreColor} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={scoreColor} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area type="monotone" dataKey="score" stroke={scoreColor} strokeWidth={1.5}
-                  fill="url(#scoreGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Jours de la semaine */}
-          <div className="flex justify-between px-5 pb-5 pt-2">
-            {weekData.map(({ day, sessions }, i) => {
-              const isToday = i === 3;
-              const done = sessions > 0;
-              return (
-                <div key={i} className="flex flex-col items-center gap-1.5">
-                  <div className={`h-7 w-7 rounded-full flex items-center justify-center ${
-                    done ? "bg-gold/30 border border-gold/60" :
-                    isToday ? "border border-white/40 bg-transparent" :
-                    "bg-white/5"
-                  }`}>
-                    {done && <div className="h-1.5 w-1.5 rounded-full bg-gold" />}
-                  </div>
-                  <span className={`font-body text-[9px] ${isToday ? "text-white font-medium" : "text-white/30"}`}>
-                    {day}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Badges récents */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="mt-4 flex items-center justify-between">
-          <div className="flex gap-2">
-            {recentBadges.map(({ icon: Icon, label, color }, i) => (
-              <motion.div key={label} initial={{ scale: 0 }} animate={{ scale: 1 }}
-                transition={{ delay: 0.3 + i * 0.08, type: "spring", stiffness: 300 }}
-                className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 shadow-sm">
-                <Icon size={11} style={{ color }} strokeWidth={2} />
-                <span className="font-body text-[10px] text-foreground">{label}</span>
-              </motion.div>
-            ))}
-          </div>
-          <button onClick={() => navigate("/achievements")}
-            className="font-body text-[10px] text-gold underline-offset-2">
-            Tout voir
-          </button>
-        </motion.div>
-
-        {/* Séance recommandée */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className="relative mt-4 overflow-hidden rounded-3xl">
-          <img src={heroWorkout} alt="Today's workout" className="h-52 w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-5">
-            <span className="mb-1 block font-body text-[10px] tracking-widest uppercase text-gold">
-              {t.home.recommended}
-            </span>
-            <h2 className="font-display text-xl font-light text-primary-foreground">Full Body Flow</h2>
-            <div className="mt-1 flex items-center gap-3">
-              <span className="font-body text-xs text-primary-foreground/70">45 min · Intermédiaire</span>
-              <span className="rounded-full bg-gold/20 px-2 py-0.5 font-body text-[10px] text-gold">Tonification</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Bouton démarrer */}
-        <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-body text-sm font-medium tracking-wide text-primary-foreground">
-          <Play size={16} fill="currentColor" />
-          {t.home.startSession}
-        </motion.button>
-
-        {/* Progrès du mois */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="mt-4 mb-6 rounded-3xl bg-card p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-lg font-light text-foreground">{t.home.monthlyProgress}</h3>
-            <button onClick={() => navigate("/progress")}
-              className="flex items-center gap-1 font-body text-[10px] text-gold">
-              Détails <ChevronRight size={12} />
-            </button>
-          </div>
-          <div className="flex justify-between">
-            {[
-              { value: "24", label: t.home.sessions_label },
-              { value: "18h", label: t.home.totalTime },
-              { value: "92%", label: t.home.completion },
-              { value: "Niv.3", label: "Niveau XP" },
-            ].map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <p className="font-display text-xl text-foreground">{value}</p>
-                <p className="font-body text-[10px] text-muted-foreground">{label}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <div className="px-6 pt-12 pb-4 flex items-center justify-between">
+        <div>
+          <p className="font-body text-xs tracking-widest uppercase text-muted-foreground">
+            {t('Bonjour', 'Hello')}
+          </p>
+          <h1 className="font-display text-3xl text-foreground capitalize">{firstName} ✨</h1>
+        </div>
+        <button
+          onClick={() => navigate('/profile')}
+          className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center"
+        >
+          <span className="font-display text-sm text-foreground">
+            {(profile?.first_name ?? 'U')[0].toUpperCase()}
+          </span>
+        </button>
       </div>
-      <BottomNav />
-    </MobileLayout>
-  );
-};
 
-export default Home;
+      <div className="px-6 space-y-5">
+        {/* Streak card */}
+        <div className="rounded-3xl bg-card p-5 border border-border">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="font-body text-xs tracking-widest uppercase text-muted-foreground">
+                {t('Streak actuel', 'Current streak')}
+              </p>
+              <p className="font-display text-4xl text-foreground">
+                {stats.currentStreakDays}
+                <span className="font-body text-base text-muted-foreground ml-1">
+                  {t('jours', 'days')}
+                </span>
+              </p>
+            </div>
+            <span className="text-4xl">🔥</span>
+          </div>
+          {/* 7-day mini calendar */}
+          <div className="flex gap-2">
+            {last7.map((day, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${
+                  day.done
+                    ? 'bg-yellow-500 text-black'
+                    : day.isToday
+                    ? 'border border-yellow-500 text-yellow-500'
+                    : 'bg-border text-muted-foreground'
+                }`}>
+                  {day.done ? '✓' : day.isToday ? '·' : ''}
+                </div>
+                <span className="font-body text-[10px] text-muted-foreground">{weekDays[i]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: t('Séances', 'Sessions'), value: stats.totalSessions },
+            { label: t('Cette sem.', 'This week'), value: stats.thisWeekCount },
+            { label: t('Minutes', 'Minutes'), value: stats.totalMinutes },
+          ].map(s => (
+            <div key={s.label} className="rounded-2xl bg-card border border-border p-4 text-center">
+              <p className="font-display text-3xl text-foreground">{s.value}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Start a session */}
+        <div>
+          <h2 className="font-body text-sm tracking-widest uppercase text-muted-foreground mb-3">
+            {t('Commencer une séance', 'Start a session')}
+          </h2>
+          {workoutsLoading ? (
+            <div className="rounded-2xl bg-card border border-border p-5 text-center">
+              <p className="font-body text-sm text-muted-foreground">
+                {t('Chargement...', 'Loading...')}
+              </p>
+            </div>
+          ) : workouts.length === 0 ? (
+            <div className="rounded-2xl bg-card border border-border p-5 text-center">
+              <p className="font-body text-sm text-muted-foreground">
+                {t('Aucune séance disponible pour l'instant.', 'No sessions available yet.')}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {workouts.slice(0, 3).map(w => (
+                <div
+                  key={w.id}
+                  className="rounded-2xl bg-card border border-border p-4 flex items-center justify-between"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body font-semibold text-foreground text-sm truncate">
+                      {language === 'fr' ? w.name_fr : w.name_en}
+                    </p>
+                    <p className="font-body text-xs text-muted-foreground mt-0.5">
+                      {w.duration_minutes} {t('min', 'min')} · {t(
+                        w.difficulty === 'beginner' ? 'Débutant' : w.difficulty === 'intermediate' ? 'Intermédiaire' : 'Avancé',
+                        w.difficulty === 'beginner' ? 'Beginner' : w.difficulty === 'intermediate' ? 'Intermediate' : 'Advanced'
+                      )}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/library')}
+                    className="ml-3 w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0"
+                  >
+                    <span className="text-black text-sm">▶</span>
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => navigate('/library')}
+                className="w-full rounded-2xl border border-border py-3 font-body text-sm text-muted-foreground"
+              >
+                {t('Voir toutes les séances →', 'View all sessions →')}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
+        {[
+          { path: '/home',     label: t('Accueil','Home'),    active: true  },
+          { path: '/library',  label: t('Vidéos','Videos'),   active: false },
+          { path: '/progress', label: t('Progrès','Progress'),active: false },
+          { path: '/profile',  label: t('Profil','Profile'),  active: false },
+        ].map(item => (
+          <button
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${
+              item.active ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-yellow-500' : 'bg-transparent'}`} />
+            {item.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
