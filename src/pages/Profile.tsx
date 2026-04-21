@@ -43,189 +43,144 @@ export default function Profile() {
     await updateProfile({ language: nl });
   };
 
-  const diffLabel = (d: string | null) => {
-    if (!d) return '—';
-    return language === 'fr'
-      ? d === 'beginner' ? 'Débutante' : d === 'intermediate' ? 'Intermédiaire' : 'Avancée'
-      : d === 'beginner' ? 'Beginner' : d === 'intermediate' ? 'Intermediate' : 'Advanced';
-  };
-
-  const rowStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '14px 16px',
-    borderBottom: '0.5px solid var(--ios-separator)',
-    cursor: 'pointer' as const,
-  };
-
   return (
-    <div className="ios-page">
-      {/* Nav */}
-      <div className="ios-nav" style={{ top: 44 }}>
-        <span className="ios-nav-title">{t('Profil', 'Profile')}</span>
+    <div className="min-h-screen bg-background pb-24">
+      <div className="px-6 pt-12 pb-4 flex items-center justify-between">
+        <h1 className="font-display text-3xl text-foreground">{t('Profil', 'Profile')}</h1>
         {!editing ? (
-          <button className="ios-nav-btn" onClick={startEdit}>{t('Modifier', 'Edit')}</button>
+          <button onClick={startEdit} className="font-body text-sm text-primary">{t('Modifier', 'Edit')}</button>
         ) : (
-          <button className="ios-nav-btn" onClick={handleSave} style={{ fontWeight: 600 }}>
+          <button onClick={handleSave} className="font-body text-sm text-primary font-semibold">
             {saving ? '...' : t('OK', 'Done')}
           </button>
         )}
       </div>
 
-      <div style={{ paddingTop: 12 }}>
-        {/* Avatar section */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 20px 24px' }}>
-          <div style={{
-            width: 88, height: 88,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #C4963A, #8B6B2A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: 12,
-            boxShadow: '0 0 0 4px rgba(196,150,58,0.2)',
-          }}>
-            <span style={{ fontFamily: 'Cormorant Garamond', fontSize: 36, color: '#000', fontWeight: 400 }}>
-              {initials}
-            </span>
+      <div className="px-6 space-y-4">
+        {/* Avatar */}
+        <div className="flex flex-col items-center py-4">
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-3">
+            <span className="font-display text-3xl text-white">{initials}</span>
           </div>
-
           {editing ? (
-            <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 260 }}>
-              <input className="ios-input" style={{ height: 42, fontSize: 15, textAlign: 'center' }}
-                value={firstName} onChange={e => setFirstName(e.target.value)}
-                placeholder={t('Prénom', 'First name')} />
-              <input className="ios-input" style={{ height: 42, fontSize: 15, textAlign: 'center' }}
-                value={lastName} onChange={e => setLastName(e.target.value)}
-                placeholder={t('Nom', 'Last name')} />
+            <div className="flex gap-2 w-full max-w-xs">
+              <input className="input-field text-center" value={firstName}
+                onChange={e => setFirstName(e.target.value)} placeholder={t('Prenom', 'First name')} />
+              <input className="input-field text-center" value={lastName}
+                onChange={e => setLastName(e.target.value)} placeholder={t('Nom', 'Last name')} />
             </div>
           ) : (
             <>
-              <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 26, color: '#fff', margin: '0 0 3px', letterSpacing: -0.3 }}>
+              <p className="font-display text-2xl text-foreground">
                 {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || t('Ton nom', 'Your name')}
               </p>
-              <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)', margin: 0 }}>
-                {profile?.email}
-              </p>
+              <p className="font-body text-sm text-muted-foreground">{profile?.email}</p>
             </>
           )}
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, margin: '0 16px 20px' }}>
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: t('Séances', 'Sessions'), value: stats.totalSessions },
-            { label: t('Minutes', 'Minutes'), value: stats.totalMinutes },
-            { label: t('Streak', 'Streak'), value: stats.currentStreakDays },
+            { label: t('Seances', 'Sessions'), value: stats.totalSessions },
+            { label: t('Minutes', 'Minutes'),  value: stats.totalMinutes  },
+            { label: t('Streak', 'Streak'),    value: stats.currentStreakDays },
           ].map(s => (
-            <div key={s.label} className="ios-stat">
-              <div className="ios-stat-value">{s.value}</div>
-              <div className="ios-stat-label">{s.label}</div>
+            <div key={s.label} className="rounded-2xl bg-card border border-border p-4 text-center">
+              <p className="font-display text-3xl text-foreground">{s.value}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Preferences */}
         {preferences && (
-          <>
-            <div className="ios-section-header">{t('Mes objectifs', 'My goals')}</div>
-            <div className="ios-list" style={{ margin: '0 16px 16px' }}>
-              <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--ios-separator)' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {(preferences.goals ?? []).map(g => (
-                    <span key={g} style={{ background: 'var(--ios-gold-light)', color: 'var(--ios-gold)', fontFamily: 'DM Sans', fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 20, border: '0.5px solid rgba(196,150,58,0.3)' }}>
-                      {g}
-                    </span>
-                  ))}
-                  {!preferences.goals?.length && (
-                    <span style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)' }}>
-                      {t('Aucun objectif', 'No goals')}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div style={{ ...rowStyle, cursor: 'default' }}>
-                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Niveau', 'Level')}</span>
-                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text-3)' }}>{diffLabel(preferences.experience_level)}</span>
-              </div>
-              <div style={{ ...rowStyle, borderBottom: 'none', cursor: 'default' }}>
-                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Fréquence', 'Frequency')}</span>
-                <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text-3)' }}>
-                  {preferences.weekly_frequency}× / {t('sem.', 'week')}
+          <div className="rounded-3xl bg-card border border-border p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-body text-sm font-semibold text-foreground">{t('Mes objectifs', 'My goals')}</p>
+              <button onClick={() => navigate('/onboarding')} className="font-body text-xs text-primary">
+                {t('Modifier', 'Edit')}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {(preferences.goals ?? []).map(g => (
+                <span key={g} className="font-body text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1">
+                  {g}
                 </span>
+              ))}
+            </div>
+            <div className="space-y-2 pt-3 border-t border-border">
+              <div className="flex justify-between">
+                <span className="font-body text-sm text-muted-foreground">{t('Niveau', 'Level')}</span>
+                <span className="font-body text-sm text-foreground">{preferences.experience_level ?? '--'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-body text-sm text-muted-foreground">{t('Frequence', 'Frequency')}</span>
+                <span className="font-body text-sm text-foreground">{preferences.weekly_frequency}x / {t('sem.', 'week')}</span>
               </div>
             </div>
-          </>
+          </div>
         )}
 
-        {/* Settings */}
-        <div className="ios-section-header">{t('Réglages', 'Settings')}</div>
-        <div className="ios-list" style={{ margin: '0 16px 16px' }}>
-          {/* Language */}
-          <div style={rowStyle} onClick={handleLangToggle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>🌍</div>
-              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Langue', 'Language')}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: 'DM Sans', fontSize: 14, color: 'var(--ios-text-3)' }}>
-                {language === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN'}
-              </span>
-              <span className="ios-list-chevron">›</span>
-            </div>
+        {/* Settings list */}
+        <div className="rounded-3xl bg-card border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={handleLangToggle}>
+            <p className="font-body text-sm text-foreground">🌍 {t('Langue', 'Language')}</p>
+            <p className="font-body text-sm text-muted-foreground">{language === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN'} ›</p>
           </div>
-
-          {/* Progress */}
-          <div style={rowStyle} onClick={() => navigate('/progress')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>📊</div>
-              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Mes mesures', 'Measurements')}</span>
-            </div>
-            <span className="ios-list-chevron">›</span>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={() => navigate('/progress')}>
+            <p className="font-body text-sm text-foreground">📊 {t('Mes mesures', 'Measurements')}</p>
+            <span className="text-muted-foreground">›</span>
           </div>
-
-          {/* Subscription */}
-          <div style={rowStyle} onClick={() => navigate('/subscription')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div className="ios-list-icon" style={{ background: '#2C2C2E' }}>💳</div>
-              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: 'var(--ios-text)' }}>{t('Abonnement', 'Subscription')}</span>
-            </div>
-            <span className="ios-list-chevron">›</span>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={() => navigate('/subscription')}>
+            <p className="font-body text-sm text-foreground">💳 {t('Abonnement', 'Subscription')}</p>
+            <span className="text-muted-foreground">›</span>
           </div>
-
-          {/* Sign out */}
-          <div style={{ ...rowStyle, borderBottom: 'none' }} onClick={() => setShowSignOut(true)}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div className="ios-list-icon" style={{ background: 'rgba(255,69,58,0.15)' }}>🚪</div>
-              <span style={{ fontFamily: 'DM Sans', fontSize: 15, color: '#FF453A' }}>{t('Se déconnecter', 'Sign out')}</span>
-            </div>
-            <span style={{ color: '#FF453A' }}>›</span>
+          <div className="flex items-center justify-between px-5 py-4 cursor-pointer" onClick={() => setShowSignOut(true)}>
+            <p className="font-body text-sm text-red-500">🚪 {t('Se deconnecter', 'Sign out')}</p>
+            <span className="text-red-400">›</span>
           </div>
         </div>
-
-        <div style={{ height: 20 }} />
       </div>
 
-      {/* Sign out sheet */}
+      {/* Sign out modal */}
       {showSignOut && (
-        <div onClick={() => setShowSignOut(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#1C1C1E', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px' }}>
-            <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 24px' }} />
-            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 26, color: '#fff', margin: '0 0 8px' }}>
-              {t('Se déconnecter ?', 'Sign out?')}
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6"
+          onClick={() => setShowSignOut(false)}>
+          <div className="w-full max-w-sm bg-background rounded-3xl p-6 space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="font-display text-2xl text-foreground">{t('Se deconnecter ?', 'Sign out?')}</h2>
+            <p className="font-body text-sm text-muted-foreground">
+              {t('Tu pourras te reconnecter a tout moment.', 'You can sign back in anytime.')}
             </p>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--ios-text-3)', margin: '0 0 24px' }}>
-              {t('Tu pourras te reconnecter à tout moment.', 'You can sign back in at any time.')}
-            </p>
-            <button onClick={async () => { await signOut(); navigate('/auth'); }}
-              style={{ width: '100%', height: 54, background: 'rgba(255,69,58,0.15)', border: '0.5px solid rgba(255,69,58,0.3)', borderRadius: 14, color: '#FF453A', fontFamily: 'DM Sans', fontSize: 16, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>
-              {t('Déconnecter', 'Sign out')}
-            </button>
-            <button onClick={() => setShowSignOut(false)} className="ios-btn-secondary">
-              {t('Annuler', 'Cancel')}
-            </button>
+            <div className="flex gap-3">
+              <button onClick={() => setShowSignOut(false)}
+                className="flex-1 rounded-xl border border-border py-3 font-body text-sm text-muted-foreground">
+                {t('Annuler', 'Cancel')}
+              </button>
+              <button onClick={async () => { await signOut(); navigate('/auth'); }}
+                className="flex-1 rounded-xl bg-red-500 text-white py-3 font-body text-sm font-semibold">
+                {t('Deconnecter', 'Sign out')}
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
+        {[
+          { path: '/home',     label: t('Accueil','Home'),    active: false },
+          { path: '/library',  label: t('Videos','Videos'),   active: false },
+          { path: '/progress', label: t('Progres','Progress'),active: false },
+          { path: '/profile',  label: t('Profil','Profile'),  active: true  },
+        ].map(item => (
+          <button key={item.path} onClick={() => navigate(item.path)}
+            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${item.active ? 'text-primary' : 'text-muted-foreground'}`}>
+            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-primary' : 'bg-transparent'}`} />
+            {item.label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
