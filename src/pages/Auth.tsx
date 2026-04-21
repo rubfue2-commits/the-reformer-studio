@@ -7,7 +7,7 @@ type Mode = 'signin' | 'signup' | 'reset';
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, signInWithApple, signInWithGoogle, resetPassword } = useAuth();
   const { language } = useLanguage();
   const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
@@ -17,167 +17,141 @@ export default function Auth() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [infoMsg, setInfoMsg] = useState<string | null>(null);
 
-  const reset = () => { setError(null); setInfo(null); };
+  const resetMessages = () => { setErrorMsg(null); setInfoMsg(null); };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    reset();
+    resetMessages();
     setLoading(true);
 
     if (mode === 'reset') {
-      const { error: err } = await resetPassword(email);
+      const { error } = await resetPassword(email);
       setLoading(false);
-      if (err) setError(err);
-      else setInfo(t('Email envoyé !', 'Email sent!'));
+      if (error) setErrorMsg(error);
+      else setInfoMsg(t('Email envoye !', 'Email sent!'));
       return;
     }
 
     if (mode === 'signin') {
-      const { error: err } = await signIn(email, password);
+      const { error } = await signIn(email, password);
       setLoading(false);
-      if (err) setError(t('Email ou mot de passe incorrect', 'Invalid email or password'));
-      else navigate('/home');
+      if (error) { setErrorMsg(t('Email ou mot de passe incorrect', 'Invalid email or password')); return; }
+      navigate('/home');
       return;
     }
 
     if (password.length < 8) {
       setLoading(false);
-      setError(t('Mot de passe trop court (8 car. min.)', 'Password too short (8 chars min)'));
+      setErrorMsg(t('Mot de passe trop court (8 car. min.)', 'Password too short (8 chars min)'));
       return;
     }
-    const { error: err } = await signUp({ email, password, firstName, lastName, language });
+    const { error } = await signUp({ email, password, firstName, lastName, language });
     setLoading(false);
-    if (err) setError(err);
-    else {
-      setInfo(t('Compte créé !', 'Account created!'));
-      setTimeout(() => navigate('/onboarding'), 1200);
-    }
+    if (error) { setErrorMsg(error); return; }
+    setInfoMsg(t('Compte cree !', 'Account created!'));
+    setTimeout(() => navigate('/onboarding'), 1200);
   };
 
-  const inputStyle = {
-    width: '100%',
-    height: 52,
-    background: 'rgba(255,255,255,0.08)',
-    border: '0.5px solid rgba(255,255,255,0.12)',
-    borderRadius: 14,
-    color: '#fff',
-    fontFamily: 'DM Sans',
-    fontSize: 16,
-    padding: '0 16px',
-    outline: 'none',
-    WebkitAppearance: 'none' as const,
-  };
+  const TABS: { id: Mode; fr: string; en: string }[] = [
+    { id: 'signin', fr: 'Connexion', en: 'Sign in' },
+    { id: 'signup', fr: 'Inscription', en: 'Sign up' },
+  ];
 
   return (
-    <div style={{ minHeight: '100%', background: 'var(--ios-bg)', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <div style={{ padding: '48px 28px 32px', textAlign: 'center' }}>
-        <p style={{ fontFamily: 'DM Sans', fontSize: 11, fontWeight: 600, color: 'var(--ios-gold)', letterSpacing: 3, textTransform: 'uppercase', margin: '0 0 8px' }}>
-          THE REFORMER
-        </p>
-        <h1 style={{ fontFamily: 'Cormorant Garamond', fontSize: 48, fontWeight: 300, color: '#fff', margin: '0 0 4px', letterSpacing: -1 }}>
-          Studio
-        </h1>
-        <p style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--ios-text-3)', margin: 0, letterSpacing: 1 }}>
-          {t('Pilates · Bien-être', 'Pilates · Wellness')}
-        </p>
-      </div>
-
-      {/* Tab selector (only for signin/signup) */}
-      {mode !== 'reset' && (
-        <div className="ios-segment" style={{ marginBottom: 24 }}>
-          {(['signin', 'signup'] as Mode[]).map(m => (
-            <button
-              key={m}
-              className={`ios-segment-btn ${mode === m ? 'active' : ''}`}
-              onClick={() => { setMode(m); reset(); }}
-            >
-              {m === 'signin' ? t('Connexion', 'Sign in') : t('Inscription', 'Sign up')}
-            </button>
-          ))}
+    <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-12">
+      <div className="mx-auto w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-4xl text-foreground">The Reformer</h1>
+          <p className="font-display text-3xl text-primary">Studio</p>
+          <p className="font-body text-sm text-muted-foreground mt-2 tracking-widest uppercase">
+            {t('Pilates · Bien-etre', 'Pilates · Wellness')}
+          </p>
         </div>
-      )}
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} style={{ padding: '0 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-
-        {mode === 'reset' && (
-          <div style={{ marginBottom: 8 }}>
-            <button type="button" onClick={() => { setMode('signin'); reset(); }}
-              style={{ background: 'none', border: 'none', color: 'var(--ios-gold)', fontFamily: 'DM Sans', fontSize: 15, cursor: 'pointer', padding: '0 0 16px' }}>
-              ← {t('Retour', 'Back')}
-            </button>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 14, color: 'var(--ios-text-2)', margin: 0 }}>
-              {t('Saisis ton email pour recevoir un lien.', 'Enter your email to get a reset link.')}
-            </p>
-          </div>
-        )}
-
-        {mode === 'signup' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <input style={inputStyle} placeholder={t('Prénom', 'First name')} value={firstName}
-              onChange={e => setFirstName(e.target.value)} autoComplete="given-name" />
-            <input style={inputStyle} placeholder={t('Nom', 'Last name')} value={lastName}
-              onChange={e => setLastName(e.target.value)} autoComplete="family-name" />
-          </div>
-        )}
-
-        <input style={inputStyle} type="email" required placeholder="Email" value={email}
-          onChange={e => setEmail(e.target.value)} autoComplete="email" />
-
-        {mode !== 'reset' && (
-          <input style={inputStyle} type="password" required placeholder={t('Mot de passe', 'Password')}
-            value={password} onChange={e => setPassword(e.target.value)}
-            autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
-        )}
-
-        {error && (
-          <div style={{ background: 'rgba(255,69,58,0.15)', border: '0.5px solid rgba(255,69,58,0.3)', borderRadius: 10, padding: '10px 14px' }}>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: '#FF453A', margin: 0 }}>{error}</p>
-          </div>
-        )}
-        {info && (
-          <div style={{ background: 'rgba(48,209,88,0.15)', border: '0.5px solid rgba(48,209,88,0.3)', borderRadius: 10, padding: '10px 14px' }}>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: '#30D158', margin: 0 }}>{info}</p>
-          </div>
-        )}
-
-        {mode === 'signin' && (
-          <button type="button" onClick={() => { setMode('reset'); reset(); }}
-            style={{ background: 'none', border: 'none', color: 'var(--ios-gold)', fontFamily: 'DM Sans', fontSize: 13, cursor: 'pointer', textAlign: 'right', padding: '0 0 4px' }}>
-            {t('Mot de passe oublié ?', 'Forgot password?')}
-          </button>
-        )}
-
-        <button type="submit" disabled={loading} className="ios-btn-primary" style={{ marginTop: 4 }}>
-          {loading ? '…' : mode === 'signin'
-            ? t('Se connecter', 'Sign in')
-            : mode === 'signup'
-            ? t('Créer mon compte', 'Create account')
-            : t('Envoyer le lien', 'Send link')}
-        </button>
-
-        {mode !== 'reset' && (
+        {mode !== 'reset' ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
-              <div style={{ flex: 1, height: '0.5px', background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--ios-text-3)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                {t('ou', 'or')}
-              </span>
-              <div style={{ flex: 1, height: '0.5px', background: 'rgba(255,255,255,0.1)' }} />
+            <div className="flex border-b border-border mb-6">
+              {TABS.map(tab => (
+                <button key={tab.id} type="button"
+                  onClick={() => { setMode(tab.id); resetMessages(); }}
+                  className={`flex-1 pb-3 font-body text-sm ${mode === tab.id ? 'border-b-2 border-primary text-foreground -mb-px' : 'text-muted-foreground'}`}>
+                  {language === 'fr' ? tab.fr : tab.en}
+                </button>
+              ))}
             </div>
-            <button type="button" className="ios-btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-              <span>🍎</span>
-              <span>{t('Continuer avec Apple', 'Continue with Apple')}</span>
-            </button>
-          </>
-        )}
-      </form>
 
-      <div style={{ height: 40 }} />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'signup' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <input className="input-field" placeholder={t('Prenom', 'First name')} value={firstName}
+                    onChange={e => setFirstName(e.target.value)} autoComplete="given-name" />
+                  <input className="input-field" placeholder={t('Nom', 'Last name')} value={lastName}
+                    onChange={e => setLastName(e.target.value)} autoComplete="family-name" />
+                </div>
+              )}
+              <input type="email" required className="input-field" placeholder="Email" value={email}
+                onChange={e => setEmail(e.target.value)} autoComplete="email" />
+              <input type="password" required className="input-field"
+                placeholder={t('Mot de passe', 'Password')} value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
+
+              {errorMsg && <p className="font-body text-sm text-red-500">{errorMsg}</p>}
+              {infoMsg  && <p className="font-body text-sm text-green-600">{infoMsg}</p>}
+
+              {mode === 'signin' && (
+                <button type="button" onClick={() => { setMode('reset'); resetMessages(); }}
+                  className="font-body text-xs text-muted-foreground text-right w-full">
+                  {t('Mot de passe oublie ?', 'Forgot password?')}
+                </button>
+              )}
+
+              <button type="submit" disabled={loading}
+                className="w-full rounded-xl bg-foreground text-background font-body py-3 disabled:opacity-50">
+                {loading ? '...' : mode === 'signin' ? t('Se connecter', 'Sign in') : t('Creer mon compte', 'Create account')}
+              </button>
+            </form>
+
+            <div className="my-5 flex items-center gap-3">
+              <div className="flex-1 h-px bg-border" />
+              <span className="font-body text-xs text-muted-foreground uppercase tracking-widest">{t('ou', 'or')}</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            <div className="space-y-2">
+              <button type="button" onClick={() => signInWithApple()}
+                className="w-full rounded-xl border border-border bg-card py-3 font-body text-sm text-foreground flex items-center justify-center gap-2">
+                <span>🍎</span>{t('Continuer avec Apple', 'Continue with Apple')}
+              </button>
+              <button type="button" onClick={() => signInWithGoogle()}
+                className="w-full rounded-xl border border-border bg-card py-3 font-body text-sm text-foreground flex items-center justify-center gap-2">
+                <span>🔵</span>{t('Continuer avec Google', 'Continue with Google')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <button type="button" onClick={() => { setMode('signin'); resetMessages(); }}
+              className="font-body text-sm text-muted-foreground mb-2">
+              &larr; {t('Retour', 'Back')}
+            </button>
+            <h2 className="font-display text-2xl text-foreground">
+              {t('Reinitialiser le mot de passe', 'Reset password')}
+            </h2>
+            <input type="email" required className="input-field" placeholder="Email" value={email}
+              onChange={e => setEmail(e.target.value)} />
+            {errorMsg && <p className="font-body text-xs text-red-500">{errorMsg}</p>}
+            {infoMsg  && <p className="font-body text-xs text-green-600">{infoMsg}</p>}
+            <button type="submit" disabled={loading}
+              className="w-full rounded-xl bg-foreground text-background font-body py-3 disabled:opacity-50">
+              {loading ? '...' : t('Envoyer le lien', 'Send link')}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
