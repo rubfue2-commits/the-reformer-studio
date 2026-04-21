@@ -1,154 +1,148 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usePreferences } from '@/hooks/usePreferences';
-import { useLanguage } from '@/i18n/LanguageContext';
-
-type Goal = 'weight_loss' | 'strength' | 'flexibility' | 'posture' | 'rehabilitation' | 'relaxation';
-type Level = 'beginner' | 'intermediate' | 'advanced';
-type Focus = 'core' | 'legs' | 'arms' | 'back' | 'full_body';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const GOALS = [
-  { id: 'weight_loss'    as Goal, fr: 'Perte de poids', en: 'Weight loss',   emoji: '🔥' },
-  { id: 'strength'       as Goal, fr: 'Renforcement',   en: 'Strength',      emoji: '💪' },
-  { id: 'flexibility'    as Goal, fr: 'Souplesse',      en: 'Flexibility',   emoji: '🧘' },
-  { id: 'posture'        as Goal, fr: 'Posture',        en: 'Posture',       emoji: '🎯' },
-  { id: 'rehabilitation' as Goal, fr: 'Reeducation',    en: 'Rehab',         emoji: '🩺' },
-  { id: 'relaxation'     as Goal, fr: 'Relaxation',     en: 'Relaxation',    emoji: '✨'       },
+  { id: "weight_loss",    emoji: "🔥", fr: "Perte de poids", en: "Weight loss"   },
+  { id: "strength",       emoji: "💪", fr: "Renforcement",   en: "Strength"      },
+  { id: "flexibility",    emoji: "🧘", fr: "Souplesse",      en: "Flexibility"   },
+  { id: "posture",        emoji: "🎯", fr: "Posture",        en: "Posture"        },
+  { id: "rehabilitation", emoji: "🩺", fr: "Reeducation",    en: "Rehab"         },
+  { id: "relaxation",     emoji: "✨", fr: "Relaxation",     en: "Relaxation"    },
 ];
 
 const LEVELS = [
-  { id: 'beginner'     as Level, fr: 'Debutante',     en: 'Beginner',     desc_fr: 'Je commence le pilates',   desc_en: 'Just starting pilates'   },
-  { id: 'intermediate' as Level, fr: 'Intermediaire', en: 'Intermediate', desc_fr: 'Quelques mois de pratique', desc_en: 'A few months of practice' },
-  { id: 'advanced'     as Level, fr: 'Avancee',       en: 'Advanced',     desc_fr: 'Plus de un an',            desc_en: 'Over a year of practice'  },
+  { id: "beginner",     fr: "Debutante",     en: "Beginner",     desc_fr: "Je commence",          desc_en: "Just starting"        },
+  { id: "intermediate", fr: "Intermediaire", en: "Intermediate", desc_fr: "Quelques mois",         desc_en: "A few months"         },
+  { id: "advanced",     fr: "Avancee",       en: "Advanced",     desc_fr: "Plus d un an",          desc_en: "Over a year"          },
 ];
 
 const FOCUSES = [
-  { id: 'core'      as Focus, fr: 'Abdos / Centre', en: 'Core',       emoji: '⭕' },
-  { id: 'legs'      as Focus, fr: 'Jambes',         en: 'Legs',       emoji: '🦵' },
-  { id: 'arms'      as Focus, fr: 'Bras',           en: 'Arms',       emoji: '💪' },
-  { id: 'back'      as Focus, fr: 'Dos',            en: 'Back',       emoji: '🔙' },
-  { id: 'full_body' as Focus, fr: 'Corps entier',   en: 'Full body',  emoji: '🌟' },
+  { id: "core",      emoji: "⭕", fr: "Abdos",       en: "Core"      },
+  { id: "legs",      emoji: "🦵", fr: "Jambes",      en: "Legs"      },
+  { id: "arms",      emoji: "💪", fr: "Bras",        en: "Arms"      },
+  { id: "back",      emoji: "🔙", fr: "Dos",         en: "Back"      },
+  { id: "full_body", emoji: "🌟", fr: "Corps entier", en: "Full body" },
 ];
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const { completeOnboarding } = usePreferences();
   const { language } = useLanguage();
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
+  const fr = language === "fr";
 
   const [step, setStep] = useState(0);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [level, setLevel] = useState<Level | null>(null);
+  const [goals, setGoals] = useState<string[]>([]);
+  const [level, setLevel] = useState<string>("");
   const [frequency, setFrequency] = useState(3);
-  const [focuses, setFocuses] = useState<Focus[]>([]);
+  const [focuses, setFocuses] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const totalSteps = 4;
 
-  const toggleGoal  = (g: Goal)  => setGoals(p   => p.includes(g) ? p.filter(x => x !== g) : [...p, g]);
-  const toggleFocus = (f: Focus) => setFocuses(p  => p.includes(f) ? p.filter(x => x !== f) : [...p, f]);
+  const total = 4;
+  const progress = ((step + 1) / total) * 100;
 
-  const canNext = () => {
-    if (step === 0) return goals.length > 0;
-    if (step === 1) return level !== null;
-    if (step === 3) return focuses.length > 0;
-    return true;
-  };
+  const toggleGoal = (id: string) =>
+    setGoals(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
-  const handleFinish = async () => {
+  const toggleFocus = (id: string) =>
+    setFocuses(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const canNext =
+    (step === 0 && goals.length > 0) ||
+    (step === 1 && level !== "") ||
+    step === 2 ||
+    (step === 3 && focuses.length > 0);
+
+  const finish = async () => {
     setSaving(true);
     await completeOnboarding({
       goals: goals as any,
-      experience_level: level,
+      experience_level: level as any,
       weekly_frequency: frequency,
       focus_areas: focuses as any,
     });
     setSaving(false);
-    navigate('/home');
+    navigate("/home");
   };
 
-  const chipActive   = (active: boolean) => ({
-    display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8,
-    padding: '16px 12px', borderRadius: 18, cursor: 'pointer',
-    background: active ? 'rgba(196,150,58,0.18)' : 'var(--ios-card)',
-    border: active ? '1.5px solid var(--ios-gold)' : '0.5px solid rgba(255,255,255,0.08)',
-    transition: 'all 0.2s',
-  });
-
-  const stepTitles = [
-    t('Tes objectifs', 'Your goals'),
-    t('Ton niveau', 'Your level'),
-    t('Ta frequence', 'Your frequency'),
-    t('Zones de travail', 'Focus areas'),
+  const titles = [
+    fr ? "Tes objectifs" : "Your goals",
+    fr ? "Ton niveau"    : "Your level",
+    fr ? "Ta frequence"  : "Your frequency",
+    fr ? "Zones cibles"  : "Focus areas",
   ];
 
-  return (
-    <div style={{ minHeight: '100%', background: 'var(--ios-bg)', display: 'flex', flexDirection: 'column' }}>
+  const cardStyle = (active: boolean): React.CSSProperties => ({
+    display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+    padding: "16px 12px", borderRadius: 18, cursor: "pointer",
+    background: active ? "rgba(196,150,58,0.18)" : "#1C1C1E",
+    border: active ? "1.5px solid #C4963A" : "0.5px solid rgba(255,255,255,0.08)",
+    color: active ? "#C4963A" : "rgba(255,255,255,0.6)",
+    fontSize: 13, fontFamily: "DM Sans, sans-serif", fontWeight: 500,
+  });
 
-      {/* Progress bar */}
-      <div style={{ height: 3, background: 'var(--ios-card2)', marginTop: 44 }}>
-        <div style={{ height: '100%', width: `${((step + 1) / totalSteps) * 100}%`, background: 'var(--ios-gold)', transition: 'width 0.4s ease' }} />
+  return (
+    <div style={{ minHeight: "100%", background: "#0F0F0F", display: "flex", flexDirection: "column" }}>
+
+      {/* Progress */}
+      <div style={{ height: 3, background: "#1C1C1E", marginTop: 44 }}>
+        <div style={{ height: "100%", width: progress + "%", background: "#C4963A", transition: "width 0.4s" }} />
       </div>
 
       {/* Header */}
-      <div style={{ padding: '24px 24px 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: "24px 20px 8px", display: "flex", alignItems: "center", gap: 12 }}>
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)}
-            style={{ background: 'none', border: 'none', color: 'var(--ios-gold)', fontSize: 26, cursor: 'pointer', padding: 0 }}>
-            &#8249;
+            style={{ background: "none", border: "none", color: "#C4963A", fontSize: 28, cursor: "pointer", lineHeight: 1, padding: 0 }}>
+            ‹
           </button>
         )}
         <div>
-          <p style={{ fontFamily: 'DM Sans', fontSize: 11, fontWeight: 600, color: 'var(--ios-gold)', letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 4px' }}>
-            {step + 1} / {totalSteps}
+          <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 11, fontWeight: 600, color: "#C4963A", letterSpacing: 2, textTransform: "uppercase", margin: "0 0 4px" }}>
+            {step + 1} / {total}
           </p>
-          <h1 style={{ fontFamily: 'Cormorant Garamond', fontSize: 34, fontWeight: 300, color: '#fff', margin: 0 }}>
-            {stepTitles[step]}
+          <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 34, fontWeight: 300, color: "#fff", margin: 0 }}>
+            {titles[step]}
           </h1>
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, padding: '16px 20px', overflowY: 'auto' }}>
+      <div style={{ flex: 1, padding: "16px 20px", overflowY: "auto" }}>
 
-        {/* Step 0: Goals */}
         {step === 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {GOALS.map(g => {
-              const active = goals.includes(g.id);
-              return (
-                <button key={g.id} onClick={() => toggleGoal(g.id)} style={chipActive(active)}>
-                  <span style={{ fontSize: 28 }}>{g.emoji}</span>
-                  <span style={{ fontFamily: 'DM Sans', fontSize: 13, fontWeight: 500, color: active ? 'var(--ios-gold)' : 'var(--ios-text-2)' }}>
-                    {language === 'fr' ? g.fr : g.en}
-                  </span>
-                </button>
-              );
-            })}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {GOALS.map(g => (
+              <button key={g.id} onClick={() => toggleGoal(g.id)} style={cardStyle(goals.includes(g.id))}>
+                <span style={{ fontSize: 28 }}>{g.emoji}</span>
+                {fr ? g.fr : g.en}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Step 1: Level */}
         {step === 1 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {LEVELS.map(l => {
               const active = level === l.id;
               return (
                 <button key={l.id} onClick={() => setLevel(l.id)}
-                  style={{ ...chipActive(active), flexDirection: 'row', gap: 14, padding: '18px 20px', textAlign: 'left' }}>
+                  style={{ ...cardStyle(active), flexDirection: "row", gap: 14, padding: "18px 20px", textAlign: "left" }}>
                   <div style={{
-                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                    background: active ? 'var(--ios-gold)' : 'transparent',
-                    border: active ? '2px solid var(--ios-gold)' : '2px solid rgba(255,255,255,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                    background: active ? "#C4963A" : "transparent",
+                    border: active ? "2px solid #C4963A" : "2px solid rgba(255,255,255,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    {active && <span style={{ color: '#000', fontSize: 12, fontWeight: 700 }}>&#10003;</span>}
+                    {active && <span style={{ color: "#000", fontSize: 13, fontWeight: 700 }}>✓</span>}
                   </div>
-                  <div>
-                    <p style={{ fontFamily: 'DM Sans', fontSize: 16, fontWeight: 500, color: active ? 'var(--ios-gold)' : '#fff', margin: '0 0 3px' }}>
-                      {language === 'fr' ? l.fr : l.en}
+                  <div style={{ textAlign: "left" }}>
+                    <p style={{ margin: "0 0 2px", fontSize: 16, fontWeight: 500, color: active ? "#C4963A" : "#fff", fontFamily: "DM Sans, sans-serif" }}>
+                      {fr ? l.fr : l.en}
                     </p>
-                    <p style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--ios-text-3)', margin: 0 }}>
-                      {language === 'fr' ? l.desc_fr : l.desc_en}
+                    <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)", fontFamily: "DM Sans, sans-serif" }}>
+                      {fr ? l.desc_fr : l.desc_en}
                     </p>
                   </div>
                 </button>
@@ -157,59 +151,53 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* Step 2: Frequency */}
         {step === 2 && (
-          <div style={{ textAlign: 'center', paddingTop: 20 }}>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 14, color: 'var(--ios-text-3)', marginBottom: 36 }}>
-              {t('Combien de seances par semaine ?', 'How many sessions per week?')}
+          <div style={{ textAlign: "center", paddingTop: 24 }}>
+            <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 36 }}>
+              {fr ? "Seances par semaine" : "Sessions per week"}
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 14 }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 14 }}>
               {[2, 3, 4, 5].map(f => (
                 <button key={f} onClick={() => setFrequency(f)} style={{
                   width: 64, height: 64, borderRadius: 20,
-                  background: frequency === f ? 'var(--ios-gold)' : 'var(--ios-card)',
-                  border: frequency === f ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-                  color: frequency === f ? '#000' : '#fff',
-                  fontFamily: 'Cormorant Garamond', fontSize: 32, cursor: 'pointer',
-                  transition: 'all 0.2s',
+                  background: frequency === f ? "#C4963A" : "#1C1C1E",
+                  border: frequency === f ? "none" : "0.5px solid rgba(255,255,255,0.1)",
+                  color: frequency === f ? "#000" : "#fff",
+                  fontFamily: "Cormorant Garamond, serif", fontSize: 32, cursor: "pointer",
                 }}>
                   {f}
                 </button>
               ))}
             </div>
-            <p style={{ fontFamily: 'DM Sans', fontSize: 16, color: 'var(--ios-text-2)', marginTop: 20 }}>
-              {frequency}x / {t('semaine', 'week')}
+            <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 15, color: "rgba(255,255,255,0.6)", marginTop: 20 }}>
+              {frequency}x / {fr ? "semaine" : "week"}
             </p>
           </div>
         )}
 
-        {/* Step 3: Focus */}
         {step === 3 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {FOCUSES.map(f => {
-              const active = focuses.includes(f.id);
-              return (
-                <button key={f.id} onClick={() => toggleFocus(f.id)} style={chipActive(active)}>
-                  <span style={{ fontSize: 28 }}>{f.emoji}</span>
-                  <span style={{ fontFamily: 'DM Sans', fontSize: 13, fontWeight: 500, color: active ? 'var(--ios-gold)' : 'var(--ios-text-2)' }}>
-                    {language === 'fr' ? f.fr : f.en}
-                  </span>
-                </button>
-              );
-            })}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {FOCUSES.map(f => (
+              <button key={f.id} onClick={() => toggleFocus(f.id)} style={cardStyle(focuses.includes(f.id))}>
+                <span style={{ fontSize: 28 }}>{f.emoji}</span>
+                {fr ? f.fr : f.en}
+              </button>
+            ))}
           </div>
         )}
       </div>
 
       {/* CTA */}
-      <div style={{ padding: '12px 20px 36px' }}>
-        {step < totalSteps - 1 ? (
-          <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="ios-btn-primary">
-            {t('Continuer', 'Continue')}
+      <div style={{ padding: "12px 20px 40px" }}>
+        {step < total - 1 ? (
+          <button onClick={() => setStep(s => s + 1)} disabled={!canNext}
+            style={{ width: "100%", height: 54, background: canNext ? "#C4963A" : "#333", color: canNext ? "#000" : "#666", border: "none", borderRadius: 14, fontFamily: "DM Sans, sans-serif", fontSize: 16, fontWeight: 600, cursor: canNext ? "pointer" : "default" }}>
+            {fr ? "Continuer" : "Continue"}
           </button>
         ) : (
-          <button onClick={handleFinish} disabled={!canNext() || saving} className="ios-btn-primary">
-            {saving ? '...' : t('Commencer ! 🧘', 'Start! 🧘')}
+          <button onClick={finish} disabled={!canNext || saving}
+            style={{ width: "100%", height: 54, background: canNext ? "#C4963A" : "#333", color: canNext ? "#000" : "#666", border: "none", borderRadius: 14, fontFamily: "DM Sans, sans-serif", fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
+            {saving ? "..." : (fr ? "Commencer !" : "Start!")}
           </button>
         )}
       </div>
