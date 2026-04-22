@@ -1,194 +1,183 @@
-import { useState } from 'react';
-import { useMeasurements } from '@/hooks/useMeasurements';
-import { useLanguage } from '@/i18n/LanguageContext';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useMeasurements } from "@/hooks/useMeasurements";
 
-type Metric = 'weight_kg' | 'waist_cm' | 'hips_cm' | 'chest_cm' | 'thigh_cm' | 'arm_cm';
+const METRICS = [
+  { key: "weight", fr: "Poids",    en: "Weight",  unit: "kg", color: "#B8973E" },
+  { key: "waist",  fr: "Taille",   en: "Waist",   unit: "cm", color: "#22C55E" },
+  { key: "hips",   fr: "Hanches",  en: "Hips",    unit: "cm", color: "#EC4899" },
+  { key: "chest",  fr: "Poitrine", en: "Chest",   unit: "cm", color: "#8B5CF6" },
+  { key: "thigh",  fr: "Cuisse",   en: "Thigh",   unit: "cm", color: "#F97316" },
+  { key: "arm",    fr: "Bras",     en: "Arm",     unit: "cm", color: "#3B82F6" },
+];
 
-const METRICS: { id: Metric; fr: string; en: string; unit: string; color: string }[] = [
-  { id: 'weight_kg', fr: 'Poids',    en: 'Weight',  unit: 'kg', color: '#B8973E' },
-  { id: 'waist_cm',  fr: 'Taille',   en: 'Waist',   unit: 'cm', color: '#4CAF50' },
-  { id: 'hips_cm',   fr: 'Hanches',  en: 'Hips',    unit: 'cm', color: '#E91E63' },
-  { id: 'chest_cm',  fr: 'Poitrine', en: 'Chest',   unit: 'cm', color: '#2196F3' },
-  { id: 'thigh_cm',  fr: 'Cuisse',   en: 'Thigh',   unit: 'cm', color: '#9C27B0' },
-  { id: 'arm_cm',    fr: 'Bras',     en: 'Arm',     unit: 'cm', color: '#FF5722' },
+const NAV = [
+  { path: "/home",     labelFr: "Accueil",  labelEn: "Home"     },
+  { path: "/library",  labelFr: "Seances",  labelEn: "Sessions" },
+  { path: "/progress", labelFr: "Progres",  labelEn: "Progress" },
+  { path: "/profile",  labelFr: "Profil",   labelEn: "Profile"  },
 ];
 
 export default function Progress() {
   const navigate = useNavigate();
-  const { measurements, latest, loading, addMeasurement } = useMeasurements();
-  const { language } = useLanguage();
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
+  const location = useLocation();
+  const { t } = useLanguage();
+  const { user } = useAuth();
+  const { measurements, addMeasurement } = useMeasurements(user?.id);
 
-  const [activeMetric, setActiveMetric] = useState<Metric>('weight_kg');
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Partial<Record<Metric, string>>>({});
-  const [saving, setSaving] = useState(false);
+  const [activeMetric, setActiveMetric] = useState("weight");
+  const [showModal, setShowModal] = useState(false);
+  const [newValue, setNewValue] = useState("");
 
-  const cfg = METRICS.find(m => m.id === activeMetric)!;
-  const currentVal = latest?.[activeMetric];
-  const prevVal = measurements[1]?.[activeMetric];
-  const diff = currentVal != null && prevVal != null
-    ? (Number(currentVal) - Number(prevVal)).toFixed(1) : null;
+  const metric = METRICS.find(m => m.key === activeMetric)!;
+  const metricData = (measurements || [])
+    .filter((m: any) => m.metric_type === activeMetric)
+    .sort((a: any, b: any) => new Date(b.measured_at).getTime() - new Date(a.measured_at).getTime());
 
-  const chartData = measurements.slice(0, 8).reverse();
-  const vals = chartData.map(m => Number(m[activeMetric] ?? 0)).filter(v => v > 0);
-  const maxVal = vals.length ? Math.max(...vals) : 1;
-  const minVal = vals.length ? Math.min(...vals) : 0;
-  const range = maxVal - minVal || 1;
+  const latest = metricData[0];
+  const prev = metricData[1];
+  const diff = latest && prev ? (latest.value - prev.value) : null;
 
-  const handleSave = async () => {
-    setSaving(true);
-    const entry: Record<string, unknown> = { measured_at: new Date().toISOString().split('T')[0] };
-    METRICS.forEach(m => { if (form[m.id]) entry[m.id] = parseFloat(form[m.id]!); });
-    await addMeasurement(entry as Parameters<typeof addMeasurement>[0]);
-    setSaving(false);
-    setShowForm(false);
-    setForm({});
+  const handleAdd = async () => {
+    if (!newValue || !user) return;
+    await addMeasurement({ metric_type: activeMetric, value: parseFloat(newValue), unit: metric.unit });
+    setNewValue("");
+    setShowModal(false);
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="px-6 pt-12 pb-4 flex items-center justify-between">
-        <h1 className="font-display text-3xl text-foreground">{t('Progres', 'Progress')}</h1>
-        <button onClick={() => setShowForm(true)}
-          className="rounded-xl bg-primary text-white font-body text-xs px-4 py-2">
-          + {t('Mesure', 'Measure')}
-        </button>
-      </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 overflow-y-auto pb-24">
+        <div className="max-w-md mx-auto px-4">
 
-      <div className="px-6 space-y-5">
-        {/* Metric tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {METRICS.map(m => (
-            <button key={m.id} onClick={() => setActiveMetric(m.id)}
-              className={`whitespace-nowrap rounded-full px-4 py-2 font-body text-xs border flex-shrink-0 transition-all ${
-                activeMetric === m.id ? 'text-white border-transparent' : 'bg-card text-muted-foreground border-border'
-              }`}
-              style={activeMetric === m.id ? { backgroundColor: m.color } : {}}>
-              {language === 'fr' ? m.fr : m.en}
-            </button>
-          ))}
-        </div>
+          {/* Header */}
+          <div className="pt-12 pb-5">
+            <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-1">Connect Reformer</p>
+            <h1 className="font-display text-3xl text-foreground">{t("Progres", "Progress")}</h1>
+          </div>
 
-        {/* Value card */}
-        <div className="rounded-3xl bg-card border border-border p-5">
-          <p className="font-body text-xs tracking-widest uppercase text-muted-foreground mb-2">
-            {language === 'fr' ? cfg.fr : cfg.en}
-          </p>
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              {loading ? (
-                <p className="font-display text-4xl text-muted-foreground">--</p>
-              ) : currentVal != null ? (
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-4xl text-foreground">{currentVal}</span>
-                  <span className="font-body text-lg text-muted-foreground">{cfg.unit}</span>
+          {/* Metric chips — horizontal scroll */}
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+            {METRICS.map(m => (
+              <button
+                key={m.key}
+                onClick={() => setActiveMetric(m.key)}
+                className={"flex-shrink-0 px-4 py-2 rounded-full font-body text-sm font-medium transition-all " +
+                  (activeMetric === m.key ? "bg-foreground text-background" : "bg-card border border-border text-muted-foreground")}
+              >
+                {t(m.fr, m.en)}
+              </button>
+            ))}
+          </div>
+
+          {/* Current value card */}
+          <div className="rounded-2xl bg-card border border-border p-5 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-body text-xs text-muted-foreground uppercase tracking-wide">{t(metric.fr, metric.en)}</p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="font-display text-4xl" style={{ color: metric.color }}>
+                    {latest ? latest.value : "--"}
+                  </span>
+                  <span className="font-body text-sm text-muted-foreground">{metric.unit}</span>
                 </div>
-              ) : (
-                <p className="font-body text-sm text-muted-foreground">{t('Aucune donnee', 'No data')}</p>
-              )}
+                {diff !== null && (
+                  <p className={"font-body text-xs font-medium mt-1 " + (diff <= 0 ? "text-green-600" : "text-red-500")}>
+                    {diff > 0 ? "+" : ""}{diff.toFixed(1)} {metric.unit} {t("depuis la derniere fois", "since last time")}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowModal(true)}
+                className="w-11 h-11 rounded-full bg-foreground text-background flex items-center justify-center text-xl font-light"
+              >+</button>
             </div>
-            {diff !== null && (
-              <p className="font-display text-xl font-bold"
-                style={{ color: parseFloat(diff) <= 0 ? '#4CAF50' : '#EF4444' }}>
-                {parseFloat(diff) > 0 ? '+' : ''}{diff} {cfg.unit}
-              </p>
+
+            {/* Mini bar chart */}
+            {metricData.length > 0 ? (
+              <div className="flex items-end gap-1.5 h-16">
+                {metricData.slice(0, 7).reverse().map((m: any, i: number) => {
+                  const vals = metricData.slice(0, 7).map((x: any) => x.value);
+                  const mn = Math.min(...vals);
+                  const mx = Math.max(...vals);
+                  const pct = mx === mn ? 50 : ((m.value - mn) / (mx - mn)) * 80 + 20;
+                  return (
+                    <div key={i} className="flex-1 rounded-t-sm transition-all" style={{ height: pct + "%", backgroundColor: metric.color + (i === metricData.slice(0,7).length - 1 ? "ff" : "60") }} />
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-16 flex items-center justify-center">
+                <p className="font-body text-xs text-muted-foreground">{t("Aucune donnee", "No data yet")}</p>
+              </div>
             )}
           </div>
 
-          {/* Chart */}
-          {chartData.length > 1 ? (
-            <div className="flex items-end gap-1.5 h-16">
-              {chartData.map((m, i) => {
-                const val = Number(m[activeMetric] ?? 0);
-                if (!val) return <div key={m.id} style={{ flex: 1 }} />;
-                const h = ((val - minVal) / range) * 70 + 30;
-                const isLast = i === chartData.length - 1;
-                return (
-                  <div key={m.id} className="flex-1 flex flex-col justify-end">
-                    <div className="w-full rounded-sm transition-all"
-                      style={{ height: h + '%', backgroundColor: isLast ? cfg.color : cfg.color + '55' }} />
+          {/* History */}
+          {metricData.length > 0 && (
+            <div>
+              <p className="font-body text-xs text-muted-foreground uppercase tracking-wide mb-3">{t("Historique", "History")}</p>
+              <div className="space-y-2">
+                {metricData.slice(0, 10).map((m: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between bg-card border border-border rounded-xl px-4 py-3">
+                    <p className="font-body text-xs text-muted-foreground">
+                      {new Date(m.measured_at).toLocaleDateString()}
+                    </p>
+                    <p className="font-body font-semibold text-sm text-foreground">{m.value} {metric.unit}</p>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          ) : (
-            <p className="text-center font-body text-xs text-muted-foreground">
-              {t('Ajoute des mesures pour voir ton evolution', 'Add measurements to track progress')}
-            </p>
           )}
-        </div>
 
-        {/* History */}
-        {measurements.length > 0 && (
-          <div>
-            <h2 className="font-body text-xs tracking-widest uppercase text-muted-foreground mb-3">
-              {t('Historique', 'History')}
-            </h2>
-            <div className="space-y-2">
-              {measurements.slice(0, 6).map((m, i) => (
-                <div key={m.id} className="rounded-2xl bg-card border border-border px-4 py-3 flex items-center justify-between">
-                  <p className="font-body text-sm text-muted-foreground">
-                    {new Date(m.measured_at).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
-                  </p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="font-display text-lg text-foreground">{m[activeMetric] ?? '--'}</span>
-                    <span className="font-body text-sm text-muted-foreground">{cfg.unit}</span>
-                  </div>
-                  {i === 0 && (
-                    <span className="font-body text-[10px] bg-primary/10 text-primary rounded-full px-2 py-0.5">
-                      {t('Dernier', 'Latest')}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-end z-50" onClick={() => setShowForm(false)}>
-          <div className="w-full bg-background rounded-t-3xl p-6 space-y-4" onClick={e => e.stopPropagation()}>
-            <h2 className="font-display text-2xl text-foreground">{t('Nouvelle mesure', 'New measurement')}</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {METRICS.map(m => (
-                <div key={m.id}>
-                  <label className="font-body text-xs text-muted-foreground uppercase tracking-wide block mb-1">
-                    {language === 'fr' ? m.fr : m.en} ({m.unit})
-                  </label>
-                  <input type="number" step="0.1" value={form[m.id] ?? ''}
-                    onChange={e => setForm(prev => ({ ...prev, [m.id]: e.target.value }))}
-                    placeholder="--" className="input-field" />
-                </div>
-              ))}
+      {/* Add modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowModal(false)}>
+          <div className="bg-background rounded-t-3xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <p className="font-display text-xl text-foreground mb-1">{t("Ajouter une mesure", "Add measurement")}</p>
+            <p className="font-body text-sm text-muted-foreground mb-5">{t(metric.fr, metric.en)} ({metric.unit})</p>
+            <input
+              type="number"
+              value={newValue}
+              onChange={e => setNewValue(e.target.value)}
+              placeholder={t("Valeur...", "Value...")}
+              className="w-full border border-border rounded-xl px-4 py-3 font-body text-base bg-background text-foreground placeholder:text-muted-foreground outline-none focus:border-primary mb-4"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setShowModal(false)}
+                className="flex-1 py-3 rounded-xl border border-border font-body text-sm text-muted-foreground">
+                {t("Annuler", "Cancel")}
+              </button>
+              <button onClick={handleAdd}
+                className="flex-1 py-3 rounded-xl bg-foreground text-background font-body text-sm font-semibold">
+                {t("Enregistrer", "Save")}
+              </button>
             </div>
-            <button onClick={handleSave}
-              disabled={saving || Object.values(form).every(v => !v)}
-              className="w-full rounded-xl bg-primary text-white font-body py-3 disabled:opacity-40">
-              {saving ? '...' : t('Enregistrer', 'Save')}
-            </button>
           </div>
         </div>
       )}
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
-        {[
-          { path: '/home',     label: t('Accueil','Home'),    active: false },
-          { path: '/library',  label: t('Videos','Videos'),   active: false },
-          { path: '/progress', label: t('Progres','Progress'),active: true  },
-          { path: '/profile',  label: t('Profil','Profile'),  active: false },
-        ].map(item => (
-          <button key={item.path} onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${item.active ? 'text-primary' : 'text-muted-foreground'}`}>
-            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-primary' : 'bg-transparent'}`} />
-            {item.label}
-          </button>
-        ))}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
+        <div className="max-w-md mx-auto flex justify-around px-2 py-2">
+          {NAV.map(item => {
+            const active = location.pathname === item.path;
+            return (
+              <button key={item.path} onClick={() => navigate(item.path)}
+                className={"flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors " +
+                  (active ? "text-foreground" : "text-muted-foreground")}>
+                <span className={"w-1.5 h-1.5 rounded-full mb-0.5 " + (active ? "bg-primary" : "bg-transparent")} />
+                <span className="font-body text-[10px] uppercase tracking-wide">{t(item.labelFr, item.labelEn)}</span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
