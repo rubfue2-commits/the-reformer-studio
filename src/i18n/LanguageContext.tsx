@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
-type Language = "fr" | "en";
+type Language = 'fr' | 'en';
 
 interface LanguageContextType {
   language: Language;
@@ -8,46 +8,34 @@ interface LanguageContextType {
   t: (fr: string, en: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType>({
-  language: "fr",
-  setLanguage: () => {},
-  t: (fr: string, _en: string) => fr,
-});
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLang] = useState<Language>(() => {
-    try {
-      const s = localStorage.getItem("cr_language");
-      return s === "en" ? "en" : "fr";
-    } catch {
-      return "fr";
-    }
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem('language');
+    return (saved as Language) || 'fr';
   });
 
   const setLanguage = (lang: Language) => {
-    setLang(lang);
-    try {
-      localStorage.setItem("cr_language", lang);
-    } catch {
-      // ignore
-    }
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
   };
 
   const t = (fr: string, en: string): string => {
-    return language === "fr" ? fr : en;
+    return language === 'fr' ? fr : en;
   };
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
-}
+};
 
-export function useLanguage(): LanguageContextType {
-  return useContext(LanguageContext);
-}
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
