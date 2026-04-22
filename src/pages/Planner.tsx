@@ -35,8 +35,8 @@ const Planner = () => {
     <MobileLayout>
       <div className="px-6 pt-14">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <h1 className="font-display text-3xl font-light text-foreground">{t.planner.title}</h1>
-          <p className="mt-1 font-body text-sm text-muted-foreground">{t.planner.month}</p>
+          <h1 className="font-display text-3xl font-light text-foreground">{t("Planificateur", "Planner")}</h1>
+          <p className="mt-1 font-body text-sm text-muted-foreground">{t("Février 2026", "February 2026")}</p>
         </motion.div>
 
         <div className="mt-6 flex items-center justify-between">
@@ -44,7 +44,7 @@ const Planner = () => {
             <ChevronLeft size={18} />
           </button>
           <span className="font-body text-xs tracking-widest uppercase text-muted-foreground">
-            {weekOffset === 0 ? t.planner.weekCurrent : weekOffset > 0 ? `+${weekOffset}` : weekOffset}
+            {weekOffset === 0 ? t("Cette semaine", "This week") : weekOffset > 0 ? `+${weekOffset}` : weekOffset}
           </span>
           <button onClick={() => setWeekOffset(weekOffset + 1)} className="rounded-full p-2 text-muted-foreground hover:bg-card">
             <ChevronRight size={18} />
@@ -71,29 +71,29 @@ const Planner = () => {
         <motion.div key={selectedDay} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
           {scheduledWorkouts[String(selectedDay)] ? (
             <div className="rounded-2xl border border-border bg-card p-5">
-              <span className="font-body text-[10px] tracking-widest uppercase text-gold">{t.planner.scheduled}</span>
+              <span className="font-body text-[10px] tracking-widest uppercase text-gold">{t("Planifié", "Scheduled")}</span>
               <h3 className="mt-2 font-display text-xl font-light text-foreground">{scheduledWorkouts[String(selectedDay)]}</h3>
-              <p className="mt-1 font-body text-xs text-muted-foreground">45 min · Intermediate</p>
+              <p className="mt-1 font-body text-xs text-muted-foreground">45 min · {t("Intermédiaire", "Intermediate")}</p>
               <button className="mt-4 w-full rounded-xl bg-primary py-3 font-body text-sm font-medium text-primary-foreground">
-                {t.planner.startSession}
+                {t("Démarrer la séance", "Start session")}
               </button>
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-border p-8 text-center">
-              <p className="font-body text-sm text-muted-foreground">{t.planner.noSession}</p>
-              <button className="mt-3 font-body text-xs text-gold underline decoration-gold/30 underline-offset-2">{t.planner.addWorkout}</button>
+              <p className="font-body text-sm text-muted-foreground">{t("Aucune séance prévue", "No session scheduled")}</p>
+              <button className="mt-3 font-body text-xs text-gold underline decoration-gold/30 underline-offset-2">{t("Ajouter un entraînement", "Add a workout")}</button>
             </div>
           )}
         </motion.div>
 
         <div className="mt-8 mb-6">
-          <h3 className="mb-4 font-display text-lg text-foreground">{t.planner.thisWeek}</h3>
+          <h3 className="mb-4 font-display text-lg text-foreground">{t("Cette semaine", "This week")}</h3>
           <div className="space-y-3">
             {Object.entries(scheduledWorkouts).map(([date, name]) => (
               <div key={date} className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
                 <div>
                   <p className="font-body text-sm font-medium text-foreground">{name}</p>
-                  <p className="font-body text-xs text-muted-foreground">Feb {date}</p>
+                  <p className="font-body text-xs text-muted-foreground">{t("Fév", "Feb")} {date}</p>
                 </div>
                 <div className="rounded-full bg-muted px-3 py-1">
                   <span className="font-body text-[10px] text-muted-foreground">45 min</span>
