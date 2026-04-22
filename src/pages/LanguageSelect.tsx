@@ -1,43 +1,85 @@
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { Language } from "@/i18n/translations";
+import Logo from "@/components/Logo";
 
-export default function LanguageSelect() {
+const LanguageSelect = () => {
   const navigate = useNavigate();
   const { setLanguage } = useLanguage();
 
-  const choose = (lang: 'fr' | 'en') => {
+  const handleSelect = (lang: Language) => {
     setLanguage(lang);
-    navigate('/auth');
+    navigate("/auth");
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm text-center">
-        <h1 className="font-display text-5xl text-foreground mb-2">The Reformer</h1>
-        <p className="font-display text-3xl text-primary mb-3">Studio</p>
-        <p className="font-body text-sm text-muted-foreground mb-10 tracking-widest uppercase">Pilates</p>
+    <div className="flex min-h-screen flex-col items-center justify-center px-8"
+      style={{ background: "#F5F0E8" }}>
 
-        <div className="space-y-3">
-          {[
-            { lang: 'fr' as const, flag: '🇫🇷', label: 'Francais', sub: 'Continuer en francais' },
-            { lang: 'en' as const, flag: '🇬🇧', label: 'English', sub: 'Continue in English' },
-          ].map(({ lang, flag, label, sub }) => (
-            <button key={lang} onClick={() => choose(lang)}
-              className="w-full flex items-center gap-4 bg-card border border-border rounded-2xl p-5 hover:bg-accent transition-colors cursor-pointer">
-              <span className="text-3xl">{flag}</span>
-              <div className="text-left flex-1">
-                <p className="font-display text-xl text-foreground">{label}</p>
-                <p className="font-body text-xs text-muted-foreground">{sub}</p>
-              </div>
-              <span className="text-muted-foreground text-lg">›</span>
-            </button>
-          ))}
-        </div>
+      {/* Logo Connect Reformer */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="mb-16"
+      >
+        <Logo size="xl" variant="full" />
+      </motion.div>
 
-        <p className="font-body text-xs text-muted-foreground mt-8">
-          You can change this later in your profile
+      {/* Sélection langue */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="w-full max-w-xs space-y-4"
+      >
+        <p className="mb-6 text-center font-body text-sm tracking-widest uppercase"
+          style={{ color: "#888780" }}>
+          Choisissez votre langue
         </p>
-      </div>
+
+        {/* Français */}
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => handleSelect("fr")}
+          className="flex w-full items-center justify-between rounded-2xl px-6 py-4 shadow-sm transition-all"
+          style={{ background: "#1C1B19", color: "#F5F0E8" }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🇫🇷</span>
+            <span className="font-body text-base font-light tracking-wide">Français</span>
+          </div>
+          <span className="font-body text-sm" style={{ color: "#B8973E" }}>→</span>
+        </motion.button>
+
+        {/* English */}
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => handleSelect("en")}
+          className="flex w-full items-center justify-between rounded-2xl border px-6 py-4 transition-all"
+          style={{ background: "transparent", borderColor: "#C5BFA8", color: "#1C1B19" }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🇬🇧</span>
+            <span className="font-body text-base font-light tracking-wide">English</span>
+          </div>
+          <span className="font-body text-sm" style={{ color: "#B8973E" }}>→</span>
+        </motion.button>
+      </motion.div>
+
+      {/* Tagline */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="mt-16 font-body text-xs tracking-widest uppercase text-center"
+        style={{ color: "#B4B2A9" }}
+      >
+        Pilates · Performance · Bien-être
+      </motion.p>
     </div>
   );
-}
+};
+
+export default LanguageSelect;
