@@ -6,9 +6,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-
 import LanguageSelect from "./pages/LanguageSelect";
 import Auth from "./pages/Auth";
+import CGV from "./pages/CGV";
 import Onboarding from "./pages/Onboarding";
 import Subscription from "./pages/Subscription";
 import Home from "./pages/Home";
@@ -37,6 +37,7 @@ const App = () => (
               <Route path="/" element={<Navigate to="/language" replace />} />
               <Route path="/language" element={<LanguageSelect />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/cgv" element={<CGV />} />
               <Route path="/onboarding"    element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/subscription"  element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
               <Route path="/home"          element={<ProtectedRoute><Home /></ProtectedRoute>} />
