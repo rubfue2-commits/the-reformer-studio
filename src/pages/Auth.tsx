@@ -5,6 +5,9 @@ import { useLanguage } from "@/i18n/LanguageContext";
 
 type Mode = "signin" | "signup" | "reset";
 
+// Page CGV — a creer dans src/pages/CGV.tsx ou remplacer par une URL externe
+const CGV_URL = "/cgv";
+
 export default function Auth() {
   const navigate = useNavigate();
   const { signIn, signUp, signInWithApple, signInWithGoogle, resetPassword } = useAuth();
@@ -16,6 +19,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [cgvAccepted, setCgvAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
@@ -25,6 +29,15 @@ export default function Auth() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     clear();
+
+    // Validation CGV uniquement a l inscription
+    if (mode === "signup" && !cgvAccepted) {
+      setErrorMsg(fr
+        ? "Veuillez accepter les conditions generales de vente pour continuer."
+        : "Please accept the terms and conditions to continue.");
+      return;
+    }
+
     setLoading(true);
 
     if (mode === "reset") {
@@ -43,7 +56,7 @@ export default function Auth() {
       return;
     }
 
-    // signup
+    // Signup
     if (password.length < 8) {
       setLoading(false);
       setErrorMsg(fr ? "Mot de passe trop court (8 min)" : "Password too short (8 chars min)");
@@ -59,8 +72,6 @@ export default function Auth() {
   };
 
   const inputCls = "w-full rounded-xl border border-border bg-card text-foreground font-body text-sm px-4 py-3 outline-none focus:border-primary placeholder:text-muted-foreground";
-  const btnPrimary = "w-full rounded-xl bg-foreground text-background font-body font-semibold py-3 disabled:opacity-40 cursor-pointer";
-  const btnSecondary = "w-full rounded-xl border border-border bg-card text-foreground font-body text-sm py-3 flex items-center justify-center gap-2 cursor-pointer";
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-10">
@@ -68,9 +79,10 @@ export default function Auth() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="font-display text-4xl text-foreground">The Reformer</h1>
-          <p className="font-display text-3xl text-primary">Studio</p>
-          <p className="font-body text-xs text-muted-foreground mt-2 tracking-widest uppercase">
+          <p className="font-body text-xs text-primary tracking-widest uppercase mb-1">CONNECT</p>
+          <h1 className="font-display text-5xl text-foreground font-light" style={{ letterSpacing: '-1px' }}>Reformer</h1>
+          <div className="w-10 h-px bg-primary mx-auto mt-3 mb-2" />
+          <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
             {fr ? "Pilates · Bien-etre" : "Pilates · Wellness"}
           </p>
         </div>
@@ -89,7 +101,8 @@ export default function Auth() {
                 value={email} onChange={e => setEmail(e.target.value)} />
               {errorMsg && <p className="font-body text-xs text-red-500">{errorMsg}</p>}
               {infoMsg  && <p className="font-body text-xs text-green-600">{infoMsg}</p>}
-              <button type="submit" disabled={loading} className={btnPrimary}>
+              <button type="submit" disabled={loading}
+                className="w-full rounded-xl bg-foreground text-background font-body font-semibold py-3 disabled:opacity-40">
                 {loading ? "..." : fr ? "Envoyer le lien" : "Send link"}
               </button>
             </form>
@@ -99,7 +112,7 @@ export default function Auth() {
             {/* Tabs */}
             <div className="flex border-b border-border mb-6">
               {([["signin", fr ? "Connexion" : "Sign in"], ["signup", fr ? "Inscription" : "Sign up"]] as [Mode, string][]).map(([m, label]) => (
-                <button key={m} type="button" onClick={() => { setMode(m); clear(); }}
+                <button key={m} type="button" onClick={() => { setMode(m); clear(); setCgvAccepted(false); }}
                   className={`flex-1 pb-3 font-body text-sm ${mode === m ? "border-b-2 border-primary text-foreground -mb-px font-medium" : "text-muted-foreground"}`}>
                   {label}
                 </button>
@@ -115,6 +128,7 @@ export default function Auth() {
                     value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" />
                 </div>
               )}
+
               <input type="email" required className={inputCls} placeholder="Email"
                 value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
               <input type="password" required className={inputCls}
@@ -122,17 +136,64 @@ export default function Auth() {
                 value={password} onChange={e => setPassword(e.target.value)}
                 autoComplete={mode === "signin" ? "current-password" : "new-password"} />
 
-              {errorMsg && <p className="font-body text-xs text-red-500">{errorMsg}</p>}
-              {infoMsg  && <p className="font-body text-xs text-green-600">{infoMsg}</p>}
+              {/* ── CGV CHECKBOX (seulement a l inscription) ── */}
+              {mode === "signup" && (
+                <div
+                  onClick={() => setCgvAccepted(v => !v)}
+                  className={`flex items-start gap-3 rounded-xl p-3 border cursor-pointer transition-colors ${
+                    cgvAccepted ? "border-primary bg-primary/5" : "border-border bg-card"
+                  }`}
+                >
+                  {/* Checkbox custom */}
+                  <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                    cgvAccepted ? "border-primary bg-primary" : "border-muted-foreground bg-background"
+                  }`}>
+                    {cgvAccepted && (
+                      <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                        <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  {/* Label */}
+                  <p className="font-body text-sm text-foreground leading-relaxed select-none">
+                    {fr ? "J'accepte les" : "I accept the"}{" "}
+                    <a
+                      href={CGV_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="text-primary underline underline-offset-2 font-medium"
+                    >
+                      {fr ? "conditions generales de vente" : "terms and conditions"}
+                    </a>
+                    {fr ? " de Connect Reformer." : " of Connect Reformer."}
+                  </p>
+                </div>
+              )}
+
+              {errorMsg && (
+                <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+                  <p className="font-body text-xs text-red-600">{errorMsg}</p>
+                </div>
+              )}
+              {infoMsg && (
+                <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3">
+                  <p className="font-body text-xs text-green-700">{infoMsg}</p>
+                </div>
+              )}
 
               {mode === "signin" && (
                 <button type="button" onClick={() => { setMode("reset"); clear(); }}
-                  className="font-body text-xs text-muted-foreground text-right w-full">
+                  className="font-body text-xs text-muted-foreground text-right w-full pt-1">
                   {fr ? "Mot de passe oublie ?" : "Forgot password?"}
                 </button>
               )}
 
-              <button type="submit" disabled={loading} className={btnPrimary}>
+              <button
+                type="submit"
+                disabled={loading || (mode === "signup" && !cgvAccepted)}
+                className="w-full rounded-xl bg-foreground text-background font-body font-semibold py-3 disabled:opacity-40 transition-opacity"
+              >
                 {loading ? "..."
                   : mode === "signin" ? (fr ? "Se connecter" : "Sign in")
                   : (fr ? "Creer mon compte" : "Create account")}
@@ -146,10 +207,12 @@ export default function Auth() {
             </div>
 
             <div className="space-y-2">
-              <button type="button" onClick={() => signInWithApple()} className={btnSecondary}>
+              <button type="button" onClick={() => signInWithApple()}
+                className="w-full rounded-xl border border-border bg-card text-foreground font-body text-sm py-3 flex items-center justify-center gap-2">
                 <span>🍎</span>{fr ? "Continuer avec Apple" : "Continue with Apple"}
               </button>
-              <button type="button" onClick={() => signInWithGoogle()} className={btnSecondary}>
+              <button type="button" onClick={() => signInWithGoogle()}
+                className="w-full rounded-xl border border-border bg-card text-foreground font-body text-sm py-3 flex items-center justify-center gap-2">
                 <span>🔵</span>{fr ? "Continuer avec Google" : "Continue with Google"}
               </button>
             </div>
