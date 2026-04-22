@@ -1,186 +1,202 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/hooks/useProfile';
-import { usePreferences } from '@/hooks/usePreferences';
-import { useSessions } from '@/hooks/useSessions';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { motion } from "framer-motion";
+import {
+  ChevronRight, Crown, Settings, Bell, HelpCircle,
+  LogOut, Globe, Gift, Award, Heart, Layers
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import MobileLayout from "@/components/MobileLayout";
+import BottomNav from "@/components/BottomNav";
+import Logo from "@/components/Logo";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { Language } from "@/i18n/translations";
 
-export default function Profile() {
+const Profile = () => {
+  const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const { profile, updateProfile } = useProfile();
-  const { preferences } = usePreferences();
-  const { stats } = useSessions();
-  const { language, setLanguage } = useLanguage();
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
-  const [editing, setEditing] = useState(false);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [showSignOut, setShowSignOut] = useState(false);
+  const menuItems = [
+    { icon: Bell, label: t.profile.notifications, action: () => navigate("/notifications") },
+    { icon: Settings, label: t.profile.preferences, action: () => {} },
+    { icon: HelpCircle, label: t.profile.help, action: () => {} },
+  ];
 
-  const initials = [profile?.first_name, profile?.last_name]
-    .filter(Boolean).map(s => s![0].toUpperCase()).join('') || '?';
-
-  const startEdit = () => {
-    setFirstName(profile?.first_name ?? '');
-    setLastName(profile?.last_name ?? '');
-    setEditing(true);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    await updateProfile({ first_name: firstName, last_name: lastName });
-    setSaving(false);
-    setEditing(false);
-  };
-
-  const handleLangToggle = async () => {
-    const nl = language === 'fr' ? 'en' : 'fr';
-    setLanguage(nl);
-    await updateProfile({ language: nl });
-  };
+  const quickLinks = [
+    {
+      icon: Award, label: "Badges & Achievements",
+      sub: "9 obtenus · Niveau 3 · 1 525 XP",
+      path: "/achievements", color: "#B8973E", bg: "#FAEEDA",
+      extra: "🏅⭐🔥",
+    },
+    {
+      icon: Heart, label: "Journal bien-être",
+      sub: "Énergie, humeur, sommeil...",
+      path: "/wellness", color: "#EC4899", bg: "#FDF2F8",
+      extra: "😊💧🌙",
+    },
+    {
+      icon: Layers, label: "Mes programmes",
+      sub: "Débutante · Semaine 2/4",
+      path: "/programs", color: "#6366F1", bg: "#EEF2FF",
+      extra: "50% ▶",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="px-6 pt-12 pb-4 flex items-center justify-between">
-        <h1 className="font-display text-3xl text-foreground">{t('Profil', 'Profile')}</h1>
-        {!editing ? (
-          <button onClick={startEdit} className="font-body text-sm text-primary">{t('Modifier', 'Edit')}</button>
-        ) : (
-          <button onClick={handleSave} className="font-body text-sm text-primary font-semibold">
-            {saving ? '...' : t('OK', 'Done')}
+    <MobileLayout>
+      <div className="px-6 pt-14">
+
+        {/* Header avec logo Connect Reformer */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="flex items-center justify-between mb-6">
+          <Logo size="md" variant="full" />
+          <button onClick={() => navigate("/notifications")}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm">
+            <Bell size={18} strokeWidth={1.5} className="text-muted-foreground" />
+            {/* Badge non lues */}
+            <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-gold border-2 border-background" />
           </button>
-        )}
-      </div>
+        </motion.div>
 
-      <div className="px-6 space-y-4">
-        {/* Avatar */}
-        <div className="flex flex-col items-center py-4">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-3">
-            <span className="font-display text-3xl text-white">{initials}</span>
+        {/* User card */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="rounded-3xl bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full font-display text-xl text-primary-foreground"
+              style={{ background: "linear-gradient(135deg, #1C1B19, #B8973E)" }}>
+              C
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-light text-foreground">Camille Laurent</h2>
+              <p className="font-body text-xs text-muted-foreground">camille@email.com</p>
+            </div>
           </div>
-          {editing ? (
-            <div className="flex gap-2 w-full max-w-xs">
-              <input className="input-field text-center" value={firstName}
-                onChange={e => setFirstName(e.target.value)} placeholder={t('Prenom', 'First name')} />
-              <input className="input-field text-center" value={lastName}
-                onChange={e => setLastName(e.target.value)} placeholder={t('Nom', 'Last name')} />
-            </div>
-          ) : (
-            <>
-              <p className="font-display text-2xl text-foreground">
-                {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || t('Ton nom', 'Your name')}
-              </p>
-              <p className="font-body text-sm text-muted-foreground">{profile?.email}</p>
-            </>
-          )}
-        </div>
+        </motion.div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: t('Seances', 'Sessions'), value: stats.totalSessions },
-            { label: t('Minutes', 'Minutes'),  value: stats.totalMinutes  },
-            { label: t('Streak', 'Streak'),    value: stats.currentStreakDays },
-          ].map(s => (
-            <div key={s.label} className="rounded-2xl bg-card border border-border p-4 text-center">
-              <p className="font-display text-3xl text-foreground">{s.value}</p>
-              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{s.label}</p>
+        {/* Abonnement */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+          className="mt-3 rounded-3xl border border-gold/30 bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Crown size={16} className="text-gold" />
+            <span className="font-body text-xs tracking-widest uppercase text-gold">{t.profile.annualMember}</span>
+          </div>
+          <p className="mt-2 font-display text-lg font-light text-foreground">{t.profile.premiumSub}</p>
+          <p className="mt-1 font-body text-xs text-muted-foreground">{t.profile.renews}</p>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="rounded-full bg-gold/10 px-3 py-1">
+              <span className="font-body text-[10px] font-medium text-gold">{t.profile.active}</span>
             </div>
+            <div className="rounded-full bg-muted px-3 py-1">
+              <span className="font-body text-[10px] text-muted-foreground">{t.profile.unlimited}</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Raccourcis rapides */}
+        <div className="mt-3 space-y-2.5">
+          {quickLinks.map(({ icon: Icon, label, sub, path, color, bg, extra }, i) => (
+            <motion.button key={path} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 + i * 0.05 }}
+              onClick={() => navigate(path)}
+              className="w-full rounded-2xl bg-card p-4 shadow-sm flex items-center justify-between border border-border">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full"
+                  style={{ backgroundColor: bg }}>
+                  <Icon size={18} strokeWidth={1.5} style={{ color }} />
+                </div>
+                <div className="text-left">
+                  <p className="font-body text-sm font-medium text-foreground">{label}</p>
+                  <p className="font-body text-[10px] text-muted-foreground">{sub}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-body text-xs text-muted-foreground">{extra}</span>
+                <ChevronRight size={16} className="text-muted-foreground" />
+              </div>
+            </motion.button>
           ))}
         </div>
 
-        {/* Preferences */}
-        {preferences && (
-          <div className="rounded-3xl bg-card border border-border p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-body text-sm font-semibold text-foreground">{t('Mes objectifs', 'My goals')}</p>
-              <button onClick={() => navigate('/onboarding')} className="font-body text-xs text-primary">
-                {t('Modifier', 'Edit')}
-              </button>
+        {/* Parrainage */}
+        <motion.button initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.33 }}
+          onClick={() => navigate("/referral")}
+          className="mt-2.5 w-full rounded-3xl p-5 shadow-sm flex items-center justify-between"
+          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20">
+              <Gift size={18} className="text-gold" strokeWidth={1.5} />
             </div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {(preferences.goals ?? []).map(g => (
-                <span key={g} className="font-body text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1">
-                  {g}
-                </span>
+            <div className="text-left">
+              <p className="font-body text-sm font-medium text-white">Inviter une amie</p>
+              <p className="font-body text-[10px] text-white/50">Gagne 1 mois offert par parrainage</p>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-white/40" />
+        </motion.button>
+
+        {/* Stats */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="mt-3 flex gap-3">
+          {[
+            { value: "64", label: t.profile.totalSessions },
+            { value: "48h", label: t.profile.timeInvested },
+            { value: "12", label: t.profile.dayStreak },
+          ].map(({ value, label }) => (
+            <div key={label} className="flex-1 rounded-2xl bg-card p-4 text-center shadow-sm">
+              <p className="font-display text-2xl text-foreground">{value}</p>
+              <p className="font-body text-[10px] text-muted-foreground">{label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Langue */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }}
+          className="mt-3 rounded-3xl bg-card shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-3">
+              <Globe size={18} strokeWidth={1.5} className="text-muted-foreground" />
+              <span className="font-body text-sm text-foreground">Language</span>
+            </div>
+            <div className="flex gap-2">
+              {(["en", "fr"] as Language[]).map(lang => (
+                <button key={lang} onClick={() => setLanguage(lang)}
+                  className={`rounded-full px-3 py-1 font-body text-xs transition-all ${
+                    language === lang ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  }`}>
+                  {lang === "en" ? "EN" : "FR"}
+                </button>
               ))}
             </div>
-            <div className="space-y-2 pt-3 border-t border-border">
-              <div className="flex justify-between">
-                <span className="font-body text-sm text-muted-foreground">{t('Niveau', 'Level')}</span>
-                <span className="font-body text-sm text-foreground">{preferences.experience_level ?? '--'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-body text-sm text-muted-foreground">{t('Frequence', 'Frequency')}</span>
-                <span className="font-body text-sm text-foreground">{preferences.weekly_frequency}x / {t('sem.', 'week')}</span>
-              </div>
-            </div>
           </div>
-        )}
+        </motion.div>
 
-        {/* Settings list */}
-        <div className="rounded-3xl bg-card border border-border overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={handleLangToggle}>
-            <p className="font-body text-sm text-foreground">🌍 {t('Langue', 'Language')}</p>
-            <p className="font-body text-sm text-muted-foreground">{language === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN'} ›</p>
-          </div>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={() => navigate('/progress')}>
-            <p className="font-body text-sm text-foreground">📊 {t('Mes mesures', 'Measurements')}</p>
-            <span className="text-muted-foreground">›</span>
-          </div>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border cursor-pointer" onClick={() => navigate('/subscription')}>
-            <p className="font-body text-sm text-foreground">💳 {t('Abonnement', 'Subscription')}</p>
-            <span className="text-muted-foreground">›</span>
-          </div>
-          <div className="flex items-center justify-between px-5 py-4 cursor-pointer" onClick={() => setShowSignOut(true)}>
-            <p className="font-body text-sm text-red-500">🚪 {t('Se deconnecter', 'Sign out')}</p>
-            <span className="text-red-400">›</span>
-          </div>
-        </div>
+        {/* Menu */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="mt-3 rounded-3xl bg-card shadow-sm">
+          {menuItems.map(({ icon: Icon, label, action }, i) => (
+            <button key={label} onClick={action}
+              className={`flex w-full items-center justify-between px-5 py-4 ${
+                i < menuItems.length - 1 ? "border-b border-border" : ""
+              }`}>
+              <div className="flex items-center gap-3">
+                <Icon size={18} strokeWidth={1.5} className="text-muted-foreground" />
+                <span className="font-body text-sm text-foreground">{label}</span>
+              </div>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Déconnexion */}
+        <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
+          className="mt-4 mb-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-3 font-body text-sm text-muted-foreground">
+          <LogOut size={16} strokeWidth={1.5} />
+          {t.profile.signOut}
+        </motion.button>
+
       </div>
-
-      {/* Sign out modal */}
-      {showSignOut && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6"
-          onClick={() => setShowSignOut(false)}>
-          <div className="w-full max-w-sm bg-background rounded-3xl p-6 space-y-4" onClick={e => e.stopPropagation()}>
-            <h2 className="font-display text-2xl text-foreground">{t('Se deconnecter ?', 'Sign out?')}</h2>
-            <p className="font-body text-sm text-muted-foreground">
-              {t('Tu pourras te reconnecter a tout moment.', 'You can sign back in anytime.')}
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowSignOut(false)}
-                className="flex-1 rounded-xl border border-border py-3 font-body text-sm text-muted-foreground">
-                {t('Annuler', 'Cancel')}
-              </button>
-              <button onClick={async () => { await signOut(); navigate('/auth'); }}
-                className="flex-1 rounded-xl bg-red-500 text-white py-3 font-body text-sm font-semibold">
-                {t('Deconnecter', 'Sign out')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around px-4 py-3">
-        {[
-          { path: '/home',     label: t('Accueil','Home'),    active: false },
-          { path: '/library',  label: t('Videos','Videos'),   active: false },
-          { path: '/progress', label: t('Progres','Progress'),active: false },
-          { path: '/profile',  label: t('Profil','Profile'),  active: true  },
-        ].map(item => (
-          <button key={item.path} onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center gap-1 font-body text-[10px] uppercase tracking-wide ${item.active ? 'text-primary' : 'text-muted-foreground'}`}>
-            <span className={`w-1 h-1 rounded-full ${item.active ? 'bg-primary' : 'bg-transparent'}`} />
-            {item.label}
-          </button>
-        ))}
-      </nav>
-    </div>
+      <BottomNav />
+    </MobileLayout>
   );
-}
+};
+
+export default Profile;
