@@ -5,7 +5,7 @@ type Language = "fr" | "en";
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (frOrKey: string, en?: string) => string;
 }
 
 // ============================================================
