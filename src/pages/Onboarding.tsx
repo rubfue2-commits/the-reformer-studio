@@ -1,206 +1,168 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePreferences } from "@/hooks/usePreferences";
 import { useLanguage } from "@/i18n/LanguageContext";
+import Logo from "@/components/Logo";
 
-const GOALS = [
-  { id: "weight_loss",    emoji: "🔥", fr: "Perte de poids", en: "Weight loss"   },
-  { id: "strength",       emoji: "💪", fr: "Renforcement",   en: "Strength"      },
-  { id: "flexibility",    emoji: "🧘", fr: "Souplesse",      en: "Flexibility"   },
-  { id: "posture",        emoji: "🎯", fr: "Posture",        en: "Posture"        },
-  { id: "rehabilitation", emoji: "🩺", fr: "Reeducation",    en: "Rehab"         },
-  { id: "relaxation",     emoji: "✨", fr: "Relaxation",     en: "Relaxation"    },
+const STEPS = [
+  {
+    id: "goal",
+    emoji: "🎯",
+    title: "Quel est ton objectif ?",
+    options: ["Perdre du poids", "Tonifier mon corps", "Améliorer ma posture", "Récupérer après blessure", "Bien-être & relaxation"],
+  },
+  {
+    id: "level",
+    emoji: "💪",
+    title: "Ton niveau en Pilates ?",
+    options: ["Débutante — je commence", "Intermédiaire — quelques mois", "Avancée — je pratique régulièrement"],
+  },
+  {
+    id: "frequency",
+    emoji: "📅",
+    title: "Combien de fois par semaine ?",
+    options: ["1-2 fois", "3-4 fois", "5+ fois"],
+  },
+  {
+    id: "measurements",
+    emoji: "📏",
+    title: "Tes mensurations de départ",
+    isForm: true,
+  },
 ];
 
-const LEVELS = [
-  { id: "beginner",     fr: "Debutante",     en: "Beginner",     desc_fr: "Je commence",          desc_en: "Just starting"        },
-  { id: "intermediate", fr: "Intermediaire", en: "Intermediate", desc_fr: "Quelques mois",         desc_en: "A few months"         },
-  { id: "advanced",     fr: "Avancee",       en: "Advanced",     desc_fr: "Plus d un an",          desc_en: "Over a year"          },
-];
-
-const FOCUSES = [
-  { id: "core",      emoji: "⭕", fr: "Abdos",       en: "Core"      },
-  { id: "legs",      emoji: "🦵", fr: "Jambes",      en: "Legs"      },
-  { id: "arms",      emoji: "💪", fr: "Bras",        en: "Arms"      },
-  { id: "back",      emoji: "🔙", fr: "Dos",         en: "Back"      },
-  { id: "full_body", emoji: "🌟", fr: "Corps entier", en: "Full body" },
-];
-
-export default function Onboarding() {
+const Onboarding = () => {
   const navigate = useNavigate();
-  const { completeOnboarding } = usePreferences();
-  const { language } = useLanguage();
-  const fr = language === "fr";
-
+  const { t } = useLanguage();
   const [step, setStep] = useState(0);
-  const [goals, setGoals] = useState<string[]>([]);
-  const [level, setLevel] = useState<string>("");
-  const [frequency, setFrequency] = useState(3);
-  const [focuses, setFocuses] = useState<string[]>([]);
-  const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
 
-  const total = 4;
-  const progress = ((step + 1) / total) * 100;
+  const currentStep = STEPS[step];
+  const isLast = step === STEPS.length - 1;
 
-  const toggleGoal = (id: string) =>
-    setGoals(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-
-  const toggleFocus = (id: string) =>
-    setFocuses(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-
-  const canNext =
-    (step === 0 && goals.length > 0) ||
-    (step === 1 && level !== "") ||
-    step === 2 ||
-    (step === 3 && focuses.length > 0);
-
-  const finish = async () => {
-    setSaving(true);
-    await completeOnboarding({
-      goals: goals as any,
-      experience_level: level as any,
-      weekly_frequency: frequency,
-      focus_areas: focuses as any,
-    });
-    setSaving(false);
-    navigate("/home");
+  const handleNext = () => {
+    if (isLast) { navigate("/home"); return; }
+    setStep(s => s + 1);
   };
 
-  const titles = [
-    fr ? "Tes objectifs" : "Your goals",
-    fr ? "Ton niveau"    : "Your level",
-    fr ? "Ta frequence"  : "Your frequency",
-    fr ? "Zones cibles"  : "Focus areas",
-  ];
-
-  const cardStyle = (active: boolean): React.CSSProperties => ({
-    display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-    padding: "16px 12px", borderRadius: 18, cursor: "pointer",
-    background: active ? "rgba(196,150,58,0.18)" : "#1C1C1E",
-    border: active ? "1.5px solid #C4963A" : "0.5px solid rgba(255,255,255,0.08)",
-    color: active ? "#C4963A" : "rgba(255,255,255,0.6)",
-    fontSize: 13, fontFamily: "DM Sans, sans-serif", fontWeight: 500,
-  });
+  const canNext = currentStep.isForm
+    ? weight !== "" && height !== ""
+    : !!selected[currentStep.id];
 
   return (
-    <div style={{ minHeight: "100%", background: "#0F0F0F", display: "flex", flexDirection: "column" }}>
-
-      {/* Progress */}
-      <div style={{ height: 3, background: "#1C1C1E", marginTop: 44 }}>
-        <div style={{ height: "100%", width: progress + "%", background: "#C4963A", transition: "width 0.4s" }} />
+    <div className="flex min-h-screen flex-col" style={{ background: "#F5F0E8" }}>
+      {/* Header logo */}
+      <div className="flex items-center justify-between px-6 pt-12 pb-6">
+        <Logo size="sm" variant="full" />
+        <button onClick={() => navigate("/home")}
+          className="font-body text-xs underline-offset-2"
+          style={{ color: "#888780" }}>
+          Passer
+        </button>
       </div>
 
-      {/* Header */}
-      <div style={{ padding: "24px 20px 8px", display: "flex", alignItems: "center", gap: 12 }}>
+      {/* Stepper */}
+      <div className="flex gap-1.5 px-6 mb-8">
+        {STEPS.map((_, i) => (
+          <div key={i} className="h-1 flex-1 rounded-full transition-all duration-500"
+            style={{ background: i <= step ? "#B8973E" : "#D3D1C7" }} />
+        ))}
+      </div>
+
+      <div className="flex-1 px-6">
+        <AnimatePresence mode="wait">
+          <motion.div key={step}
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+
+            {/* Emoji + titre */}
+            <div className="mb-8">
+              <span className="text-4xl mb-4 block">{currentStep.emoji}</span>
+              <h1 className="font-display text-2xl font-light" style={{ color: "#1C1B19" }}>
+                {currentStep.title}
+              </h1>
+            </div>
+
+            {/* Options */}
+            {!currentStep.isForm && currentStep.options && (
+              <div className="space-y-3">
+                {currentStep.options.map(opt => {
+                  const isActive = selected[currentStep.id] === opt;
+                  return (
+                    <motion.button key={opt} whileTap={{ scale: 0.98 }}
+                      onClick={() => setSelected(prev => ({ ...prev, [currentStep.id]: opt }))}
+                      className="w-full flex items-center justify-between rounded-2xl px-5 py-4 text-left transition-all"
+                      style={{
+                        background: isActive ? "#1C1B19" : "#FFFFFF",
+                        color: isActive ? "#F5F0E8" : "#1C1B19",
+                        border: isActive ? "none" : "1px solid #D3D1C7",
+                      }}>
+                      <span className="font-body text-sm">{opt}</span>
+                      {isActive && (
+                        <div className="h-5 w-5 rounded-full flex items-center justify-center"
+                          style={{ background: "#B8973E" }}>
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Formulaire mensurations */}
+            {currentStep.isForm && (
+              <div className="space-y-4">
+                <p className="font-body text-sm mb-6" style={{ color: "#888780" }}>
+                  Ces informations nous permettent de suivre tes progrès. Tu pourras les modifier à tout moment.
+                </p>
+                {[
+                  { label: "Poids (kg)", value: weight, setter: setWeight, placeholder: "ex: 65" },
+                  { label: "Taille (cm)", value: height, setter: setHeight, placeholder: "ex: 168" },
+                ].map(({ label, value, setter, placeholder }) => (
+                  <div key={label}>
+                    <label className="font-body text-xs tracking-widest uppercase block mb-2"
+                      style={{ color: "#888780" }}>{label}</label>
+                    <input type="number" value={value} onChange={e => setter(e.target.value)}
+                      placeholder={placeholder}
+                      className="w-full rounded-2xl border px-5 py-4 font-body text-base outline-none transition-all"
+                      style={{ borderColor: "#D3D1C7", background: "#FFFFFF", color: "#1C1B19" }} />
+                  </div>
+                ))}
+                <p className="font-body text-xs text-center mt-4" style={{ color: "#B4B2A9" }}>
+                  Optionnel — tu peux sauter cette étape
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex gap-3 px-6 pb-12 pt-6">
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)}
-            style={{ background: "none", border: "none", color: "#C4963A", fontSize: 28, cursor: "pointer", lineHeight: 1, padding: 0 }}>
-            ‹
+            className="flex h-14 w-14 items-center justify-center rounded-2xl border transition-all"
+            style={{ borderColor: "#D3D1C7", color: "#1C1B19" }}>
+            <ChevronLeft size={20} strokeWidth={1.5} />
           </button>
         )}
-        <div>
-          <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 11, fontWeight: 600, color: "#C4963A", letterSpacing: 2, textTransform: "uppercase", margin: "0 0 4px" }}>
-            {step + 1} / {total}
-          </p>
-          <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 34, fontWeight: 300, color: "#fff", margin: 0 }}>
-            {titles[step]}
-          </h1>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, padding: "16px 20px", overflowY: "auto" }}>
-
-        {step === 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {GOALS.map(g => (
-              <button key={g.id} onClick={() => toggleGoal(g.id)} style={cardStyle(goals.includes(g.id))}>
-                <span style={{ fontSize: 28 }}>{g.emoji}</span>
-                {fr ? g.fr : g.en}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {step === 1 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {LEVELS.map(l => {
-              const active = level === l.id;
-              return (
-                <button key={l.id} onClick={() => setLevel(l.id)}
-                  style={{ ...cardStyle(active), flexDirection: "row", gap: 14, padding: "18px 20px", textAlign: "left" }}>
-                  <div style={{
-                    width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                    background: active ? "#C4963A" : "transparent",
-                    border: active ? "2px solid #C4963A" : "2px solid rgba(255,255,255,0.2)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    {active && <span style={{ color: "#000", fontSize: 13, fontWeight: 700 }}>✓</span>}
-                  </div>
-                  <div style={{ textAlign: "left" }}>
-                    <p style={{ margin: "0 0 2px", fontSize: 16, fontWeight: 500, color: active ? "#C4963A" : "#fff", fontFamily: "DM Sans, sans-serif" }}>
-                      {fr ? l.fr : l.en}
-                    </p>
-                    <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)", fontFamily: "DM Sans, sans-serif" }}>
-                      {fr ? l.desc_fr : l.desc_en}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {step === 2 && (
-          <div style={{ textAlign: "center", paddingTop: 24 }}>
-            <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 36 }}>
-              {fr ? "Seances par semaine" : "Sessions per week"}
-            </p>
-            <div style={{ display: "flex", justifyContent: "center", gap: 14 }}>
-              {[2, 3, 4, 5].map(f => (
-                <button key={f} onClick={() => setFrequency(f)} style={{
-                  width: 64, height: 64, borderRadius: 20,
-                  background: frequency === f ? "#C4963A" : "#1C1C1E",
-                  border: frequency === f ? "none" : "0.5px solid rgba(255,255,255,0.1)",
-                  color: frequency === f ? "#000" : "#fff",
-                  fontFamily: "Cormorant Garamond, serif", fontSize: 32, cursor: "pointer",
-                }}>
-                  {f}
-                </button>
-              ))}
-            </div>
-            <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 15, color: "rgba(255,255,255,0.6)", marginTop: 20 }}>
-              {frequency}x / {fr ? "semaine" : "week"}
-            </p>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {FOCUSES.map(f => (
-              <button key={f.id} onClick={() => toggleFocus(f.id)} style={cardStyle(focuses.includes(f.id))}>
-                <span style={{ fontSize: 28 }}>{f.emoji}</span>
-                {fr ? f.fr : f.en}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* CTA */}
-      <div style={{ padding: "12px 20px 40px" }}>
-        {step < total - 1 ? (
-          <button onClick={() => setStep(s => s + 1)} disabled={!canNext}
-            style={{ width: "100%", height: 54, background: canNext ? "#C4963A" : "#333", color: canNext ? "#000" : "#666", border: "none", borderRadius: 14, fontFamily: "DM Sans, sans-serif", fontSize: 16, fontWeight: 600, cursor: canNext ? "pointer" : "default" }}>
-            {fr ? "Continuer" : "Continue"}
-          </button>
-        ) : (
-          <button onClick={finish} disabled={!canNext || saving}
-            style={{ width: "100%", height: 54, background: canNext ? "#C4963A" : "#333", color: canNext ? "#000" : "#666", border: "none", borderRadius: 14, fontFamily: "DM Sans, sans-serif", fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
-            {saving ? "..." : (fr ? "Commencer !" : "Start!")}
-          </button>
-        )}
+        <motion.button whileTap={{ scale: 0.98 }} onClick={handleNext}
+          disabled={!canNext && !currentStep.isForm}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 font-body text-sm font-medium tracking-wide transition-all"
+          style={{
+            background: (canNext || currentStep.isForm) ? "#1C1B19" : "#D3D1C7",
+            color: "#F5F0E8",
+          }}>
+          {isLast ? "Commencer mon parcours" : "Continuer"}
+          <ChevronRight size={16} strokeWidth={1.5} />
+        </motion.button>
       </div>
     </div>
   );
-}
+};
+
+export default Onboarding;
