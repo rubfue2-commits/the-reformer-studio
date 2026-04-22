@@ -5,33 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Logo from "@/components/Logo";
 
-const STEPS = [
-  {
-    id: "goal",
-    emoji: "🎯",
-    title: "Quel est ton objectif ?",
-    options: ["Perdre du poids", "Tonifier mon corps", "Améliorer ma posture", "Récupérer après blessure", "Bien-être & relaxation"],
-  },
-  {
-    id: "level",
-    emoji: "💪",
-    title: "Ton niveau en Pilates ?",
-    options: ["Débutante — je commence", "Intermédiaire — quelques mois", "Avancée — je pratique régulièrement"],
-  },
-  {
-    id: "frequency",
-    emoji: "📅",
-    title: "Combien de fois par semaine ?",
-    options: ["1-2 fois", "3-4 fois", "5+ fois"],
-  },
-  {
-    id: "measurements",
-    emoji: "📏",
-    title: "Tes mensurations de départ",
-    isForm: true,
-  },
-];
-
 const Onboarding = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -39,6 +12,47 @@ const Onboarding = () => {
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
+
+  const STEPS = [
+    {
+      id: "goal",
+      emoji: "🎯",
+      title: t("Quel est ton objectif ?", "What's your goal?"),
+      options: [
+        t("Perdre du poids", "Weight Loss"),
+        t("Tonifier mon corps", "Toning"),
+        t("Améliorer ma posture", "Posture"),
+        t("Récupérer après blessure", "Recovery"),
+        t("Bien-être & relaxation", "Relaxation"),
+      ],
+    },
+    {
+      id: "level",
+      emoji: "💪",
+      title: t("Ton niveau en Pilates ?", "Your Pilates level?"),
+      options: [
+        t("Débutante — je commence", "Beginner — just starting"),
+        t("Intermédiaire — quelques mois", "Intermediate — a few months"),
+        t("Avancée — je pratique régulièrement", "Advanced — I practice regularly"),
+      ],
+    },
+    {
+      id: "frequency",
+      emoji: "📅",
+      title: t("Combien de fois par semaine ?", "How often per week?"),
+      options: [
+        t("1-2 fois", "1-2 times"),
+        t("3-4 fois", "3-4 times"),
+        t("5+ fois", "5+ times"),
+      ],
+    },
+    {
+      id: "measurements",
+      emoji: "📏",
+      title: t("Tes mensurations de départ", "Your starting measurements"),
+      isForm: true,
+    },
+  ];
 
   const currentStep = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -62,7 +76,7 @@ const Onboarding = () => {
           <Logo size="sm" variant="full" />
           <button onClick={() => navigate("/home")}
             className="font-body text-xs" style={{ color: "#888780" }}>
-            Passer
+            {t("Passer", "Skip")}
           </button>
         </div>
 
@@ -119,11 +133,12 @@ const Onboarding = () => {
               {currentStep.isForm && (
                 <div className="space-y-4">
                   <p className="font-body text-sm mb-6" style={{ color: "#888780" }}>
-                    Ces informations nous permettent de suivre tes progrès. Tu pourras les modifier à tout moment.
+                    {t("Ces informations nous permettent de suivre tes progrès. Tu pourras les modifier à tout moment.",
+                       "This information helps us track your progress. You can change it anytime.")}
                   </p>
                   {[
-                    { label: "Poids (kg)", value: weight, setter: setWeight, placeholder: "ex: 65" },
-                    { label: "Taille (cm)", value: height, setter: setHeight, placeholder: "ex: 168" },
+                    { label: t("Poids (kg)", "Weight (kg)"), value: weight, setter: setWeight, placeholder: "ex: 65" },
+                    { label: t("Taille (cm)", "Height (cm)"), value: height, setter: setHeight, placeholder: "ex: 168" },
                   ].map(({ label, value, setter, placeholder }) => (
                     <div key={label}>
                       <label className="font-body text-xs tracking-widest uppercase block mb-2"
@@ -135,7 +150,7 @@ const Onboarding = () => {
                     </div>
                   ))}
                   <p className="font-body text-xs text-center mt-4" style={{ color: "#B4B2A9" }}>
-                    Optionnel — tu peux sauter cette étape
+                    {t("Optionnel — tu peux sauter cette étape", "Optional — you can skip this step")}
                   </p>
                 </div>
               )}
@@ -159,7 +174,7 @@ const Onboarding = () => {
               background: canNext ? "#1C1B19" : "#D3D1C7",
               color: "#F5F0E8",
             }}>
-            {isLast ? "Commencer mon parcours" : "Continuer"}
+            {isLast ? t("Commencer mon parcours", "Start my journey") : t("Continuer", "Continue")}
             <ChevronRight size={16} strokeWidth={1.5} />
           </motion.button>
         </div>

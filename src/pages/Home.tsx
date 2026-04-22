@@ -48,7 +48,7 @@ const Home = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? t.home.morning : hour < 18 ? t.home.afternoon : t.home.evening;
+  const greeting = hour < 12 ? t("Bonjour", "Good morning") : hour < 18 ? t("Bon après-midi", "Good afternoon") : t("Bonsoir", "Good evening");
   const scoreColor = getScoreColor(SCORE);
   const circumference = 2 * Math.PI * 40;
   const dashOffset = circumference - (SCORE / 100) * circumference;
@@ -108,12 +108,12 @@ const Home = () => {
             <div className="flex gap-3 border-t border-white/10 pt-4">
               <div className="flex items-center gap-2">
                 <Flame size={14} className="text-gold" />
-                <span className="font-body text-xs text-white">12 {t.home.streak}</span>
+                <span className="font-body text-xs text-white">12 {t("jours consécutifs", "day streak")}</span>
               </div>
               <div className="w-[0.5px] bg-white/10" />
               <div className="flex items-center gap-2">
                 <Zap size={14} className="text-blue-400" />
-                <span className="font-body text-xs text-white">{completedDays}/7 cette semaine</span>
+                <span className="font-body text-xs text-white">{completedDays}/7 {t("cette semaine", "this week")}</span>
               </div>
               <div className="w-[0.5px] bg-white/10" />
               <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ const Home = () => {
           </div>
 
           <div className="px-5 pb-1">
-            <p className="font-body text-[9px] uppercase tracking-widest text-white/30 mb-2">Score cette semaine</p>
+            <p className="font-body text-[9px] uppercase tracking-widest text-white/30 mb-2">{t("Score cette semaine", "Score this week")}</p>
             <ResponsiveContainer width="100%" height={40}>
               <AreaChart data={weekData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                 <defs>
@@ -174,7 +174,7 @@ const Home = () => {
             ))}
           </div>
           <button onClick={() => navigate("/achievements")}
-            className="font-body text-[10px] text-gold">Tout voir</button>
+            className="font-body text-[10px] text-gold">{t("Tout voir", "See all")}</button>
         </motion.div>
 
         {/* Séance recommandée */}
@@ -182,12 +182,12 @@ const Home = () => {
           className="relative mt-4 overflow-hidden rounded-3xl bg-card shadow-sm">
           <div className="p-5">
             <span className="mb-1 block font-body text-[10px] tracking-widest uppercase text-gold">
-              {t.home.recommended}
+              {t("Recommandé pour vous", "Recommended for you")}
             </span>
             <h2 className="font-display text-xl font-light text-foreground">Full Body Flow</h2>
             <div className="mt-1 flex items-center gap-3">
-              <span className="font-body text-xs text-muted-foreground">45 min · Intermédiaire</span>
-              <span className="rounded-full bg-gold/10 px-2 py-0.5 font-body text-[10px] text-gold">Tonification</span>
+              <span className="font-body text-xs text-muted-foreground">45 min · {t("Intermédiaire", "Intermediate")}</span>
+              <span className="rounded-full bg-gold/10 px-2 py-0.5 font-body text-[10px] text-gold">{t("Tonification", "Toning")}</span>
             </div>
           </div>
         </motion.div>
@@ -197,24 +197,24 @@ const Home = () => {
           whileTap={{ scale: 0.98 }}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-body text-sm font-medium tracking-wide text-primary-foreground">
           <Play size={16} fill="currentColor" />
-          {t.home.startSession}
+          {t("Démarrer la séance", "Start Session")}
         </motion.button>
 
         {/* Progrès du mois */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className="mt-4 mb-6 rounded-3xl bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-lg font-light text-foreground">{t.home.monthlyProgress}</h3>
+            <h3 className="font-display text-lg font-light text-foreground">{t("Progrès du mois", "Monthly Progress")}</h3>
             <button onClick={() => navigate("/progress")}
               className="flex items-center gap-1 font-body text-[10px] text-gold">
-              Détails <ChevronRight size={12} />
+              {t("Détails", "Details")} <ChevronRight size={12} />
             </button>
           </div>
           <div className="flex justify-between">
             {[
-              { value: "24", label: t.home.sessions_label },
-              { value: "18h", label: t.home.totalTime },
-              { value: "92%", label: t.home.completion },
+              { value: "24", label: t("Séances", "Sessions") },
+              { value: "18h", label: t("Temps total", "Total time") },
+              { value: "92%", label: t("Complétion", "Completion") },
               { value: "Niv.3", label: "Niveau XP" },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
