@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Language = "fr" | "en";
 
@@ -8,9 +8,13 @@ interface LanguageContextType {
   t: (fr: string, en: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType>({
+  language: "fr",
+  setLanguage: () => {},
+  t: (fr: string, _en: string) => fr,
+});
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLang] = useState<Language>(() => {
     try {
       const s = localStorage.getItem("cr_language");
@@ -22,10 +26,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLang(lang);
-    try { localStorage.setItem("cr_language", lang); } catch {}
+    try {
+      localStorage.setItem("cr_language", lang);
+    } catch {
+      // ignore
+    }
   };
 
-  const t = (fr: string, en: string): string => language === "fr" ? fr : en;
+  const t = (fr: string, en: string): string => {
+    return language === "fr" ? fr : en;
+  };
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -38,8 +48,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useLanguage() {
-  const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLanguage must be used inside LanguageProvider");
-  return ctx;
+export function useLanguage(): LanguageContextType {
+  return useContext(LanguageContext);
 }
