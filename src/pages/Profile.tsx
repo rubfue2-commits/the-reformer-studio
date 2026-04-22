@@ -1,54 +1,75 @@
 import { motion } from "framer-motion";
-import {
-  ChevronRight, Crown, Settings, Bell, HelpCircle,
-  LogOut, Globe, Gift, Award, Heart, Layers
-} from "lucide-react";
+import { ChevronRight, Crown, Settings, Bell, HelpCircle, LogOut, Globe, Gift, Award, Heart, Layers } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import Logo from "@/components/Logo";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { useSessions } from "@/hooks/useSessions";
 
 type Language = "fr" | "en";
+
+const DEMO_EMAIL = "rubenfuentes@orange.fr";
 
 const Profile = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile();
+  const { stats } = useSessions();
+
+  const isDemo = user?.email === DEMO_EMAIL;
+
+  // Pour le compte démo : données fictives, sinon données réelles
+  const displayName = isDemo
+    ? "Camille Laurent"
+    : profile
+      ? `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || user?.email || ""
+      : user?.email || "";
+
+  const displayEmail = user?.email || "";
+
+  const displayStats = isDemo
+    ? { totalSessions: 64, totalMinutes: 2880, currentStreakDays: 12 }
+    : {
+        totalSessions: stats.totalSessions,
+        totalMinutes: stats.totalMinutes,
+        currentStreakDays: stats.currentStreakDays,
+      };
+
+  const formatTime = (minutes: number) => {
+    const h = Math.floor(minutes / 60);
+    return h > 0 ? `${h}h` : `${minutes}min`;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/language");
+  };
 
   const menuItems = [
-    { icon: Bell, label: t("Notifications", "Notifications"), action: () => navigate("/notifications") },
-    { icon: Settings, label: t("Préférences", "Preferences"), action: () => {} },
-    { icon: HelpCircle, label: t("Aide & support", "Help & support"), action: () => {} },
+    { icon: Bell,         label: t("Notifications", "Notifications"), action: () => navigate("/notifications") },
+    { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => {} },
+    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => {} },
   ];
 
   const quickLinks = [
-    {
-      icon: Award, label: t("Badges & Réussites", "Badges & Achievements"),
-      sub: t("9 obtenus · Niveau 3 · 1 525 XP", "9 earned · Level 3 · 1,525 XP"),
-      path: "/achievements", color: "#B8973E", bg: "#FAEEDA",
-      extra: "🏅⭐🔥",
-    },
-    {
-      icon: Heart, label: t("Journal bien-être", "Wellness journal"),
-      sub: t("Énergie, humeur, sommeil...", "Energy, mood, sleep..."),
-      path: "/wellness", color: "#EC4899", bg: "#FDF2F8",
-      extra: "😊💧🌙",
-    },
-    {
-      icon: Layers, label: t("Mes programmes", "My programs"),
-      sub: t("Débutante · Semaine 2/4", "Beginner · Week 2/4"),
-      path: "/programs", color: "#6366F1", bg: "#EEF2FF",
-      extra: "50% ▶",
-    },
+    { icon: Award,  label: t("Badges & Réussites", "Badges & Achievements"), sub: t("Niveau 3 · 1 525 XP", "Level 3 · 1,525 XP"), path: "/achievements", color: "#B8973E", bg: "#FAEEDA", extra: "🏅⭐🔥" },
+    { icon: Heart,  label: t("Journal bien-être", "Wellness journal"),        sub: t("Énergie, humeur, sommeil...", "Energy, mood, sleep..."), path: "/wellness", color: "#EC4899", bg: "#FDF2F8", extra: "😊💧🌙" },
+    { icon: Layers, label: t("Mes programmes", "My programs"),               sub: t("Débutante · Semaine 2/4", "Beginner · Week 2/4"), path: "/programs", color: "#6366F1", bg: "#EEF2FF", extra: "50% ▶" },
   ];
+
+  const initials = displayName
+    ? displayName.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2)
+    : "?";
 
   return (
     <MobileLayout>
       <div className="px-6 pt-14">
 
-        {/* Header avec logo Connect Reformer */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="flex items-center justify-between mb-6">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-between mb-6">
           <Logo size="md" variant="full" />
           <button onClick={() => navigate("/notifications")}
             className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm">
@@ -61,13 +82,13 @@ const Profile = () => {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="rounded-3xl bg-card p-5 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full font-display text-xl text-primary-foreground"
+            <div className="flex h-14 w-14 items-center justify-center rounded-full font-display text-xl text-primary-foreground flex-shrink-0"
               style={{ background: "linear-gradient(135deg, #1C1B19, #B8973E)" }}>
-              C
+              {initials}
             </div>
-            <div>
-              <h2 className="font-display text-xl font-light text-foreground">Camille Laurent</h2>
-              <p className="font-body text-xs text-muted-foreground">camille@email.com</p>
+            <div className="min-w-0">
+              <h2 className="font-display text-xl font-light text-foreground truncate">{displayName}</h2>
+              <p className="font-body text-xs text-muted-foreground truncate">{displayEmail}</p>
             </div>
           </div>
         </motion.div>
@@ -91,16 +112,14 @@ const Profile = () => {
           </div>
         </motion.div>
 
-        {/* Raccourcis rapides */}
+        {/* Raccourcis */}
         <div className="mt-3 space-y-2.5">
           {quickLinks.map(({ icon: Icon, label, sub, path, color, bg, extra }, i) => (
             <motion.button key={path} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18 + i * 0.05 }}
-              onClick={() => navigate(path)}
+              transition={{ delay: 0.18 + i * 0.05 }} onClick={() => navigate(path)}
               className="w-full rounded-2xl bg-card p-4 shadow-sm flex items-center justify-between border border-border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: bg }}>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0" style={{ backgroundColor: bg }}>
                   <Icon size={18} strokeWidth={1.5} style={{ color }} />
                 </div>
                 <div className="text-left">
@@ -108,7 +127,7 @@ const Profile = () => {
                   <p className="font-body text-[10px] text-muted-foreground">{sub}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="font-body text-xs text-muted-foreground">{extra}</span>
                 <ChevronRight size={16} className="text-muted-foreground" />
               </div>
@@ -122,7 +141,7 @@ const Profile = () => {
           className="mt-2.5 w-full rounded-3xl p-5 shadow-sm flex items-center justify-between"
           style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20 flex-shrink-0">
               <Gift size={18} className="text-gold" strokeWidth={1.5} />
             </div>
             <div className="text-left">
@@ -133,13 +152,13 @@ const Profile = () => {
           <ChevronRight size={16} className="text-white/40" />
         </motion.button>
 
-        {/* Stats */}
+        {/* Stats réelles */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className="mt-3 flex gap-3">
           {[
-            { value: "64", label: t("Séances totales", "Total sessions") },
-            { value: "48h", label: t("Temps investi", "Time invested") },
-            { value: "12", label: t("Jours consécutifs", "Day streak") },
+            { value: String(displayStats.totalSessions),                   label: t("Séances totales", "Total sessions") },
+            { value: formatTime(displayStats.totalMinutes),                 label: t("Temps investi", "Time invested") },
+            { value: String(displayStats.currentStreakDays),                label: t("Jours consécutifs", "Day streak") },
           ].map(({ value, label }) => (
             <div key={label} className="flex-1 rounded-2xl bg-card p-4 text-center shadow-sm">
               <p className="font-display text-2xl text-foreground">{value}</p>
@@ -174,9 +193,7 @@ const Profile = () => {
           className="mt-3 rounded-3xl bg-card shadow-sm">
           {menuItems.map(({ icon: Icon, label, action }, i) => (
             <button key={label} onClick={action}
-              className={`flex w-full items-center justify-between px-5 py-4 ${
-                i < menuItems.length - 1 ? "border-b border-border" : ""
-              }`}>
+              className={`flex w-full items-center justify-between px-5 py-4 ${i < menuItems.length - 1 ? "border-b border-border" : ""}`}>
               <div className="flex items-center gap-3">
                 <Icon size={18} strokeWidth={1.5} className="text-muted-foreground" />
                 <span className="font-body text-sm text-foreground">{label}</span>
@@ -188,6 +205,7 @@ const Profile = () => {
 
         {/* Déconnexion */}
         <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
+          onClick={handleSignOut}
           className="mt-4 mb-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-3 font-body text-sm text-muted-foreground">
           <LogOut size={16} strokeWidth={1.5} />
           {t("Se déconnecter", "Sign out")}
