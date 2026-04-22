@@ -7,11 +7,11 @@ const BottomNav = () => {
   const { t } = useLanguage();
 
   const navItems = [
-    { to: "/home",     icon: Home,    label: t.nav.home },
-    { to: "/library",  icon: Play,    label: t.nav.library },
-    { to: "/programs", icon: Layers,  label: "Programmes" },
-    { to: "/progress", icon: BarChart3, label: t.nav.progress },
-    { to: "/profile",  icon: User,    label: t.nav.profile },
+    { to: "/home",     icon: Home,      label: t("Accueil", "Home") },
+    { to: "/library",  icon: Play,      label: t("Vidéos", "Videos") },
+    { to: "/programs", icon: Layers,    label: "Programmes" },
+    { to: "/progress", icon: BarChart3, label: t("Progrès", "Progress") },
+    { to: "/profile",  icon: User,      label: t("Profil", "Profile") },
   ];
 
   return (
