@@ -7,10 +7,13 @@ interface MobileLayoutProps {
 
 const MobileLayout = ({ children, showNav = true }: MobileLayoutProps) => {
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-background">
-      <div className={showNav ? "pb-24" : ""}>
+    <div
+      className="relative mx-auto flex min-h-screen max-w-md flex-col overflow-hidden"
+      style={{ background: "hsl(var(--background))" }}
+    >
+      <main className={showNav ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-y-auto"}>
         {children}
-      </div>
+      </main>
     </div>
   );
 };
