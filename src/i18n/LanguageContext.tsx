@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 
 type Language = "fr" | "en";
 
@@ -12,23 +12,19 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLang] = useState<Language>(() => {
-    try {
-      const stored = localStorage.getItem("cr_language");
-      return (stored === "fr" || stored === "en") ? stored : "fr";
-    } catch {
-      return "fr";
-    }
+    const stored = localStorage.getItem("cr_language");
+    return (stored === "fr" || stored === "en") ? stored : "fr";
   });
 
   const setLanguage = (lang: Language) => {
     setLang(lang);
-    try { localStorage.setItem("cr_language", lang); } catch {}
+    localStorage.setItem("cr_language", lang);
     document.documentElement.lang = lang;
   };
 
-  const t = (fr: string, en: string): string => {
+  const t = useCallback((fr: string, en: string) => {
     return language === "fr" ? fr : en;
-  };
+  }, [language]);
 
   useEffect(() => {
     document.documentElement.lang = language;
