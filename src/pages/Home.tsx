@@ -7,6 +7,11 @@ import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import Logo from "@/components/Logo";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { useSessions } from "@/hooks/useSessions";
+
+const DEMO_EMAIL = "rubenfuentes@orange.fr";
 
 const weekData = [
   { day: "L", sessions: 1, score: 72 },
@@ -19,25 +24,14 @@ const weekData = [
 ];
 
 const recentBadges = [
-  { icon: Flame, label: "7 jours", color: "#B8973E" },
-  { icon: Target, label: "Objectif", color: "#60A5FA" },
-  { icon: Star, label: "10 séances", color: "#A78BFA" },
+  { icon: Flame,  label: "7 jours",    color: "#B8973E" },
+  { icon: Target, label: "Objectif",   color: "#60A5FA" },
+  { icon: Star,   label: "10 séances", color: "#A78BFA" },
 ];
 
 const SCORE = 82;
-
-const getScoreColor = (score: number) => {
-  if (score >= 80) return "#4CAF50";
-  if (score >= 60) return "#B8973E";
-  return "#EF4444";
-};
-
-const getScoreLabel = (score: number) => {
-  if (score >= 80) return "Optimal";
-  if (score >= 60) return "Bon";
-  return "À améliorer";
-};
-
+const getScoreColor = (score: number) => score >= 80 ? "#4CAF50" : score >= 60 ? "#B8973E" : "#EF4444";
+const getScoreLabel = (score: number) => score >= 80 ? "Optimal" : score >= 60 ? "Bon" : "À améliorer";
 const getScoreAdvice = (score: number) => {
   if (score >= 80) return "Ton corps est prêt. C'est le bon moment pour une séance intense.";
   if (score >= 60) return "Bonne forme générale. Une séance modérée sera idéale aujourd'hui.";
@@ -47,27 +41,39 @@ const getScoreAdvice = (score: number) => {
 const Home = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const { stats } = useSessions();
+
+  const isDemo = user?.email === DEMO_EMAIL;
+
+  // Prénom affiché
+  const firstName = isDemo
+    ? "Camille"
+    : profile?.first_name || user?.user_metadata?.first_name || user?.email?.split("@")[0] || "";
+
+  // Stats affichées
+  const displayStreak      = isDemo ? 12 : stats.currentStreakDays;
+  const displayWeekCount   = isDemo ? weekData.filter(d => d.sessions > 0).length : stats.thisWeekCount;
+  const displayTotalSessions = isDemo ? 24 : stats.totalSessions;
+  const displayTotalTime   = isDemo ? "18h" : (stats.totalMinutes >= 60 ? Math.floor(stats.totalMinutes / 60) + "h" : stats.totalMinutes + "min");
+
   const hour = new Date().getHours();
-  const greeting = hour < 12
-    ? t("Bonjour", "Good morning")
-    : hour < 18
-      ? t("Bon après-midi", "Good afternoon")
-      : t("Bonsoir", "Good evening");
+  const greeting = hour < 12 ? t("Bonjour", "Good morning") : hour < 18 ? t("Bon après-midi", "Good afternoon") : t("Bonsoir", "Good evening");
+
   const scoreColor = getScoreColor(SCORE);
   const circumference = 2 * Math.PI * 40;
   const dashOffset = circumference - (SCORE / 100) * circumference;
-  const completedDays = weekData.filter(d => d.sessions > 0).length;
 
   return (
     <MobileLayout>
       <div className="px-6 pt-14">
 
-        {/* Header avec logo */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
           className="flex items-center justify-between mb-5">
           <div>
             <p className="font-body text-xs tracking-widest uppercase text-muted-foreground">{greeting}</p>
-            <h1 className="mt-0.5 font-display text-3xl font-light text-foreground">Camille</h1>
+            <h1 className="mt-0.5 font-display text-3xl font-light text-foreground">{firstName}</h1>
           </div>
           <div className="flex items-center gap-3">
             <Logo size="sm" variant="icon" />
@@ -91,14 +97,10 @@ const Home = () => {
               <div className="relative flex-shrink-0">
                 <svg width="88" height="88" viewBox="0 0 88 88">
                   <circle cx="44" cy="44" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6"/>
-                  <motion.circle cx="44" cy="44" r="40" fill="none"
-                    stroke={scoreColor} strokeWidth="6"
-                    strokeDasharray={circumference}
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: dashOffset }}
-                    transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
-                    strokeLinecap="round" transform="rotate(-90 44 44)"
-                  />
+                  <motion.circle cx="44" cy="44" r="40" fill="none" stroke={scoreColor} strokeWidth="6"
+                    strokeDasharray={circumference} initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: dashOffset }} transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+                    strokeLinecap="round" transform="rotate(-90 44 44)" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="font-display text-2xl font-light text-white">{SCORE}</span>
@@ -112,12 +114,12 @@ const Home = () => {
             <div className="flex gap-3 border-t border-white/10 pt-4">
               <div className="flex items-center gap-2">
                 <Flame size={14} className="text-gold" />
-                <span className="font-body text-xs text-white">12 {t("jours", "days")}</span>
+                <span className="font-body text-xs text-white">{displayStreak} {t("jours", "days")}</span>
               </div>
               <div className="w-[0.5px] bg-white/10" />
               <div className="flex items-center gap-2">
                 <Zap size={14} className="text-blue-400" />
-                <span className="font-body text-xs text-white">{completedDays}/7 {t("cette semaine", "this week")}</span>
+                <span className="font-body text-xs text-white">{displayWeekCount}/7 {t("cette semaine", "this week")}</span>
               </div>
               <div className="w-[0.5px] bg-white/10" />
               <div className="flex items-center gap-2">
@@ -137,8 +139,7 @@ const Home = () => {
                     <stop offset="100%" stopColor={scoreColor} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="score" stroke={scoreColor} strokeWidth={1.5}
-                  fill="url(#scoreGrad)" dot={false} />
+                <Area type="monotone" dataKey="score" stroke={scoreColor} strokeWidth={1.5} fill="url(#scoreGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -150,21 +151,18 @@ const Home = () => {
               return (
                 <div key={i} className="flex flex-col items-center gap-1.5">
                   <div className={`h-7 w-7 rounded-full flex items-center justify-center ${
-                    done ? "bg-gold/30 border border-gold/60" :
-                    isToday ? "border border-white/40" : "bg-white/5"
+                    done ? "bg-gold/30 border border-gold/60" : isToday ? "border border-white/40" : "bg-white/5"
                   }`}>
                     {done && <div className="h-1.5 w-1.5 rounded-full bg-gold" />}
                   </div>
-                  <span className={`font-body text-[9px] ${isToday ? "text-white font-medium" : "text-white/30"}`}>
-                    {day}
-                  </span>
+                  <span className={`font-body text-[9px] ${isToday ? "text-white font-medium" : "text-white/30"}`}>{day}</span>
                 </div>
               );
             })}
           </div>
         </motion.div>
 
-        {/* Badges récents */}
+        {/* Badges */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="mt-4 flex items-center justify-between">
           <div className="flex gap-2">
@@ -177,8 +175,9 @@ const Home = () => {
               </motion.div>
             ))}
           </div>
-          <button onClick={() => navigate("/achievements")}
-            className="font-body text-[10px] text-gold">{t("Tout voir", "See all")}</button>
+          <button onClick={() => navigate("/achievements")} className="font-body text-[10px] text-gold">
+            {t("Tout voir", "See all")}
+          </button>
         </motion.div>
 
         {/* Séance recommandée */}
@@ -199,6 +198,7 @@ const Home = () => {
         {/* Bouton démarrer */}
         <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/library")}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-body text-sm font-medium tracking-wide text-primary-foreground">
           <Play size={16} fill="currentColor" />
           {t("Démarrer la séance", "Start session")}
@@ -209,17 +209,16 @@ const Home = () => {
           className="mt-4 mb-6 rounded-3xl bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-light text-foreground">{t("Progrès du mois", "Monthly progress")}</h3>
-            <button onClick={() => navigate("/progress")}
-              className="flex items-center gap-1 font-body text-[10px] text-gold">
+            <button onClick={() => navigate("/progress")} className="flex items-center gap-1 font-body text-[10px] text-gold">
               {t("Détails", "Details")} <ChevronRight size={12} />
             </button>
           </div>
           <div className="flex justify-between">
             {[
-              { value: "24", label: t("Séances", "Sessions") },
-              { value: "18h", label: t("Temps total", "Total time") },
-              { value: "92%", label: t("Complétion", "Completion") },
-              { value: "Niv.3", label: t("Niveau XP", "XP Level") },
+              { value: String(displayTotalSessions), label: t("Séances", "Sessions") },
+              { value: displayTotalTime,              label: t("Temps total", "Total time") },
+              { value: "92%",                         label: t("Complétion", "Completion") },
+              { value: "Niv.3",                       label: t("Niveau XP", "XP Level") },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
                 <p className="font-display text-xl text-foreground">{value}</p>
