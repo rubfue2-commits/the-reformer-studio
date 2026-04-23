@@ -114,3 +114,30 @@ html, body {
     @apply bg-background text-foreground;
   }
 }
+
+
+/* ── iOS Capacitor — scroll natif ──────────────────── */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+/* Safe area iPhone (notch / home indicator) */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Scrollable sur iOS */
+main, [data-scroll], .overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Empêcher le bounce blanc sur iOS */
+.min-h-screen {
+  min-height: -webkit-fill-available;
+}
