@@ -35,20 +35,20 @@ const rewards = [
   {
     icon: Crown,
     title: "Accès VIP 1 an",
-    desc: "Dès 5 amies inscrites",
+    desc: "Dès 10 amies inscrites",
     achieved: false,
     color: "#A78BFA",
     progress: 4,
-    target: 5,
+    target: 10,
   },
   {
     icon: Sparkles,
     title: "Coach privé 1h",
-    desc: "Dès 10 amies inscrites",
+    desc: "Dès 5 amies inscrites",
     achieved: false,
     color: "#34D399",
     progress: 4,
-    target: 10,
+    target: 5,
   },
 ];
 
