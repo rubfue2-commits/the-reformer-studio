@@ -1,374 +1,275 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Copy, Check, Gift, Users, ChevronLeft,
-  Share2, Star, Clock, Crown, Sparkles
-} from "lucide-react";
+import { Copy, Check, Gift, Users, ChevronLeft, Share2, Star, Clock, Crown, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useReferral } from "@/hooks/useReferral";
 
-const REFERRAL_CODE = "CAMILLE30";
+const DEMO_EMAIL = "rubenfuentes@orange.fr";
 
-const referrals = [
-  { name: "Sophie M.", date: "12 fév 2026", status: "active", reward: "1 mois offert" },
-  { name: "Julie D.", date: "3 fév 2026", status: "active", reward: "1 mois offert" },
-  { name: "Laura B.", date: "28 jan 2026", status: "pending", reward: "En attente" },
-  { name: "Marie C.", date: "15 jan 2026", status: "active", reward: "1 mois offert" },
+// Données démo figées
+const DEMO_DATA = {
+  referralCode: "CAMILLE88",
+  totalReferrals: 4,
+  referrals: [
+    { name: "Sophie M.", monthsCompleted: 12, giftApplied: true },
+    { name: "Julie R.",  monthsCompleted: 8,  giftApplied: false },
+    { name: "Emma L.",   monthsCompleted: 5,  giftApplied: false },
+    { name: "Léa D.",    monthsCompleted: 2,  giftApplied: false },
+  ],
+  subscription: { billing_type: "annual_upfront", months_paid: 9, gift_month_applied: false },
+};
+
+const TIERS = [
+  { count: 1,  icon: Gift,     titleFr: "1 mois offert",    titleEn: "1 free month",       descFr: "Dès 1 amie inscrite",    descEn: "From 1 friend",    color: "#B8973E", bg: "#FAEEDA" },
+  { count: 3,  icon: Star,     titleFr: "3 mois offerts",   titleEn: "3 free months",      descFr: "Dès 3 amies inscrites",  descEn: "From 3 friends",   color: "#60A5FA", bg: "#EFF6FF" },
+  { count: 5,  icon: Crown,    titleFr: "Coach privé 1h",   titleEn: "Private coach 1h",   descFr: "Dès 5 amies inscrites",  descEn: "From 5 friends",   color: "#A78BFA", bg: "#F5F3FF" },
+  { count: 10, icon: Sparkles, titleFr: "Accès VIP 1 an",   titleEn: "VIP access 1 year",  descFr: "Dès 10 amies inscrites", descEn: "From 10 friends",  color: "#34D399", bg: "#ECFDF5" },
 ];
 
-const rewards = [
-  {
-    icon: Gift,
-    title: "1 mois offert",
-    desc: "Pour toi dès la 1re amie inscrite",
-    achieved: true,
-    color: "#B8973E",
-  },
-  {
-    icon: Star,
-    title: "3 mois offerts",
-    desc: "Dès 3 amies inscrites",
-    achieved: true,
-    color: "#60A5FA",
-  },
-  {
-    icon: Crown,
-    title: "Accès VIP 1 an",
-    desc: "Dès 10 amies inscrites",
-    achieved: false,
-    color: "#A78BFA",
-    progress: 4,
-    target: 10,
-  },
-  {
-    icon: Sparkles,
-    title: "Coach privé 1h",
-    desc: "Dès 5 amies inscrites",
-    achieved: false,
-    color: "#34D399",
-    progress: 4,
-    target: 5,
-  },
-];
-
-const Referral = () => {
+export default function Referral() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"amies" | "recompenses">("amies");
+  const { user } = useAuth();
+  const isDemo = user?.email === DEMO_EMAIL;
 
-  const activeCount = referrals.filter(r => r.status === "active").length;
+  // Hook Supabase — ignoré si compte démo
+  const { referralCode, totalReferrals, referrals, subscription, loading } = useReferral();
+
+  const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  // Données à afficher selon le compte
+  const displayCode    = isDemo ? DEMO_DATA.referralCode : (referralCode ?? "—");
+  const displayTotal   = isDemo ? DEMO_DATA.totalReferrals : totalReferrals;
+  const displaySub     = isDemo ? DEMO_DATA.subscription : subscription;
+
+  // Barre de progression filleule (13e mois)
+  const monthsPaid     = displaySub?.months_paid ?? 0;
+  const giftApplied    = displaySub?.gift_month_applied ?? false;
+  const isAnnualUpfront = displaySub?.billing_type === "annual_upfront";
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(REFERRAL_CODE).catch(() => {});
+    navigator.clipboard.writeText(displayCode).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "The Reformer Studio",
-        text: `Rejoins-moi sur The Reformer Studio ! Utilise mon code ${REFERRAL_CODE} pour obtenir 30% de réduction sur ton premier mois. 🧘‍♀️`,
-        url: "https://thereformerstudio.app",
-      });
-    } else {
-      handleCopy();
-    }
+    const text = t(
+      `Rejoins Connect Reformer avec mon code ${displayCode} et profite d'un accès exclusif au Pilates reformer !`,
+      `Join Connect Reformer with my code ${displayCode} and enjoy exclusive Pilates reformer access!`
+    );
+    if (navigator.share) navigator.share({ title: "Connect Reformer", text });
+    else { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   };
 
   return (
     <MobileLayout>
-      <div className="px-6 pt-14">
+      <div className="px-4 pt-14">
 
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-6"
-        >
-          <button
-            onClick={() => navigate("/profile")}
-            className="rounded-full p-2 hover:bg-card text-muted-foreground"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => navigate(-1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border">
+            <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>
-            <h1 className="font-display text-2xl font-light text-foreground">Parrainage</h1>
-            <p className="font-body text-xs text-muted-foreground">Invite tes amies, gagne des mois offerts</p>
+            <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
+              {t("Programme", "Program")}
+            </p>
+            <h1 className="font-display text-2xl font-light text-foreground">
+              {t("Parrainage", "Referral")}
+            </h1>
           </div>
-        </motion.div>
-
-        {/* Hero card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-3xl bg-card p-6 shadow-sm mb-4"
-          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <Gift size={16} className="text-gold" />
-            <span className="font-body text-xs tracking-widest uppercase text-gold">
-              Programme parrainage
-            </span>
-          </div>
-          <h2 className="font-display text-2xl font-light text-white mb-1">
-            1 mois offert
-          </h2>
-          <p className="font-body text-sm text-white/60 mb-5">
-            Pour toi ET ton amie à chaque inscription réussie
-          </p>
-
-          {/* Stats */}
-          <div className="flex gap-4 mb-6">
-            <div className="text-center">
-              <p className="font-display text-3xl text-gold">{activeCount}</p>
-              <p className="font-body text-[10px] text-white/50 mt-1">Amies actives</p>
-            </div>
-            <div className="w-[0.5px] bg-white/10" />
-            <div className="text-center">
-              <p className="font-display text-3xl text-white">{activeCount}</p>
-              <p className="font-body text-[10px] text-white/50 mt-1">Mois gagnés</p>
-            </div>
-            <div className="w-[0.5px] bg-white/10" />
-            <div className="text-center">
-              <p className="font-display text-3xl text-white">30%</p>
-              <p className="font-body text-[10px] text-white/50 mt-1">Réduction amie</p>
-            </div>
-          </div>
-
-          {/* Code */}
-          <div className="rounded-2xl bg-white/10 p-4 flex items-center justify-between mb-3">
-            <div>
-              <p className="font-body text-[10px] text-white/50 mb-1">Ton code personnel</p>
-              <p className="font-display text-2xl text-white tracking-widest">{REFERRAL_CODE}</p>
-            </div>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 font-body text-xs font-medium text-white transition-all active:scale-95"
-            >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? "Copié !" : "Copier"}
-            </button>
-          </div>
-
-          {/* Share button */}
-          <button
-            onClick={handleShare}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/20 py-3 font-body text-sm text-white/80 transition-all active:scale-95"
-          >
-            <Share2 size={16} strokeWidth={1.5} />
-            Partager le lien d'invitation
-          </button>
-        </motion.div>
-
-        {/* Comment ça marche */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-3xl bg-card p-5 shadow-sm mb-4"
-        >
-          <h3 className="font-display text-base font-light text-foreground mb-4">
-            Comment ça marche ?
-          </h3>
-          {[
-            { step: "1", text: "Partage ton code ou lien unique avec une amie" },
-            { step: "2", text: "Elle s'inscrit avec ton code et obtient 30% de réduction" },
-            { step: "3", text: "Dès qu'elle valide son abonnement, vous recevez toutes les deux 1 mois offert" },
-          ].map(({ step, text }) => (
-            <div key={step} className="flex items-start gap-3 mb-3 last:mb-0">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/20 font-body text-xs font-medium text-gold mt-0.5">
-                {step}
-              </div>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed">{text}</p>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Tabs */}
-        <div className="flex border-b border-border mb-5">
-          {([
-            { id: "amies", label: `Amies (${referrals.length})` },
-            { id: "recompenses", label: "Récompenses" },
-          ] as { id: "amies" | "recompenses"; label: string }[]).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 pb-3 font-body text-xs transition-all ${
-                activeTab === tab.id
-                  ? "border-b-2 border-gold text-foreground -mb-[1px]"
-                  : "text-muted-foreground"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
+        {/* Compteur */}
+        <div className="rounded-2xl p-5 mb-4 shadow-sm flex items-center justify-between"
+          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
+          <div>
+            <p className="font-body text-xs text-white/50 uppercase tracking-widest mb-1">
+              {t("Amies parrainées", "Friends referred")}
+            </p>
+            <p className="font-display text-5xl font-light text-white">{displayTotal}</p>
+          </div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/20">
+            <Users size={28} className="text-gold" strokeWidth={1.5} />
+          </div>
+        </div>
 
-            {/* AMIES */}
-            {activeTab === "amies" && (
-              <div className="rounded-3xl bg-card shadow-sm overflow-hidden mb-6">
-                {referrals.map((ref, i) => (
-                  <div
-                    key={ref.name}
-                    className={`flex items-center justify-between px-5 py-4 ${
-                      i < referrals.length - 1 ? "border-b border-border" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted font-display text-sm text-foreground">
-                        {ref.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-body text-sm font-medium text-foreground">{ref.name}</p>
-                        <p className="font-body text-[10px] text-muted-foreground">{ref.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-1 font-body text-[10px] font-medium ${
-                          ref.status === "active"
-                            ? "bg-green-50 text-green-700"
-                            : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {ref.status === "active" ? "✓ Active" : "⏳ En attente"}
-                      </span>
-                      <p className="font-body text-[10px] text-gold mt-1">{ref.reward}</p>
-                    </div>
+        {/* Code de parrainage */}
+        <div className="rounded-2xl bg-card border border-border p-4 mb-4 shadow-sm">
+          <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-2">
+            {t("Ton code", "Your code")}
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 rounded-xl bg-muted px-4 py-3">
+              <p className="font-display text-2xl font-light tracking-widest text-foreground">
+                {loading && !isDemo ? "..." : displayCode}
+              </p>
+            </div>
+            <button onClick={handleCopy}
+              className="flex h-12 w-12 items-center justify-center rounded-xl bg-foreground text-background flex-shrink-0">
+              {copied ? <Check size={18} /> : <Copy size={18} />}
+            </button>
+            <button onClick={handleShare}
+              className="flex h-12 w-12 items-center justify-center rounded-xl border border-border flex-shrink-0">
+              <Share2 size={18} className="text-muted-foreground" />
+            </button>
+          </div>
+          {copied && (
+            <p className="font-body text-xs text-green-600 mt-2">
+              {t("Copié !", "Copied!")}
+            </p>
+          )}
+        </div>
+
+        {/* Paliers marraine */}
+        <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-3 px-1">
+          {t("Tes récompenses", "Your rewards")}
+        </p>
+        <div className="space-y-2 mb-4">
+          {TIERS.map((tier, i) => {
+            const achieved = displayTotal >= tier.count;
+            const inProgress = !achieved && displayTotal > 0;
+            const progress = Math.min(displayTotal / tier.count, 1);
+            const isOpen = expanded === i;
+
+            return (
+              <motion.div key={i} layout
+                className={"rounded-2xl border overflow-hidden shadow-sm " +
+                  (achieved ? "border-opacity-50" : "border-border bg-card")}
+                style={achieved ? { borderColor: tier.color + "60", backgroundColor: tier.bg } : {}}>
+
+                <button className="w-full p-4 flex items-center gap-3 text-left"
+                  onClick={() => setExpanded(isOpen ? null : i)}>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0"
+                    style={{ backgroundColor: achieved ? tier.color + "25" : "#F1EFE9" }}>
+                    <tier.icon size={18} strokeWidth={1.5}
+                      style={{ color: achieved ? tier.color : "#9CA3AF" }} />
                   </div>
-                ))}
-
-                {/* Inviter plus */}
-                <button
-                  onClick={handleShare}
-                  className="flex w-full items-center justify-center gap-2 px-5 py-4 font-body text-sm text-gold border-t border-border"
-                >
-                  <Users size={14} strokeWidth={1.5} />
-                  Inviter une amie
-                </button>
-              </div>
-            )}
-
-            {/* RÉCOMPENSES */}
-            {activeTab === "recompenses" && (
-              <div className="space-y-3 mb-6">
-                {rewards.map(({ icon: Icon, title, desc, achieved, color, progress, target }) => (
-                  <div
-                    key={title}
-                    className={`rounded-2xl border bg-card p-4 shadow-sm ${
-                      achieved ? "border-gold/30" : "border-border"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                        style={{ backgroundColor: achieved ? color + "20" : "hsl(27, 8%, 92%)" }}
-                      >
-                        <Icon
-                          size={18}
-                          strokeWidth={1.5}
-                          style={{ color: achieved ? color : "hsl(27, 8%, 60%)" }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <p className="font-body text-sm font-medium text-foreground">{title}</p>
-                          {achieved ? (
-                            <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-body text-[10px] text-green-700">
-                              <Check size={10} /> Obtenu
-                            </span>
-                          ) : (
-                            <span className="font-body text-[10px] text-muted-foreground">
-                              {progress}/{target} amies
-                            </span>
-                          )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body font-semibold text-sm text-foreground">
+                      {t(tier.titleFr, tier.titleEn)}
+                    </p>
+                    <p className="font-body text-xs text-muted-foreground">{t(tier.descFr, tier.descEn)}</p>
+                    {inProgress && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all"
+                            style={{ width: (progress * 100) + "%", backgroundColor: tier.color }} />
                         </div>
-                        <p className="font-body text-xs text-muted-foreground">{desc}</p>
-                        {!achieved && progress !== undefined && target !== undefined && (
-                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{
-                                width: `${(progress / target) * 100}%`,
-                                backgroundColor: color,
-                              }}
-                            />
-                          </div>
-                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
-                ))}
+                  <div className="flex-shrink-0">
+                    {achieved
+                      ? <span className="font-body text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={{ color: tier.color, backgroundColor: tier.color + "18" }}>
+                          ✓ {t("Obtenu", "Earned")}
+                        </span>
+                      : <span className="font-body text-xs text-muted-foreground">
+                          {displayTotal}/{tier.count} {t("amies", "friends")}
+                        </span>
+                    }
+                  </div>
+                </button>
 
-                {/* Note légale */}
-                <p className="text-center font-body text-[10px] text-muted-foreground px-4 pb-2">
-                  Les mois offerts sont crédités automatiquement après validation de l'abonnement de ton amie. Offre non cumulable avec d'autres promotions.
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}
+                      className="overflow-hidden">
+                      <p className="font-body text-xs text-muted-foreground px-4 pb-4 border-t border-border/50 pt-3">
+                        {achieved
+                          ? t("Récompense débloquée ! Elle sera créditée automatiquement sur ton abonnement.",
+                              "Reward unlocked! It will be automatically credited to your subscription.")
+                          : t(`Encore ${tier.count - displayTotal} amie(s) pour débloquer cette récompense.`,
+                              `${tier.count - displayTotal} more friend(s) to unlock this reward.`)}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Section filleule — 13e mois */}
+        {isAnnualUpfront && (
+          <div className="rounded-2xl border border-pink-100 bg-pink-50/50 p-5 mb-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-100 flex-shrink-0">
+                <Gift size={18} className="text-pink-400" strokeWidth={1.5} />
+              </div>
+              <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
+                {t("Ton avantage filleule", "Your referral benefit")}
+              </p>
+            </div>
+
+            {giftApplied ? (
+              <div>
+                <p className="font-body font-semibold text-sm text-foreground">
+                  {t("🎉 Ton 13e mois offert est actif !", "🎉 Your 13th free month is active!")}
+                </p>
+                <p className="font-body text-xs text-muted-foreground mt-1">
+                  {t("Profite bien. À partir du mois suivant, ton abonnement mensuel à 49€ commence.",
+                     "Enjoy it. From next month, your 49€/month subscription begins.")}
                 </p>
               </div>
+            ) : (
+              <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-body font-semibold text-sm text-foreground">
+                      {t("1 mois offert automatiquement", "1 month offered automatically")}
+                    </p>
+                    <p className="font-body text-xs text-muted-foreground mt-0.5">
+                      {t("À la fin de ton 12e mois d'abonnement, le 13e est gratuit.",
+                         "At the end of your 12th month, the 13th is free.")}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-pink-100">
+                    <Clock size={20} className="text-pink-400" />
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-pink-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-pink-400 transition-all"
+                      style={{ width: (Math.min(monthsPaid / 12, 1) * 100) + "%" }} />
+                  </div>
+                  <span className="font-body text-xs text-muted-foreground flex-shrink-0">
+                    {t(`Mois ${monthsPaid}/12`, `Month ${monthsPaid}/12`)}
+                  </span>
+                </div>
+
+                {monthsPaid < 12 && (
+                  <p className="font-body text-[10px] text-pink-400 mt-1.5">
+                    {t(`Plus que ${12 - monthsPaid} mois avant ton cadeau !`,
+                       `Only ${12 - monthsPaid} months left before your gift!`)}
+                  </p>
+                )}
+              </div>
             )}
-
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      
-      {/* Section filleule */}
-      <div className="px-4 pb-6">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 flex-shrink-0">
-              <Gift size={18} className="text-pink-400" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
-                {t("Pour toi en tant que filleule", "For you as a referred member")}
-              </p>
-            </div>
           </div>
+        )}
 
-          <div className="flex items-start gap-4">
-            <div className="flex-1">
-              <h3 className="font-display text-lg text-foreground">
-                {t("1 mois offert", "1 free month")}
-              </h3>
-              <p className="font-body text-sm text-muted-foreground mt-0.5">
-                {t("Offert automatiquement à la fin de ton 12e mois d'abonnement.", "Automatically offered at the end of your 12th month of subscription.")}
-              </p>
-            </div>
-            <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-pink-50 border border-pink-100">
-              <span className="font-display text-xl text-pink-400">12</span>
-              <span className="font-body text-[9px] text-pink-300 uppercase tracking-wide">{t("mois", "months")}</span>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full rounded-full bg-pink-300" style={{ width: "75%" }} />
-            </div>
-            <span className="font-body text-xs text-muted-foreground flex-shrink-0">
-              {t("Mois 9/12", "Month 9/12")}
-            </span>
-          </div>
-          <p className="font-body text-[10px] text-muted-foreground mt-2">
-            {t("Plus que 3 mois avant ton cadeau !", "Only 3 months left before your gift!")}
+        {/* Conditions */}
+        <div className="rounded-2xl bg-muted/50 p-4 mb-6">
+          <p className="font-body text-[10px] text-muted-foreground leading-relaxed">
+            {t(
+              "Les mois offerts sont crédités automatiquement après validation de l'abonnement de ton amie. Le 13e mois gratuit est appliqué sans encaissement. À partir du 14e mois, l'abonnement mensuel à 49€ est activé automatiquement.",
+              "Free months are credited automatically after your friend's subscription is validated. The 13th free month is applied without charge. From the 14th month, the 49€/month subscription is activated automatically."
+            )}
           </p>
         </div>
-      </div>
 
+      </div>
       <BottomNav />
     </MobileLayout>
   );
-};
-
-export default Referral;
+}
