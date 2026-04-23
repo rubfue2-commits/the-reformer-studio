@@ -7,6 +7,7 @@ import Logo from "@/components/Logo";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useReferral } from "@/hooks/useReferral";
 import { useSessions } from "@/hooks/useSessions";
 
 type Language = "fr" | "en";
@@ -19,6 +20,7 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { stats } = useSessions();
+  const { subscription } = useReferral();
 
   const isDemo = user?.email === DEMO_EMAIL;
 
@@ -98,13 +100,35 @@ const Profile = () => {
           className="mt-3 rounded-3xl border border-gold/30 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <Crown size={16} className="text-gold" />
-            <span className="font-body text-xs tracking-widest uppercase text-gold">{t("Membre annuel", "Annual member")}</span>
+            <span className="font-body text-xs tracking-widest uppercase text-gold">
+              {isDemo ? t("Membre annuel", "Annual member") :
+                subscription?.billing_type === "annual_upfront" ? t("Membre annuel", "Annual member") :
+                subscription?.billing_type === "monthly" ? t("Membre mensuel", "Monthly member") :
+                t("Abonnée", "Member")}
+            </span>
           </div>
-          <p className="mt-2 font-display text-lg font-light text-foreground">{t("Abonnement Premium", "Premium subscription")}</p>
-          <p className="mt-1 font-body text-xs text-muted-foreground">{t("Renouvellement le 15 mars 2026", "Renews March 15, 2026")}</p>
+          <p className="mt-2 font-display text-lg font-light text-foreground">
+              {isDemo ? t("Abonnement Premium", "Premium subscription") :
+                subscription?.status === "gift_month" ? t("13e mois offert en cours", "13th month gift active") :
+                subscription?.status === "monthly_active" ? t("Abonnement mensuel actif", "Monthly subscription active") :
+                subscription?.status === "active" ? t("Abonnement Premium", "Premium subscription") :
+                t("Abonnement", "Subscription")}
+            </p>
+          <p className="mt-1 font-body text-xs text-muted-foreground">
+              {isDemo ? t("Renouvellement le 15 mars 2026", "Renews March 15, 2026") :
+                subscription?.current_period_end
+                  ? t("Renouvellement le", "Renews") + " " + new Date(subscription.current_period_end).toLocaleDateString()
+                  : t("Aucun abonnement actif", "No active subscription")}
+            </p>
           <div className="mt-3 flex items-center gap-2">
             <div className="rounded-full bg-gold/10 px-3 py-1">
-              <span className="font-body text-[10px] font-medium text-gold">{t("Actif", "Active")}</span>
+              <span className="font-body text-[10px] font-medium text-gold">
+                {isDemo ? t("Actif", "Active") :
+                  subscription?.status === "active" || subscription?.status === "monthly_active" ? t("Actif", "Active") :
+                  subscription?.status === "gift_month" ? t("Mois offert", "Free month") :
+                  subscription?.status === "past_due" ? t("Paiement en retard", "Past due") :
+                  subscription ? t("Actif", "Active") : t("Inactif", "Inactive")}
+              </span>
             </div>
             <div className="rounded-full bg-muted px-3 py-1">
               <span className="font-body text-[10px] text-muted-foreground">{t("Accès illimité", "Unlimited access")}</span>
