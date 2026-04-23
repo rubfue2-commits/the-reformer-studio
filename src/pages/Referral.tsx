@@ -322,6 +322,50 @@ const Referral = () => {
           </motion.div>
         </AnimatePresence>
       </div>
+      
+      {/* Section filleule */}
+      <div className="px-4 pb-6">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 flex-shrink-0">
+              <Gift size={18} className="text-pink-400" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
+                {t("Pour toi en tant que filleule", "For you as a referred member")}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <h3 className="font-display text-lg text-foreground">
+                {t("1 mois offert", "1 free month")}
+              </h3>
+              <p className="font-body text-sm text-muted-foreground mt-0.5">
+                {t("Offert automatiquement à la fin de ton 12e mois d'abonnement.", "Automatically offered at the end of your 12th month of subscription.")}
+              </p>
+            </div>
+            <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-pink-50 border border-pink-100">
+              <span className="font-display text-xl text-pink-400">12</span>
+              <span className="font-body text-[9px] text-pink-300 uppercase tracking-wide">{t("mois", "months")}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-pink-300" style={{ width: "75%" }} />
+            </div>
+            <span className="font-body text-xs text-muted-foreground flex-shrink-0">
+              {t("Mois 9/12", "Month 9/12")}
+            </span>
+          </div>
+          <p className="font-body text-[10px] text-muted-foreground mt-2">
+            {t("Plus que 3 mois avant ton cadeau !", "Only 3 months left before your gift!")}
+          </p>
+        </div>
+      </div>
+
       <BottomNav />
     </MobileLayout>
   );
