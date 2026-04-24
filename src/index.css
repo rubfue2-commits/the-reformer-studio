@@ -1,3 +1,40 @@
+/* ── iOS Capacitor — Format iPhone natif ── */
+
+/* Empêcher le bounce et le scroll global sur body */
+html {
+  height: 100%;
+  overflow: hidden;
+  /* Safe area iPhone X+ */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  /* Empêche le bounce blanc iOS */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  background-color: #F5F3EE;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Scroll fluide sur iOS pour tous les éléments scrollables */
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Input iOS — empêche le zoom au focus */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -116,28 +153,3 @@ html, body {
 }
 
 
-/* ── iOS Capacitor — scroll natif ──────────────────── */
-html, body {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
-}
-
-/* Safe area iPhone (notch / home indicator) */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Scrollable sur iOS */
-main, [data-scroll], .overflow-y-auto {
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
-}
-
-/* Empêcher le bounce blanc sur iOS */
-.min-h-screen {
-  min-height: -webkit-fill-available;
-}
