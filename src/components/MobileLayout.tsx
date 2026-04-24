@@ -1,35 +1,51 @@
 import { ReactNode } from "react";
 
-interface MobileLayoutProps {
-  children: ReactNode;
-  showNav?: boolean;
-}
-
-const MobileLayout = ({ children, showNav = true }: MobileLayoutProps) => {
+/**
+ * MobileLayout — conteneur principal pour toutes les pages.
+ * - Centré horizontalement, max 390px
+ * - Prend toute la hauteur de l'écran iPhone (safe area incluse)
+ * - Scroll fluide avec les doigts sur iOS
+ * - Fond crème cohérent
+ */
+export default function MobileLayout({ children }: { children: ReactNode }) {
   return (
-    // Fond page entière — gris neutre sur desktop pour faire ressortir l'app
-    <div className="min-h-screen w-full flex items-start justify-center"
-      style={{ background: "#E8E4DC" }}>
-
-      {/* Conteneur iPhone — max 390px, centré, fond app */}
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        justifyContent: "center",
+        backgroundColor: "#F5F3EE",
+        overflow: "hidden",
+      }}
+    >
       <div
-        className="relative w-full flex flex-col overflow-hidden"
         style={{
-          maxWidth: "390px",
-          minHeight: "100svh",
-          background: "hsl(var(--background))",
-          boxShadow: "0 0 60px rgba(0,0,0,0.15)",
+          position: "relative",
+          width: "100%",
+          maxWidth: 430,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          backgroundColor: "#F5F3EE",
         }}
       >
-        <main
-          className={showNav ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-y-auto"}
-          style={{ WebkitOverflowScrolling: "touch" }}
+        {/* Zone scrollable — toute la page sauf le footer */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            overflowX: "hidden",
+            WebkitOverflowScrolling: "touch" as any,
+            paddingTop: "env(safe-area-inset-top)",
+            // Espace pour le footer fixe (68px + safe area bottom)
+            paddingBottom: "calc(68px + env(safe-area-inset-bottom))",
+          }}
         >
           {children}
-        </main>
+        </div>
       </div>
     </div>
   );
-};
-
-export default MobileLayout;
+}
