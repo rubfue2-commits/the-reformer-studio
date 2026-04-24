@@ -14,12 +14,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (params: SignUpParams) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (params: SignUpParams) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
+  signInWithApple: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,95 +27,89 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  // loading = true tant qu'on n'a pas vérifié la session persistée
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
+    // 1. Récupérer la session déjà persistée (localStorage iOS)
+    //    → si l'utilisateur était connecté, on le retrouve ici sans prompt
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // 2. Écouter les changements de session (login, logout, refresh token)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      if (error) return { error: error.message };
-      return { error: null };
-    } catch (e: any) {
-      return { error: e.message || "Connection error" };
-    }
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return { error };
   };
 
-  const signUp = async ({ email, password, firstName, lastName, language }: SignUpParams): Promise<{ error: string | null }> => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            language: language || "fr",
-          },
-        },
-      });
-      if (error) return { error: error.message };
-      return { error: null };
-    } catch (e: any) {
-      return { error: e.message || "Registration error" };
-    }
+  const signUp = async ({ email, password, firstName, lastName, language }: SignUpParams) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { first_name: firstName, last_name: lastName, language },
+      },
+    });
+    return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-  };
-
-  const signInWithApple = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: { redirectTo: window.location.origin + "/home" },
-    });
+    setUser(null);
+    setSession(null);
   };
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + "/home" },
+      options: { redirectTo: window.location.origin },
     });
+    return { error };
   };
 
-  const resetPassword = async (email: string): Promise<{ error: string | null }> => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: window.location.origin + "/auth",
-      });
-      if (error) return { error: error.message };
-      return { error: null };
-    } catch (e: any) {
-      return { error: e.message || "Error" };
-    }
+  const signInWithApple = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo: window.location.origin },
+    });
+    return { error };
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error };
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, signInWithApple, signInWithGoogle, resetPassword }}>
+    <AuthContext.Provider value={{
+      user, session, loading,
+      signIn, signUp, signOut,
+      signInWithGoogle, signInWithApple,
+      resetPassword,
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
 }
