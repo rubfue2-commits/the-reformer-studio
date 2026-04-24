@@ -1,13 +1,3 @@
-/* ── iOS Capacitor — Format iPhone natif ── */
-
-/* Empêcher le bounce et le scroll global sur body */
-html {
-  height: 100%;
-  overflow: hidden;
-  /* Safe area iPhone X+ */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
 body {
   height: 100%;
   overflow: hidden;
@@ -153,3 +143,32 @@ html, body {
 }
 
 
+
+
+/* ══════════════════════════════════════════════
+   iOS CAPACITOR — RESPONSIVE TOUTES TAILLES
+   iPhone SE (375px) → iPhone 16 Pro Max (430px)
+   ══════════════════════════════════════════════ */
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  background-color: #F5F3EE;
+}
+
+input, textarea, select, button {
+  font-size: max(16px, 1em);
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --safe-top:      env(safe-area-inset-top, 0px);
+  --safe-bottom:   env(safe-area-inset-bottom, 0px);
+  --nav-height:    60px;
+  --footer-height: calc(var(--nav-height) + var(--safe-bottom));
+}
