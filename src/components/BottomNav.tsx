@@ -1,37 +1,100 @@
-import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
-import { Home, Play, Layers, BarChart3, User } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Home, Play, TrendingUp, Heart, User } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
-const BottomNav = () => {
+const TABS = [
+  { path: "/home",    icon: Home,        labelFr: "Accueil",  labelEn: "Home"     },
+  { path: "/library", icon: Play,        labelFr: "Séances",  labelEn: "Sessions" },
+  { path: "/progress",icon: TrendingUp,  labelFr: "Progrès",  labelEn: "Progress" },
+  { path: "/wellness",icon: Heart,       labelFr: "Bien-être",labelEn: "Wellness"  },
+  { path: "/profile", icon: User,        labelFr: "Profil",   labelEn: "Profile"  },
+];
+
+export default function BottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const navItems = [
-    { to: "/home",     icon: Home,      label: t("Accueil", "Home") },
-    { to: "/library",  icon: Play,      label: t("Vidéos", "Videos") },
-    { to: "/programs", icon: Layers,    label: "Programmes" },
-    { to: "/progress", icon: BarChart3, label: t("Progrès", "Progress") },
-    { to: "/profile",  icon: User,      label: t("Profil", "Profile") },
-  ];
-
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-border bg-card/80 backdrop-blur-xl">
-      <div className="flex items-center justify-around py-2 pb-6">
-        {navItems.map(({ to, icon: Icon, label }) => {
-          const isActive = location.pathname === to;
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: "rgba(245,243,238,0.95)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderTop: "1px solid rgba(0,0,0,0.06)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          height: 60,
+          maxWidth: 430,
+          margin: "0 auto",
+          paddingLeft: 8,
+          paddingRight: 8,
+        }}
+      >
+        {TABS.map(({ path, icon: Icon, labelFr, labelEn }) => {
+          const active = location.pathname === path ||
+            (path === "/library" && location.pathname.includes("library"));
           return (
-            <RouterNavLink key={to} to={to} className="relative flex flex-col items-center gap-1 px-3 py-1">
-              <Icon size={20} strokeWidth={1.5} className={isActive ? "text-foreground" : "text-muted-foreground"} />
-              <span className={`text-[10px] font-body tracking-wide ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
-                {label}
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 3,
+                padding: "6px 0",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                WebkitTapHighlightColor: "transparent",
+                outline: "none",
+                minHeight: 48,
+              }}
+            >
+              {/* Barre active en haut */}
+              <div style={{
+                position: "absolute",
+                top: 0,
+                width: active ? 24 : 0,
+                height: 2,
+                borderRadius: 2,
+                backgroundColor: "#B8973E",
+                transition: "width 0.25s ease",
+              }} />
+
+              <Icon
+                size={22}
+                strokeWidth={active ? 2 : 1.5}
+                style={{ color: active ? "#B8973E" : "#9CA3AF", transition: "color 0.2s" }}
+              />
+              <span style={{
+                fontSize: 10,
+                fontFamily: "inherit",
+                color: active ? "#B8973E" : "#9CA3AF",
+                fontWeight: active ? 600 : 400,
+                letterSpacing: "0.02em",
+                transition: "color 0.2s",
+              }}>
+                {t(labelFr, labelEn)}
               </span>
-              {isActive && <div className="absolute -top-[1px] h-[2px] w-8 rounded-full bg-gold" />}
-            </RouterNavLink>
+            </button>
           );
         })}
       </div>
-    </nav>
+    </div>
   );
-};
-
-export default BottomNav;
+}
