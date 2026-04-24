@@ -41,16 +41,18 @@ export default function LanguageSelect() {
           </p>
         </motion.div>
 
-        {/* Nom app */}
+        {/* Nom app — police droite sans italique */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
           className="text-center mb-4">
-          <h1 className="font-display leading-none" style={{ fontSize: 64, fontWeight: 300, color: "#1C1B19", letterSpacing: "-0.02em" }}>
+          <h1 className="font-body leading-tight"
+            style={{ fontSize: 52, fontWeight: 300, color: "#1C1B19", letterSpacing: "-0.01em" }}>
             Connect
           </h1>
-          <h1 className="font-display leading-none" style={{ fontSize: 64, fontWeight: 300, color: "#B8973E", letterSpacing: "-0.02em" }}>
+          <h1 className="font-body leading-tight"
+            style={{ fontSize: 52, fontWeight: 300, color: "#B8973E", letterSpacing: "-0.01em" }}>
             Reformer
           </h1>
         </motion.div>
@@ -84,15 +86,19 @@ export default function LanguageSelect() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => handleSelect("fr")}
-          className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all relative overflow-hidden"
+          className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all"
           style={{ backgroundColor: "#1C1B19", boxShadow: "0 8px 32px rgba(28,27,25,0.25)" }}>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
             style={{ backgroundColor: "#2D2A22" }}>
             <span style={{ fontSize: 22 }}>🇫🇷</span>
           </div>
           <div className="flex-1 text-left">
-            <p className="font-display text-lg font-light text-white">Français</p>
-            <p className="font-body text-xs" style={{ color: "#8B8578" }}>Continuer en français</p>
+            <p className="font-body text-base font-medium text-white" style={{ fontStyle: "normal" }}>
+              Français
+            </p>
+            <p className="font-body text-xs" style={{ color: "#8B8578", fontStyle: "normal" }}>
+              Continuer en français
+            </p>
           </div>
           <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
             style={{ backgroundColor: "#B8973E" }}>
@@ -113,8 +119,12 @@ export default function LanguageSelect() {
             <span style={{ fontSize: 22 }}>🇬🇧</span>
           </div>
           <div className="flex-1 text-left">
-            <p className="font-display text-lg font-light" style={{ color: "#1C1B19" }}>English</p>
-            <p className="font-body text-xs" style={{ color: "#B8B0A6" }}>Continue in English</p>
+            <p className="font-body text-base font-medium" style={{ color: "#1C1B19", fontStyle: "normal" }}>
+              English
+            </p>
+            <p className="font-body text-xs" style={{ color: "#B8B0A6", fontStyle: "normal" }}>
+              Continue in English
+            </p>
           </div>
           <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
             style={{ backgroundColor: "#F5F3EE" }}>
@@ -124,13 +134,12 @@ export default function LanguageSelect() {
           </div>
         </motion.button>
 
-        {/* Note bas de page */}
+        {/* Note */}
         <p className="font-body text-[11px] text-center pt-2" style={{ color: "#C4BDB5" }}>
           Vous pourrez changer la langue dans votre profil
         </p>
 
       </motion.div>
-
     </div>
   );
 }
