@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { ChevronLeft, Flame, Target, Star, Award, Zap, Heart, Trophy, Crown, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, Flame, Target, Star, Award, Zap, Heart, Trophy, Crown, Sparkles, Lock, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
@@ -10,19 +11,54 @@ import { useAuth } from "@/contexts/AuthContext";
 const DEMO_EMAIL = "rubenfuentes@orange.fr";
 
 const BADGES = [
-  { id: "first",    icon: Star,     color: "#B8973E", bg: "#FAEEDA", titleFr: "Première séance",     titleEn: "First session",      descFr: "Tu as complété ta première séance !",          descEn: "You completed your first session!",       threshold: 1  },
-  { id: "streak7",  icon: Flame,    color: "#EF4444", bg: "#FEF2F2", titleFr: "7 jours de suite",    titleEn: "7-day streak",       descFr: "7 jours consécutifs de pratique",              descEn: "7 consecutive days of practice",          threshold: 7, isStreak: true },
-  { id: "ten",      icon: Target,   color: "#3B82F6", bg: "#EFF6FF", titleFr: "10 séances",          titleEn: "10 sessions",        descFr: "Tu as complété 10 séances au total",           descEn: "You completed 10 sessions",               threshold: 10 },
-  { id: "streak14", icon: Zap,      color: "#F59E0B", bg: "#FFFBEB", titleFr: "14 jours de suite",   titleEn: "14-day streak",      descFr: "14 jours consécutifs — incroyable !",          descEn: "14 consecutive days — incredible!",       threshold: 14, isStreak: true },
-  { id: "twenty5",  icon: Award,    color: "#8B5CF6", bg: "#F5F3FF", titleFr: "25 séances",          titleEn: "25 sessions",        descFr: "25 séances complétées",                        descEn: "25 sessions completed",                   threshold: 25 },
-  { id: "heart",    icon: Heart,    color: "#EC4899", bg: "#FDF2F8", titleFr: "Corps en forme",      titleEn: "Fit body",           descFr: "Mesures enregistrées 5 fois",                  descEn: "Measurements recorded 5 times",           threshold: 5, isMeasurement: true },
-  { id: "fifty",    icon: Trophy,   color: "#B8973E", bg: "#FAEEDA", titleFr: "50 séances",          titleEn: "50 sessions",        descFr: "50 séances — tu es une vraie athlète !",       descEn: "50 sessions — you are a true athlete!",   threshold: 50 },
-  { id: "streak30", icon: Crown,    color: "#B8973E", bg: "#FAEEDA", titleFr: "30 jours de suite",   titleEn: "30-day streak",      descFr: "30 jours consécutifs — légende !",             descEn: "30 consecutive days — legend!",           threshold: 30, isStreak: true },
-  { id: "hundred",  icon: Sparkles, color: "#34D399", bg: "#ECFDF5", titleFr: "100 séances",         titleEn: "100 sessions",       descFr: "100 séances — championne absolue !",           descEn: "100 sessions — absolute champion!",       threshold: 100 },
+  { id: "first",    icon: Star,     color: "#B8973E", bg: "#FAEEDA",
+    titleFr: "Première séance",   titleEn: "First session",
+    descFr: "Tu as complété ta toute première séance. Le début d'une belle aventure !",
+    descEn: "You completed your very first session. The start of a great journey!",
+    threshold: 1, xp: 50 },
+  { id: "ten",      icon: Target,   color: "#3B82F6", bg: "#EFF6FF",
+    titleFr: "10 séances",        titleEn: "10 sessions",
+    descFr: "10 séances complétées. Tu prends de bonnes habitudes !",
+    descEn: "10 sessions completed. You're building great habits!",
+    threshold: 10, xp: 150 },
+  { id: "streak7",  icon: Flame,    color: "#EF4444", bg: "#FEF2F2",
+    titleFr: "7 jours de feu",    titleEn: "7-day streak",
+    descFr: "7 jours consécutifs de pratique. Tu es en feu !",
+    descEn: "7 consecutive days of practice. You're on fire!",
+    threshold: 7, isStreak: true, xp: 200 },
+  { id: "twenty5",  icon: Award,    color: "#8B5CF6", bg: "#F5F3FF",
+    titleFr: "25 séances",        titleEn: "25 sessions",
+    descFr: "25 séances — tu fais partie des plus motivées !",
+    descEn: "25 sessions — you're among the most motivated!",
+    threshold: 25, xp: 300 },
+  { id: "streak14", icon: Zap,      color: "#F59E0B", bg: "#FFFBEB",
+    titleFr: "14 jours d'affilée", titleEn: "14-day streak",
+    descFr: "14 jours consécutifs — incroyable régularité !",
+    descEn: "14 consecutive days — incredible consistency!",
+    threshold: 14, isStreak: true, xp: 350 },
+  { id: "heart",    icon: Heart,    color: "#EC4899", bg: "#FDF2F8",
+    titleFr: "Corps en forme",    titleEn: "Fit body",
+    descFr: "Tu suis ton corps avec soin. La régularité paie !",
+    descEn: "You track your body carefully. Consistency pays off!",
+    threshold: 5, isMeasurement: true, xp: 100 },
+  { id: "fifty",    icon: Trophy,   color: "#B8973E", bg: "#FAEEDA",
+    titleFr: "50 séances",        titleEn: "50 sessions",
+    descFr: "50 séances — tu es une vraie athlète du Pilates !",
+    descEn: "50 sessions — you're a true Pilates athlete!",
+    threshold: 50, xp: 500 },
+  { id: "streak30", icon: Crown,    color: "#7C3AED", bg: "#EDE9FE",
+    titleFr: "30 jours de suite", titleEn: "30-day streak",
+    descFr: "30 jours consécutifs — tu es une légende !",
+    descEn: "30 consecutive days — you are a legend!",
+    threshold: 30, isStreak: true, xp: 700 },
+  { id: "hundred",  icon: Sparkles, color: "#10B981", bg: "#ECFDF5",
+    titleFr: "100 séances",       titleEn: "100 sessions",
+    descFr: "100 séances — championne absolue ! Un accomplissement extraordinaire.",
+    descEn: "100 sessions — absolute champion! An extraordinary achievement.",
+    threshold: 100, xp: 1000 },
 ];
 
-// Calcul XP
-const calcXP = (totalSessions: number, streak: number) => totalSessions * 15 + streak * 10;
+const calcXP = (sessions: number, streak: number) => sessions * 15 + streak * 10;
 const calcLevel = (xp: number) => Math.floor(xp / 500) + 1;
 
 export default function Achievements() {
@@ -36,129 +72,296 @@ export default function Achievements() {
   const streak        = isDemo ? 12 : stats.currentStreakDays;
   const xp            = isDemo ? 1525 : calcXP(totalSessions, streak);
   const level         = isDemo ? 3 : calcLevel(xp);
-  const nextLevelXP   = level * 500;
-  const progress      = (xp % 500) / 500;
+  const xpInLevel     = xp % 500;
+  const progress      = xpInLevel / 500;
 
-  const earned = BADGES.filter(b => {
+  const [selected, setSelected] = useState<typeof BADGES[0] | null>(null);
+
+  const isEarned = (b: typeof BADGES[0]) => {
     if (b.isStreak) return streak >= b.threshold;
+    if (b.isMeasurement) return totalSessions >= b.threshold;
     return totalSessions >= b.threshold;
-  });
+  };
+
+  const earned = BADGES.filter(isEarned);
+  const nextBadge = BADGES.find(b => !isEarned(b));
+
+  const getProgress = (b: typeof BADGES[0]) => {
+    const current = b.isStreak ? streak : totalSessions;
+    return Math.min(current / b.threshold, 1);
+  };
 
   return (
     <MobileLayout>
-      <div className="px-6 pt-14 pb-6">
+      <div className="px-5 pt-12 pb-4">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-5">
           <button onClick={() => navigate(-1)}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>
-            <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">{t("Mes réussites","My achievements")}</p>
-            <h1 className="font-display text-2xl font-light text-foreground">{t("Badges & XP","Badges & XP")}</h1>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">
+              {t("Mes réussites","My achievements")}
+            </p>
+            <h1 className="font-display text-2xl font-light text-foreground">Badges & XP</h1>
           </div>
         </div>
 
-        {/* Niveau XP */}
+        {/* Carte XP */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl p-5 mb-5 shadow-sm"
+          className="rounded-3xl p-5 mb-5 shadow-sm overflow-hidden relative"
           style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
-          <div className="flex items-center justify-between mb-3">
+
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
+            style={{ background: "radial-gradient(#B8973E, transparent)", transform: "translate(30%, -30%)" }} />
+
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="font-body text-xs text-white/50 uppercase tracking-widest">{t("Niveau","Level")}</p>
-              <p className="font-display text-4xl font-light text-white">{level}</p>
+              <p className="font-body text-[10px] text-white/40 uppercase tracking-widest mb-1">
+                {t("Niveau","Level")}
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-5xl font-light text-white">{level}</span>
+                <span className="font-body text-xs text-white/40">{t("Rang","Rank")} #{level}</span>
+              </div>
             </div>
             <div className="text-right">
-              <p className="font-body text-xs text-white/50 uppercase tracking-widest">XP</p>
-              <p className="font-display text-4xl font-light text-gold">{xp.toLocaleString()}</p>
+              <p className="font-body text-[10px] text-white/40 uppercase tracking-widest mb-1">XP Total</p>
+              <span className="font-display text-4xl font-light text-gold">{xp.toLocaleString()}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+
+          {/* Barre XP */}
+          <div className="mb-2">
+            <div className="flex justify-between mb-1.5">
+              <span className="font-body text-[10px] text-white/40">
+                {xpInLevel} XP {t("dans ce niveau","in this level")}
+              </span>
+              <span className="font-body text-[10px] text-white/40">500 XP</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div className="h-full rounded-full bg-gold"
-                initial={{ width: 0 }} animate={{ width: (progress * 100) + "%" }}
-                transition={{ duration: 1, delay: 0.3 }} />
+                initial={{ width: 0 }}
+                animate={{ width: (progress * 100) + "%" }}
+                transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }} />
             </div>
-            <p className="font-body text-xs text-white/40 flex-shrink-0">{nextLevelXP} XP</p>
           </div>
-          <div className="flex gap-4 mt-4 border-t border-white/10 pt-4">
-            <div className="flex items-center gap-2">
-              <Trophy size={14} className="text-gold" />
+
+          {/* Stats rapides */}
+          <div className="flex gap-4 pt-3 border-t border-white/10">
+            <div className="flex items-center gap-1.5">
+              <Trophy size={13} className="text-gold" />
               <span className="font-body text-xs text-white">{totalSessions} {t("séances","sessions")}</span>
             </div>
             <div className="w-px bg-white/10" />
-            <div className="flex items-center gap-2">
-              <Flame size={14} className="text-red-400" />
-              <span className="font-body text-xs text-white">{streak} {t("jours","days")}</span>
+            <div className="flex items-center gap-1.5">
+              <Flame size={13} className="text-red-400" />
+              <span className="font-body text-xs text-white">{streak} {t("jours streak","day streak")}</span>
+            </div>
+            <div className="w-px bg-white/10" />
+            <div className="flex items-center gap-1.5">
+              <Star size={13} className="text-gold" />
+              <span className="font-body text-xs text-white">{earned.length}/{BADGES.length} {t("badges","badges")}</span>
             </div>
           </div>
         </motion.div>
 
-        {/* Badges obtenus */}
-        <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-3">
-          {t("Badges obtenus","Earned badges")} ({earned.length}/{BADGES.length})
+        {/* Prochain badge */}
+        {nextBadge && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="rounded-2xl bg-card border border-border p-4 mb-5 shadow-sm">
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">
+              {t("Prochain badge","Next badge")}
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: nextBadge.bg }}>
+                <nextBadge.icon size={20} strokeWidth={1.5} style={{ color: nextBadge.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-body font-semibold text-sm text-foreground">
+                  {t(nextBadge.titleFr, nextBadge.titleEn)}
+                </p>
+                <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <motion.div className="h-full rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: (getProgress(nextBadge) * 100) + "%" }}
+                    transition={{ duration: 1, delay: 0.4 }}
+                    style={{ backgroundColor: nextBadge.color }} />
+                </div>
+                <p className="font-body text-[10px] text-muted-foreground mt-1">
+                  {nextBadge.isStreak ? streak : totalSessions}/{nextBadge.threshold}
+                  {" · "}{nextBadge.xp} XP
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Grille badges */}
+        <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">
+          {t("Tous les badges","All badges")}
         </p>
 
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-3 gap-3 pb-4">
           {BADGES.map((badge, i) => {
-            const isEarned = earned.some(e => e.id === badge.id);
+            const earned = isEarned(badge);
             return (
-              <motion.div key={badge.id}
-                initial={{ opacity: 0, scale: 0.8 }}
+              <motion.button
+                key={badge.id}
+                initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-                className={"rounded-2xl p-3 flex flex-col items-center gap-2 border " +
-                  (isEarned ? "border-transparent" : "border-border bg-muted/30")}
-                style={isEarned ? { backgroundColor: badge.bg, borderColor: badge.color + "30" } : {}}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: isEarned ? badge.color + "20" : "#E5E7EB" }}>
-                  <badge.icon size={20} strokeWidth={1.5}
-                    style={{ color: isEarned ? badge.color : "#9CA3AF" }} />
+                transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
+                whileTap={{ scale: 0.93 }}
+                onClick={() => setSelected(badge)}
+                className="relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all text-left"
+                style={{
+                  backgroundColor: earned ? badge.bg : "var(--color-card, #FFFFFF)",
+                  borderColor: earned ? badge.color + "40" : "var(--color-border, #E5E7EB)",
+                }}>
+
+                {/* Badge icône */}
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: earned ? badge.color + "20" : "#F3F4F6" }}>
+                  {earned
+                    ? <badge.icon size={22} strokeWidth={1.5} style={{ color: badge.color }} />
+                    : <Lock size={18} strokeWidth={1.5} className="text-muted-foreground" />
+                  }
                 </div>
-                <p className="font-body text-[10px] text-center leading-tight"
-                  style={{ color: isEarned ? badge.color : "#9CA3AF" }}>
+
+                <p className="font-body text-[10px] text-center leading-tight font-medium"
+                  style={{ color: earned ? badge.color : "#9CA3AF" }}>
                   {t(badge.titleFr, badge.titleEn)}
                 </p>
-                {isEarned && (
-                  <span className="font-body text-[9px] px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: badge.color + "20", color: badge.color }}>
+
+                {earned && (
+                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
+                    style={{ backgroundColor: badge.color }}>
                     ✓
-                  </span>
+                  </div>
                 )}
-              </motion.div>
+
+                {!earned && (
+                  <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all"
+                      style={{
+                        width: (getProgress(badge) * 100) + "%",
+                        backgroundColor: badge.color
+                      }} />
+                  </div>
+                )}
+              </motion.button>
             );
           })}
         </div>
 
-        {/* Badges à débloquer */}
-        {earned.length < BADGES.length && (
-          <div className="rounded-2xl bg-card border border-border p-4">
-            <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-3">
-              {t("Prochain badge","Next badge")}
-            </p>
-            {BADGES.filter(b => !earned.some(e => e.id === b.id)).slice(0, 1).map(badge => (
-              <div key={badge.id} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                  <badge.icon size={20} strokeWidth={1.5} className="text-muted-foreground" />
+      </div>
+
+      {/* Modal détail badge */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-end justify-center z-50 backdrop-blur-sm"
+            onClick={() => setSelected(null)}>
+            <motion.div
+              initial={{ y: 200, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 200, opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="bg-background rounded-t-3xl w-full max-w-md pb-10 overflow-hidden"
+              onClick={e => e.stopPropagation()}>
+
+              {/* Handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+              </div>
+
+              {/* Fermer */}
+              <div className="flex justify-end px-5 mb-2">
+                <button onClick={() => setSelected(null)}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <X size={14} className="text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Contenu */}
+              <div className="px-6">
+                {/* Grande icône */}
+                <div className="flex justify-center mb-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, delay: 0.1 }}
+                    className="w-24 h-24 rounded-3xl flex items-center justify-center"
+                    style={{ backgroundColor: selected.bg }}>
+                    {isEarned(selected)
+                      ? <selected.icon size={44} strokeWidth={1.5} style={{ color: selected.color }} />
+                      : <Lock size={36} strokeWidth={1.5} className="text-muted-foreground" />
+                    }
+                  </motion.div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-body font-semibold text-sm text-foreground">{t(badge.titleFr, badge.titleEn)}</p>
-                  <p className="font-body text-xs text-muted-foreground">{t(badge.descFr, badge.descEn)}</p>
-                  <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-gold transition-all"
-                      style={{ width: Math.min((badge.isStreak ? streak : totalSessions) / badge.threshold * 100, 100) + "%" }} />
-                  </div>
-                  <p className="font-body text-[10px] text-muted-foreground mt-1">
-                    {badge.isStreak ? streak : totalSessions}/{badge.threshold}
+
+                {/* Titre + statut */}
+                <div className="text-center mb-4">
+                  <p className="font-display text-2xl font-light text-foreground mb-1">
+                    {t(selected.titleFr, selected.titleEn)}
                   </p>
+                  {isEarned(selected)
+                    ? <span className="inline-block font-body text-xs font-semibold px-3 py-1 rounded-full"
+                        style={{ color: selected.color, backgroundColor: selected.bg }}>
+                        ✓ {t("Obtenu","Earned")}
+                      </span>
+                    : <span className="inline-block font-body text-xs text-muted-foreground px-3 py-1 rounded-full bg-muted">
+                        {t("Non débloqué","Not unlocked")}
+                      </span>
+                  }
+                </div>
+
+                {/* Description */}
+                <p className="font-body text-sm text-muted-foreground text-center leading-relaxed mb-5">
+                  {t(selected.descFr, selected.descEn)}
+                </p>
+
+                {/* Progression */}
+                {!isEarned(selected) && (
+                  <div className="bg-card border border-border rounded-2xl p-4 mb-4">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-body text-xs text-muted-foreground">{t("Progression","Progress")}</span>
+                      <span className="font-body text-xs font-semibold" style={{ color: selected.color }}>
+                        {selected.isStreak ? streak : totalSessions}/{selected.threshold}
+                      </span>
+                    </div>
+                    <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                      <motion.div className="h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: (getProgress(selected) * 100) + "%" }}
+                        transition={{ duration: 0.8 }}
+                        style={{ backgroundColor: selected.color }} />
+                    </div>
+                    <p className="font-body text-[10px] text-muted-foreground mt-2 text-center">
+                      {t("Plus que","Only")} {selected.threshold - (selected.isStreak ? streak : totalSessions)} {t("de plus !","more to go!")}
+                    </p>
+                  </div>
+                )}
+
+                {/* XP récompense */}
+                <div className="flex items-center justify-center gap-2 rounded-2xl bg-muted p-3">
+                  <Star size={16} className="text-gold" />
+                  <span className="font-body text-sm font-semibold text-foreground">
+                    {selected.xp} XP {isEarned(selected) ? t("gagnés","earned") : t("à gagner","to earn")}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-      </div>
       <BottomNav />
     </MobileLayout>
   );
