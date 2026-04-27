@@ -25,8 +25,6 @@ export default function BottomNav() {
       backdropFilter: "blur(20px)",
       WebkitBackdropFilter: "blur(20px)",
       borderTop: "1px solid rgba(28, 27, 25, 0.06)",
-      /* Safe area iOS — home indicator */
-      paddingBottom: "env(safe-area-inset-bottom, 0px)",
     }}>
       <div style={{
         display: "flex",
@@ -78,7 +76,7 @@ export default function BottomNav() {
               )}
 
               <Icon
-                size={isIPad ? 24 : 22}
+                size={isIPad ? 24 : 21}
                 strokeWidth={active ? 2 : 1.4}
                 style={{
                   color: active ? "#1C1B19" : "#B8B0A6",
@@ -102,6 +100,12 @@ export default function BottomNav() {
           );
         })}
       </div>
+
+      {/* Safe area home indicator — fine bande en dessous */}
+      <div style={{
+        height: "env(safe-area-inset-bottom, 0px)",
+        backgroundColor: "rgba(245, 243, 238, 0.97)",
+      }} />
     </nav>
   );
 }
