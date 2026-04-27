@@ -172,3 +172,11 @@ input, textarea, select, button {
   --nav-height:    60px;
   --footer-height: calc(var(--nav-height) + var(--safe-bottom));
 }
+
+
+/* ══ iPAD — Tous les formats ══ */
+@media (min-width: 768px) {
+  :root { --nav-height: 72px; --footer-height: calc(var(--nav-height) + var(--safe-bottom)); }
+  html, body, #root { background-color: #E8E4DE !important; }
+  .shadow-sm { box-shadow: 0 2px 16px rgba(0,0,0,0.08) !important; }
+}
