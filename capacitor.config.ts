@@ -14,9 +14,11 @@ const config: CapacitorConfig = {
     scheme: 'connectreformer',
     backgroundColor: '#F5F3EE',
     allowsLinkPreview: false,
-    // scroll activé pour le glissement des doigts
     scrollEnabled: true,
     preferredContentMode: 'mobile',
+    // Toutes les orientations autorisées
+    // La rotation paysage ne s'active que dans le player vidéo
+    limitsNavigationsToAppBoundDomains: false,
   },
 
   plugins: {
@@ -28,19 +30,16 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true,
     },
-
     StatusBar: {
       style: 'Light',
       backgroundColor: '#F5F3EE',
       overlaysWebView: false,
     },
-
     Keyboard: {
       resize: 'body',
       style: 'light',
       resizeOnFullScreen: true,
     },
-
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
     },
