@@ -14,43 +14,78 @@ export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const isIPad = window.innerWidth >= 768;
 
   return (
     <nav style={{
-      position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 100,
+      position: "absolute",
+      bottom: 0, left: 0, right: 0,
+      zIndex: 100,
       backgroundColor: "rgba(245, 243, 238, 0.96)",
-      backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
       borderTop: "1px solid rgba(28, 27, 25, 0.07)",
       paddingBottom: "env(safe-area-inset-bottom, 0px)",
     }}>
       <div style={{
-        display: "flex", alignItems: "stretch", justifyContent: "space-around",
-        height: 60, width: "100%", maxWidth: 430, margin: "0 auto",
+        display: "flex",
+        alignItems: "stretch",
+        justifyContent: "space-around",
+        /* Plus haut sur iPad pour meilleure ergonomie tactile */
+        height: isIPad ? 72 : 60,
+        width: "100%",
+        maxWidth: isIPad ? 680 : 430,
+        margin: "0 auto",
+        paddingLeft: isIPad ? 24 : 0,
+        paddingRight: isIPad ? 24 : 0,
       }}>
         {TABS.map(({ path, icon: Icon, labelFr, labelEn }) => {
           const active = location.pathname === path ||
             (path === "/library" && location.pathname.includes("library"));
           return (
             <button key={path} onClick={() => navigate(path)} style={{
-              flex: 1, display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center", gap: 3,
-              border: "none", background: "none", cursor: "pointer",
-              WebkitTapHighlightColor: "transparent", outline: "none",
-              padding: "8px 0 4px", position: "relative", minWidth: 0,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: isIPad ? 5 : 3,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              WebkitTapHighlightColor: "transparent",
+              outline: "none",
+              padding: isIPad ? "10px 0 6px" : "8px 0 4px",
+              position: "relative",
+              minWidth: 0,
+              /* Zone tactile plus grande sur iPad */
+              minHeight: isIPad ? 72 : 60,
             }}>
-              {active && <div style={{
-                position: "absolute", top: 0, left: "50%",
-                transform: "translateX(-50%)",
-                width: 24, height: 2.5, borderRadius: 2, backgroundColor: "#B8973E",
-              }} />}
-              <Icon size={22} strokeWidth={active ? 2 : 1.5}
-                style={{ color: active ? "#B8973E" : "#9CA3AF", transition: "color 0.2s", flexShrink: 0 }} />
+              {active && (
+                <div style={{
+                  position: "absolute", top: 0,
+                  left: "50%", transform: "translateX(-50%)",
+                  width: isIPad ? 32 : 24,
+                  height: 2.5, borderRadius: 2,
+                  backgroundColor: "#B8973E",
+                }} />
+              )}
+              <Icon
+                size={isIPad ? 26 : 22}
+                strokeWidth={active ? 2 : 1.5}
+                style={{ color: active ? "#B8973E" : "#9CA3AF", transition: "color 0.2s", flexShrink: 0 }}
+              />
               <span style={{
-                fontSize: 10, lineHeight: 1,
+                fontSize: isIPad ? 11 : 10,
+                lineHeight: 1,
                 color: active ? "#B8973E" : "#9CA3AF",
                 fontWeight: active ? 600 : 400,
-                letterSpacing: "0.01em", transition: "color 0.2s", whiteSpace: "nowrap",
-              }}>{t(labelFr, labelEn)}</span>
+                letterSpacing: "0.01em",
+                transition: "color 0.2s",
+                whiteSpace: "nowrap",
+              }}>
+                {t(labelFr, labelEn)}
+              </span>
             </button>
           );
         })}
