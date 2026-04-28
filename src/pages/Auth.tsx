@@ -162,7 +162,7 @@ export default function Auth() {
             <div style={{ position: "absolute", left: 2, top: 0, width: 7, height: 20, borderRadius: 3.5, backgroundColor: "#FFFFFF", transform: "rotate(15deg)", transformOrigin: "center" }} />
             <div style={{ position: "absolute", left: 12, top: 2, width: 5, height: 16, borderRadius: 2.5, backgroundColor: "#B8973E", transform: "rotate(15deg)", transformOrigin: "center" }} />
           </div>
-          {t("Commander sur connectreformer.com", "Order on connectreformer.com")}
+          {t("Commandez votre machine", "Order your machine")}
         </button>
         <p style={{ fontSize: 11, color: "#C4BDB5", margin: "10px 0 0" }}>
           {t("Choisissez votre formule, recevez votre machine,", "Choose your plan, receive your machine,")}
