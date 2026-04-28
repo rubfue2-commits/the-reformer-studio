@@ -5,8 +5,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const TABS = [
   { path: "/home",     icon: Home,       labelFr: "Accueil",   labelEn: "Home"     },
   { path: "/library",  icon: Play,       labelFr: "Séances",   labelEn: "Sessions" },
-  { path: "/progress", icon: TrendingUp, labelFr: "Progrès",   labelEn: "Progress" },
-  { path: "/wellness", icon: Heart,      labelFr: "Bien-être", labelEn: "Wellness" },
+  { path: "/programs", icon: TrendingUp, labelFr: "Programmes",   labelEn: "Programs" },
+  { path: "/wellness", icon: Heart,      labelFr: "Bien-être", labelEn: "Bien-être" },
   { path: "/profile",  icon: User,       labelFr: "Profil",    labelEn: "Profile"  },
 ];
 
