@@ -8,6 +8,7 @@ interface SignUpParams {
   firstName: string;
   lastName: string;
   language: string;
+  referralCode?: string;
 }
 
 interface AuthContextType {
@@ -56,14 +57,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signUp = async ({ email, password, firstName, lastName, language }: SignUpParams) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async ({ email, password, firstName, lastName, language, referralCode }: SignUpParams) => {
+    // 1. Créer le compte
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { first_name: firstName, last_name: lastName, language },
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          language,
+          referral_code_used: referralCode || null,
+        },
       },
     });
+
+    // 2. Si code parrainage fourni — vérifier et enregistrer
+    if (!error && data.user && referralCode) {
+      try {
+        // Vérifier que le code existe
+        const { data: codeData } = await supabase
+          .from('referral_codes')
+          .select('user_id, code')
+          .eq('code', referralCode.toUpperCase())
+          .single();
+
+        if (codeData) {
+          // Créer le parrainage en base
+          await supabase.from('referrals').insert({
+            referrer_id: codeData.user_id,
+            referred_id: data.user.id,
+            referred_email: email,
+            code_used: referralCode.toUpperCase(),
+            status: 'pending',
+          });
+        }
+      } catch (e) {
+        // Le code est invalide — on ne bloque pas l'inscription
+        console.log('Referral code invalid or already used:', referralCode);
+      }
+    }
+
     return { error };
   };
 
