@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import { Browser } from "@capacitor/browser";
 
 export default function Auth() {
   const { t } = useLanguage();
@@ -336,6 +337,61 @@ export default function Auth() {
             </button>
           )}
         </div>
+
+        {/* Encart redirection site — visible en mode login et register */}
+        {mode !== "reset" && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            style={{
+              marginTop: 20,
+              padding: "16px",
+              borderRadius: 16,
+              border: "1px solid rgba(184,151,62,0.2)",
+              backgroundColor: "rgba(184,151,62,0.04)",
+              textAlign: "center",
+            }}>
+            <p style={{ fontSize: 12, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
+              {t(
+                "Vous n'avez pas encore de machine Connect Reformer ?",
+                "Don't have a Connect Reformer yet?"
+              )}
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  await Browser.open({ url: "https://connectreformer.com" });
+                } catch {
+                  window.open("https://connectreformer.com", "_blank");
+                }
+              }}
+              style={{
+                width: "100%",
+                padding: "13px 16px",
+                backgroundColor: "#B8973E",
+                color: "#1C1B19",
+                border: "none",
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              {t("Commander sur connectreformer.com", "Order on connectreformer.com")}
+            </button>
+          </motion.div>
+        )}
+
       </motion.div>
 
       <style>{`
