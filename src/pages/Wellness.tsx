@@ -223,20 +223,7 @@ export default function Wellness() {
             )}
 
             {saved
-              ? 
-      {/* Bouton rapide vers les mensurations */}
-      <button onClick={() => navigate("/measurements")}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", backgroundColor: "white", border: "1px solid rgba(28,27,25,0.07)", borderRadius: 20, cursor: "pointer", fontFamily: "inherit", marginBottom: 16, boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📏</div>
-          <div style={{ textAlign: "left" }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Mes mensurations</p>
-            <p style={{ fontSize: 12, color: "#8B8578", margin: 0 }}>Suivre poids, taille, hanches...</p>
-          </div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8B0A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-<div className="rounded-xl bg-green-50 border border-green-200 py-3 text-center">
+              ? <div className="rounded-xl bg-green-50 border border-green-200 py-3 text-center">
                   <p className="font-body text-sm text-green-700 font-medium">{t("Journal enregistré !","Journal saved!")}</p>
                 </div>
               : <button onClick={handleSave} disabled={saving}
@@ -259,6 +246,19 @@ export default function Wellness() {
           </div>
         )}
       </div>
+
+      {/* Bouton mensurations */}
+      <button onClick={() => navigate("/measurements")}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "14px 16px", backgroundColor: "white", border: "1px solid rgba(28,27,25,0.07)", borderRadius: 20, cursor: "pointer", fontFamily: "inherit", marginTop: 16, boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📏</div>
+          <div style={{ textAlign: "left" }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Mes mensurations</p>
+            <p style={{ fontSize: 12, color: "#8B8578", margin: 0 }}>Poids, taille, hanches...</p>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8B0A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
       <BottomNav />
     </MobileLayout>
   );
