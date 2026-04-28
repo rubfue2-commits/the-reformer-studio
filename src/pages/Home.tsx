@@ -276,7 +276,7 @@ const Home = () => {
           className="mt-4 mb-6 rounded-3xl bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-light text-foreground">{t("Progrès du mois","Monthly progress")}</h3>
-            <button onClick={() => navigate("/progress")} className="flex items-center gap-1 font-body text-[10px] text-gold">
+            <button onClick={() => navigate("/wellness")} className="flex items-center gap-1 font-body text-[10px] text-gold">
               {t("Détails","Details")} <ChevronRight size={12} />
             </button>
           </div>
