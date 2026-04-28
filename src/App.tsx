@@ -18,6 +18,7 @@ import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Referral from "./pages/Referral";
 import DeleteAccount from "./pages/DeleteAccount";
+import CGV from "./pages/CGV";
 import Achievements from "./pages/Achievements";
 import Programs from "./pages/Programs";
 import Wellness from "./pages/Wellness";
