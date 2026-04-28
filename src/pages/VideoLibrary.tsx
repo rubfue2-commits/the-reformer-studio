@@ -9,15 +9,15 @@ import BottomNav from "@/components/BottomNav";
 
 // ── Config visuelle par programme ─────────────────────────────
 const PROGRAM_STYLE: Record<string, { emoji: string; bg: string; accent: string; tag: string }> = {
-  "mobility-on":  { emoji: "🌊", bg: "#F0EDE8", accent: "#B8973E", tag: "Souplesse" },
-  "full-body-on": { emoji: "⚡", bg: "#1C1B19", accent: "#B8973E", tag: "Complet" },
-  "strong-on":    { emoji: "💪", bg: "#1C1B19", accent: "#B8973E", tag: "Force" },
-  "fire-on":      { emoji: "🔥", bg: "#1C1B19", accent: "#EF4444", tag: "Cardio" },
-  "pulse-on":     { emoji: "💫", bg: "#1C1B19", accent: "#B8973E", tag: "Tonification" },
-  "stretch-on":   { emoji: "🧘", bg: "#F0EDE8", accent: "#B8973E", tag: "Détente" },
-  "abs-on":       { emoji: "🎯", bg: "#1C1B19", accent: "#B8973E", tag: "Abdos" },
-  "booty-on":     { emoji: "✨", bg: "#1C1B19", accent: "#B8973E", tag: "Bas du corps" },
-  "arms-on":      { emoji: "🏋️", bg: "#1C1B19", accent: "#B8973E", tag: "Haut du corps" },
+  "mobility":  { emoji: "🌊", bg: "#F0EDE8", accent: "#B8973E", tag: "Souplesse" },
+  "full-body": { emoji: "⚡", bg: "#1C1B19", accent: "#B8973E", tag: "Complet" },
+  "strong":    { emoji: "💪", bg: "#1C1B19", accent: "#B8973E", tag: "Force" },
+  "fire":      { emoji: "🔥", bg: "#1C1B19", accent: "#EF4444", tag: "Cardio" },
+  "pulse":     { emoji: "💫", bg: "#1C1B19", accent: "#B8973E", tag: "Tonification" },
+  "stretch":   { emoji: "🧘", bg: "#F0EDE8", accent: "#B8973E", tag: "Détente" },
+  "abs":       { emoji: "🎯", bg: "#1C1B19", accent: "#B8973E", tag: "Abdos" },
+  "booty":     { emoji: "✨", bg: "#1C1B19", accent: "#B8973E", tag: "Bas du corps" },
+  "arms":      { emoji: "🏋️", bg: "#1C1B19", accent: "#B8973E", tag: "Haut du corps" },
 };
 
 const DIFFICULTY_LABEL: Record<string, { label: string; color: string; bg: string }> = {
@@ -84,7 +84,7 @@ export default function VideoLibrary() {
             </div>
           ) : filtered.map((video, i) => {
             const slug = video.video_path?.split('/')[0] || '';
-            const style = PROGRAM_STYLE[video.id] || PROGRAM_STYLE["full-body-on"];
+            const style = PROGRAM_STYLE[video.id] || PROGRAM_STYLE["full-body"];
             const diff = DIFFICULTY_LABEL[video.level] || DIFFICULTY_LABEL.intermediate;
             const isLocked = !video.is_free && !video.video_url;
             const isDark = style.bg === "#1C1B19";
