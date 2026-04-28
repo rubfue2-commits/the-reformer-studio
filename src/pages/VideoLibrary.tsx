@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Play, Lock, Clock, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Play, Lock, Clock, Star, MessageSquare, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { supabase } from "@/lib/supabase";
-import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import SessionReview from "@/components/SessionReview";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 
@@ -19,36 +20,77 @@ interface Program {
   is_free: boolean;
   is_premium: boolean;
   video_path: string | null;
-  thumbnail_path: string | null;
   order_index: number;
 }
 
+interface ProgramRating {
+  program_id: string;
+  rating: number;
+  comment: string | null;
+}
+
 const DIFFICULTY_LABEL: Record<string, string> = {
-  beginner:     "Débutant",
-  intermediate: "Intermédiaire",
-  advanced:     "Avancé",
+  beginner:     "Debutant",
+  intermediate: "Intermediaire",
+  advanced:     "Avance",
 };
 
 const CATEGORY_FILTERS = ["Tous", "Mobilite", "Full Body", "Force", "Cardio", "Tonification", "Etirements", "Abdos", "Bas du corps", "Haut du corps"];
 
 const PROGRAM_CONFIG: Record<string, { emoji: string; color: string }> = {
-  "mobility":  { emoji: "🌊", color: "#4A9B8E" },
-  "full-body": { emoji: "⚡", color: "#B8973E" },
-  "strong":    { emoji: "💪", color: "#8B6914" },
-  "fire":      { emoji: "🔥", color: "#C4472A" },
-  "pulse":     { emoji: "💫", color: "#7B5EA7" },
-  "stretch":   { emoji: "🧘", color: "#4A9B8E" },
-  "abs":       { emoji: "🎯", color: "#C4472A" },
-  "booty":     { emoji: "✨", color: "#B8973E" },
-  "arms":      { emoji: "💪", color: "#8B6914" },
+  "mobility":  { emoji: "wave", color: "#4A9B8E" },
+  "full-body": { emoji: "bolt", color: "#B8973E" },
+  "strong":    { emoji: "flex", color: "#8B6914" },
+  "fire":      { emoji: "fire", color: "#C4472A" },
+  "pulse":     { emoji: "star", color: "#7B5EA7" },
+  "stretch":   { emoji: "yoga", color: "#4A9B8E" },
+  "abs":       { emoji: "target", color: "#C4472A" },
+  "booty":     { emoji: "spark", color: "#B8973E" },
+  "arms":      { emoji: "lift",  color: "#8B6914" },
 };
+
+const PROGRAM_EMOJIS: Record<string, string> = {
+  "mobility":  "🌊",
+  "full-body": "⚡",
+  "strong":    "💪",
+  "fire":      "🔥",
+  "pulse":     "💫",
+  "stretch":   "🧘",
+  "abs":       "🎯",
+  "booty":     "✨",
+  "arms":      "🏋️",
+};
+
+// Composant étoiles de notation
+function StarRating({ value, onChange, readonly = false }: { value: number; onChange?: (v: number) => void; readonly?: boolean }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div style={{ display: "flex", gap: 3 }}>
+      {[1,2,3,4,5].map(i => (
+        <div key={i}
+          onClick={() => !readonly && onChange?.(i)}
+          onMouseEnter={() => !readonly && setHovered(i)}
+          onMouseLeave={() => !readonly && setHovered(0)}
+          style={{ cursor: readonly ? "default" : "pointer", fontSize: 18, color: i <= (hovered || value) ? "#B8973E" : "#D1CCC5", transition: "color 0.15s" }}>
+          ★
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function VideoLibrary() {
   const { t } = useLanguage();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("Tous");
+  const [ratings, setRatings] = useState<Record<string, ProgramRating>>({});
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [tempRating, setTempRating] = useState(0);
+  const [tempComment, setTempComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState<string | null>(null);
 
   useEffect(() => {
     loadPrograms();
@@ -61,14 +103,45 @@ export default function VideoLibrary() {
       .select("*")
       .order("order_index", { ascending: true });
     setPrograms(data || []);
+
+    // Charger les avis de l'utilisateur
+    if (user) {
+      const { data: reviews } = await supabase
+        .from("program_reviews")
+        .select("*")
+        .eq("user_id", user.id);
+      if (reviews) {
+        const map: Record<string, ProgramRating> = {};
+        reviews.forEach(r => { map[r.program_id] = r; });
+        setRatings(map);
+      }
+    }
     setLoading(false);
+  };
+
+  const submitReview = async (programId: string) => {
+    if (!user || tempRating === 0) return;
+    setSubmitting(true);
+    await supabase.from("program_reviews").upsert({
+      user_id: user.id,
+      program_id: programId,
+      rating: tempRating,
+      comment: tempComment || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,program_id" });
+
+    setRatings(prev => ({ ...prev, [programId]: { program_id: programId, rating: tempRating, comment: tempComment } }));
+    setSubmitting(false);
+    setReviewingId(null);
+    setSubmitted(programId);
+    setTimeout(() => setSubmitted(null), 2500);
+    setTempRating(0);
+    setTempComment("");
   };
 
   const filtered = activeFilter === "Tous"
     ? programs
-    : programs.filter(p => p.category === activeFilter || p.theme === activeFilter);
-
-  const isLocked = (p: Program) => !p.is_free;
+    : programs.filter(p => p.category === activeFilter);
 
   return (
     <MobileLayout>
@@ -104,26 +177,31 @@ export default function VideoLibrary() {
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {filtered.map(program => {
-              const config = PROGRAM_CONFIG[program.slug] || { emoji: "▶", color: "#B8973E" };
-              const locked = isLocked(program);
+              const config = PROGRAM_CONFIG[program.slug] || { color: "#B8973E" };
+              const emoji = PROGRAM_EMOJIS[program.slug] || "▶";
+              const locked = !program.is_free;
               const diff = DIFFICULTY_LABEL[program.difficulty] || program.difficulty;
+              const myRating = ratings[program.id];
+              const isReviewing = reviewingId === program.id;
+              const justSubmitted = submitted === program.id;
 
               return (
-                <div key={program.id}
-                  className="bg-card rounded-3xl overflow-hidden border border-border shadow-sm"
-                  style={{ opacity: locked ? 0.92 : 1 }}>
+                <motion.div key={program.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-card rounded-3xl overflow-hidden border border-border shadow-sm">
 
                   {/* Bande couleur top */}
                   <div style={{ height: 3, backgroundColor: locked ? "rgba(28,27,25,0.08)" : config.color }} />
 
                   <div className="p-4">
                     <div className="flex items-start gap-3">
-                      {/* Emoji + infos */}
+                      {/* Emoji */}
                       <div className="flex items-center justify-center rounded-2xl flex-shrink-0"
-                        style={{ width: 52, height: 52, backgroundColor: locked ? "rgba(28,27,25,0.05)" : config.color + "18", fontSize: 24 }}>
-                        {config.emoji}
+                        style={{ width: 52, height: 52, backgroundColor: config.color + "18", fontSize: 24 }}>
+                        {emoji}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -148,7 +226,7 @@ export default function VideoLibrary() {
                         </p>
 
                         {/* Méta */}
-                        <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <div className="flex items-center gap-1">
                             <Clock size={11} className="text-muted-foreground" />
                             <span className="font-body text-[11px] text-muted-foreground">{program.duration_minutes} min</span>
@@ -173,8 +251,73 @@ export default function VideoLibrary() {
                         </div>
                       </div>
                     </div>
+
+                    {/* ── Zone avis ─────────────────────────────── */}
+                    <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(28,27,25,0.06)" }}>
+
+                      {/* Avis existant */}
+                      {myRating && !isReviewing && (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <StarRating value={myRating.rating} readonly />
+                            {myRating.comment && (
+                              <span style={{ fontSize: 11, color: "#8B8578", fontStyle: "italic" }}>
+                                "{myRating.comment.substring(0, 30)}{myRating.comment.length > 30 ? '...' : ''}"
+                              </span>
+                            )}
+                          </div>
+                          <button onClick={() => { setReviewingId(program.id); setTempRating(myRating.rating); setTempComment(myRating.comment || ""); }}
+                            style={{ fontSize: 11, color: "#B8973E", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                            Modifier
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Pas encore d'avis */}
+                      {!myRating && !isReviewing && (
+                        <button onClick={() => { setReviewingId(program.id); setTempRating(0); setTempComment(""); }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
+                          <MessageSquare size={13} color="#B8973E" />
+                          <span style={{ fontSize: 12, color: "#B8973E", fontWeight: 600 }}>
+                            {justSubmitted ? "✓ Avis enregistré !" : "Donner mon avis"}
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Formulaire d'avis */}
+                      <AnimatePresence>
+                        {isReviewing && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                            style={{ overflow: "hidden" }}>
+                            <div style={{ paddingTop: 8 }}>
+                              <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 8 }}>Comment tu as trouvé cette séance ?</p>
+                              <StarRating value={tempRating} onChange={setTempRating} />
+                              <textarea
+                                value={tempComment}
+                                onChange={e => setTempComment(e.target.value)}
+                                placeholder="Un commentaire ? (optionnel)"
+                                rows={2}
+                                style={{ width: "100%", marginTop: 10, padding: "10px 12px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 10, fontSize: 13, color: "#1C1B19", fontFamily: "inherit", resize: "none", outline: "none", backgroundColor: "#FAFAF8", boxSizing: "border-box" }}
+                              />
+                              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                <button onClick={() => setReviewingId(null)}
+                                  style={{ flex: 1, padding: "9px", border: "1px solid rgba(28,27,25,0.1)", borderRadius: 10, backgroundColor: "transparent", fontSize: 13, color: "#6B6560", cursor: "pointer", fontFamily: "inherit" }}>
+                                  Annuler
+                                </button>
+                                <button onClick={() => submitReview(program.id)}
+                                  disabled={tempRating === 0 || submitting}
+                                  style={{ flex: 2, padding: "9px", border: "none", borderRadius: 10, backgroundColor: tempRating > 0 ? "#B8973E" : "#D1CCC5", color: "#1C1B19", fontSize: 13, fontWeight: 600, cursor: tempRating > 0 ? "pointer" : "default", fontFamily: "inherit" }}>
+                                  {submitting ? "..." : "Publier mon avis"}
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -182,6 +325,7 @@ export default function VideoLibrary() {
 
       </div>
       <BottomNav />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </MobileLayout>
   );
 }
