@@ -156,11 +156,12 @@ export default function Auth() {
           {t("Pas encore de machine Connect Reformer ?", "Don't have a Connect Reformer yet?")}
         </p>
         <button onClick={openSite}
-          style={{ width: "100%", padding: "14px 16px", backgroundColor: "#1C1B19", color: "#FDFAF7", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
+          style={{ width: "100%", padding: "14px 16px", backgroundColor: "#1C1B19", color: "#FDFAF7", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          {/* Logo CR — 2 barres blanc + or */}
+          <div style={{ position: "relative", width: 22, height: 22, flexShrink: 0 }}>
+            <div style={{ position: "absolute", left: 2, top: 0, width: 7, height: 20, borderRadius: 3.5, backgroundColor: "#FFFFFF", transform: "rotate(15deg)", transformOrigin: "center" }} />
+            <div style={{ position: "absolute", left: 12, top: 2, width: 5, height: 16, borderRadius: 2.5, backgroundColor: "#B8973E", transform: "rotate(15deg)", transformOrigin: "center" }} />
+          </div>
           {t("Commander sur connectreformer.com", "Order on connectreformer.com")}
         </button>
         <p style={{ fontSize: 11, color: "#C4BDB5", margin: "10px 0 0" }}>
