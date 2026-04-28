@@ -1,171 +1,176 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronDown, ChevronUp, Shield, FileText, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
+import MobileLayout from "@/components/MobileLayout";
+import BottomNav from "@/components/BottomNav";
 
-const SECTIONS_FR = [
+const ARTICLES = [
   {
-    title: "1. Objet",
-    text: "Les presentes Conditions Generales de Vente (CGV) regissent les relations contractuelles entre Connect Reformer, plateforme de Pilates en ligne, et toute personne physique souhaitant souscrire un abonnement (ci-apres l'Utilisateur). Toute inscription implique l'acceptation pleine et entiere des presentes CGV."
+    num: "01", title: "Objet et champ d'application",
+    content: "Les presentes CGV regissent les relations entre Connect Reformer et tout Client souscrivant a un abonnement de location de reformer Pilates avec acces a l'application mobile. Toute souscription implique l'acceptation pleine et entiere des presentes CGV."
   },
   {
-    title: "2. Description du service",
-    text: "Connect Reformer propose un acces a une plateforme numerique de cours de Pilates en ligne, incluant des seances video guidees, un suivi de progression, ainsi que des outils de bien-etre. Le service est accessible via l'application mobile et/ou l'interface web."
+    num: "02", title: "Description du service",
+    content: "Le service comprend : la mise a disposition d'un reformer Pilates professionnel livre a domicile, l'acces a l'application mobile avec programmes progressifs, un suivi personnalise (score, journal, badges), l'acces a la communaute et au parrainage, et le support client premium. Usage strictement personnel."
   },
   {
-    title: "3. Abonnements et tarifs",
-    text: "Connect Reformer propose deux formules d'abonnement : (1) Formule Annuelle a 588 EUR/an (soit 49 EUR/mois), sans engagement, payable en une seule fois. (2) Formule Mensuelle avec engagement 12 mois a 56 EUR/mois, soit 672 EUR au total. Les prix sont exprimes en euros toutes taxes comprises (TTC). Une caution bancaire de 500 EUR par pre-autorisation Swikly est requise pour la formule avec engagement. Elle n'est pas debitee et est liberee a la fin de l'engagement."
+    num: "03", title: "Formules et tarifs",
+    content: "Deux formules avec engagement de 12 mois minimum :\n\n• Formule Mensuelle : 56 EUR/mois pendant 12 mois. Renouvellement automatique ensuite.\n• Formule Annuelle : 588 EUR en une fois (49 EUR/mois, economie de 84 EUR).\n\nAucun remboursement en cas de resiliation avant l'echeance des 12 mois, sauf vice cache."
   },
   {
-    title: "4. Modalites de paiement",
-    text: "Le paiement s'effectue en ligne par carte bancaire via notre prestataire securise Stripe. Pour la formule annuelle, le paiement est effectue en une seule fois. Pour la formule mensuelle, le prelevement est effectue chaque mois a date anniversaire de souscription."
+    num: "04", title: "Modalites de paiement",
+    content: "Paiement exclusivement par carte bancaire via Stripe (Visa, Mastercard, Amex). Pour la formule mensuelle, prelevement le meme jour chaque mois. Suspension du service en cas d'echec de prelevement. Les donnees bancaires sont gerees exclusivement par Stripe (certifie PCI DSS)."
   },
   {
-    title: "5. Droit de retractation",
-    text: "Conformement a l'article L221-18 du Code de la consommation, l'Utilisateur dispose d'un delai de 14 jours a compter de la souscription pour exercer son droit de retractation, sans avoir a justifier de motifs. Pour exercer ce droit, l'Utilisateur doit notifier sa decision par email a contact@connectreformer.com. Si l'Utilisateur a expressement demande a commencer les prestations avant l'expiration du delai de retractation, il renonce a son droit de retractation pour les services deja fournis."
+    num: "05", title: "Livraison et installation",
+    content: "Livraison en France metropolitaine sous 2 a 7 jours ouvres. Le Client doit etre present a la reception. Tout dommage apparent doit etre signale dans les 24h a contact@connectreformer.com."
   },
   {
-    title: "6. Engagement et resiliation",
-    text: "La formule mensuelle avec engagement implique un engagement contractuel de 12 mois. En cas de resiliation anticipee, les mensualites restantes dues jusqu'a la fin de la periode d'engagement seront exigibles. La formule annuelle peut etre resiliee a son echeance sans reconduction automatique."
+    num: "06", title: "Caution et depot de garantie",
+    content: "Une caution est demandee via notre partenaire Swikly. Il s'agit d'une empreinte bancaire (aucun debit effectif). Elle est restituee dans les 10 jours ouvres apres retour du materiel en bon etat."
   },
   {
-    title: "7. Acces au service",
-    text: "L'acces au service est personnel et non cessible. L'Utilisateur s'engage a ne pas partager ses identifiants de connexion. Connect Reformer se reserve le droit de suspendre ou resilier un compte en cas d'utilisation abusive ou de non-paiement."
+    num: "07", title: "Resiliation et fin de contrat",
+    content: "Resiliation possible uniquement a l'issue des 12 mois par email a contact@connectreformer.com avec 30 jours de preavis.\n\n⚠️ IMPORTANT : La suppression de votre compte dans l'application NE constitue PAS une resiliation. Les prelevements continuent jusqu'a resiliation formelle par email, meme apres suppression du compte."
   },
   {
-    title: "8. Propriete intellectuelle",
-    text: "L'ensemble des contenus disponibles sur la plateforme (videos, textes, images, programmes) sont la propriete exclusive de Connect Reformer. Toute reproduction, diffusion ou utilisation sans autorisation expresse est strictement interdite."
+    num: "08", title: "Entretien du materiel",
+    content: "Le Client s'engage a utiliser le reformer conformement aux instructions et a en prendre soin. Les dommages dus a une utilisation anormale sont a la charge du Client. En cas de panne, signalement dans les 48h a contact@connectreformer.com."
   },
   {
-    title: "9. Donnees personnelles",
-    text: "Les donnees collectees lors de l'inscription sont traitees conformement au Reglement General sur la Protection des Donnees (RGPD). Elles sont utilisees uniquement pour la gestion de votre compte et l'amelioration du service. L'Utilisateur dispose d'un droit d'acces, de modification et de suppression de ses donnees en contactant contact@connectreformer.com."
+    num: "09", title: "Droit de retractation",
+    content: "14 jours a compter de la reception du materiel pour se retracter (art. L221-18 Code de la consommation). Notification par email avant expiration du delai. Retour du materiel en parfait etat, frais a la charge du Client. Remboursement sous 14 jours."
   },
   {
-    title: "10. Responsabilite",
-    text: "Connect Reformer ne pourra etre tenu responsable des dommages indirects resultant de l'utilisation du service. L'Utilisateur pratique les exercices sous sa propre responsabilite et est invite a consulter un medecin en cas de doute sur son aptitude physique."
+    num: "10", title: "Programme de parrainage",
+    content: "Paliers de recompense :\n• 1 filleule : 1 mois offert\n• 3 filleules : 3 mois offerts\n• 5 filleules : 1 coaching prive\n• 10 filleules : 1 an offert\n\nLa filleule beneficie d'un mois offert apres 12 mois. Code a saisir lors de l'inscription."
   },
   {
-    title: "11. Droit applicable",
-    text: "Les presentes CGV sont soumises au droit francais. Tout litige sera soumis aux juridictions competentes de Paris, apres tentative de resolution amiable."
+    num: "11", title: "Donnees personnelles — RGPD",
+    content: "Donnees traitees conformement au RGPD. Droits : acces, rectification, effacement, portabilite, opposition. Pour supprimer vos donnees : fonction dans l'application ou email a contact@connectreformer.com. Suppression sous 30 jours. Donnees de paiement gerees par Stripe uniquement."
   },
   {
-    title: "12. Contact",
-    text: "Pour toute question relative aux presentes CGV : contact@connectreformer.com"
-  },
-];
-
-const SECTIONS_EN = [
-  {
-    title: "1. Purpose",
-    text: "These Terms and Conditions govern the contractual relationship between Connect Reformer, an online Pilates platform, and any person wishing to subscribe (the User). Any registration implies full acceptance of these Terms."
+    num: "12", title: "Propriete intellectuelle",
+    content: "Tous les contenus (programmes, videos, logo, design) sont la propriete de Connect Reformer. Droit d'usage personnel limite a la duree de l'abonnement. Toute reproduction ou diffusion est interdite."
   },
   {
-    title: "2. Service description",
-    text: "Connect Reformer provides access to an online Pilates platform including guided video sessions, progress tracking, and wellness tools. The service is accessible via mobile app and/or web interface."
+    num: "13", title: "Responsabilite et sante",
+    content: "La pratique du Pilates Reformer est une activite physique. Le Client atteste avoir obtenu l'accord de son medecin avant de commencer, notamment en cas de grossesse, pathologie cardiaque ou musculo-squelettique. Connect Reformer decline toute responsabilite pour les accidents dus a une utilisation non conforme."
   },
   {
-    title: "3. Subscriptions and pricing",
-    text: "Connect Reformer offers two subscription plans: (1) Annual Plan at EUR 588/year (EUR 49/month), no commitment, paid in one payment. (2) Monthly Plan with 12-month commitment at EUR 56/month, totaling EUR 672. Prices are inclusive of all taxes. A EUR 500 bank deposit via Swikly pre-authorization is required for the commitment plan. It is not charged and is released at the end of the commitment period."
-  },
-  {
-    title: "4. Payment terms",
-    text: "Payment is made online by credit card through our secure payment provider Stripe. The annual plan is paid in one lump sum. The monthly plan is charged on the anniversary date of subscription each month."
-  },
-  {
-    title: "5. Right of withdrawal",
-    text: "In accordance with applicable consumer protection law, the User has 14 days from the date of subscription to exercise their right of withdrawal without justification. To exercise this right, the User must notify their decision by email to contact@connectreformer.com."
-  },
-  {
-    title: "6. Commitment and cancellation",
-    text: "The monthly commitment plan implies a 12-month contractual commitment. In case of early cancellation, the remaining monthly payments until the end of the commitment period will be due. The annual plan can be cancelled at its expiry date without automatic renewal."
-  },
-  {
-    title: "7. Service access",
-    text: "Access to the service is personal and non-transferable. The User agrees not to share their login credentials. Connect Reformer reserves the right to suspend or terminate an account in case of misuse or non-payment."
-  },
-  {
-    title: "8. Intellectual property",
-    text: "All content available on the platform (videos, texts, images, programs) is the exclusive property of Connect Reformer. Any reproduction, distribution or use without express authorization is strictly prohibited."
-  },
-  {
-    title: "9. Personal data",
-    text: "Data collected during registration is processed in accordance with GDPR. It is used solely for account management and service improvement. Users have the right to access, modify and delete their data by contacting contact@connectreformer.com."
-  },
-  {
-    title: "10. Liability",
-    text: "Connect Reformer shall not be liable for indirect damages resulting from the use of the service. Users practice exercises at their own risk and are advised to consult a doctor if in doubt about their physical fitness."
-  },
-  {
-    title: "11. Governing law",
-    text: "These Terms are governed by French law. Any dispute will be submitted to the competent courts of Paris, after an attempt at amicable resolution."
-  },
-  {
-    title: "12. Contact",
-    text: "For any questions regarding these Terms: contact@connectreformer.com"
+    num: "14", title: "Droit applicable et litiges",
+    content: "CGV soumises au droit francais. En cas de litige, recours possible aupres d'un mediateur agree. Tribunaux francais competents. Contact : contact@connectreformer.com."
   },
 ];
 
 export default function CGV() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const fr = language === "fr";
-  const sections = fr ? SECTIONS_FR : SECTIONS_EN;
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <MobileLayout>
+      <div className="px-5 pt-12 pb-4">
 
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border flex items-center gap-4 px-5 py-4">
-        <button onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground font-body text-lg">
-          &larr;
-        </button>
-        <div>
-          <p className="font-body text-[10px] text-primary tracking-widest uppercase">CONNECT REFORMER</p>
-          <h1 className="font-display text-xl text-foreground">
-            {fr ? "Conditions generales de vente" : "Terms and Conditions"}
-          </h1>
-        </div>
-      </div>
-
-      <div className="px-6 pt-6 max-w-2xl mx-auto">
-
-        {/* Intro */}
-        <div className="rounded-2xl bg-primary/5 border border-primary/20 px-5 py-4 mb-6">
-          <p className="font-body text-sm text-foreground font-medium mb-1">Connect Reformer</p>
-          <p className="font-body text-xs text-muted-foreground">
-            {fr
-              ? "Derniere mise a jour : 1er janvier 2025"
-              : "Last updated: January 1, 2025"}
-          </p>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-5">
+          <button onClick={() => navigate(-1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+            <ChevronLeft size={18} className="text-muted-foreground" />
+          </button>
+          <div>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Juridique</p>
+            <h1 className="font-display text-2xl font-light text-foreground">CGV</h1>
+          </div>
         </div>
 
-        {/* Sections */}
-        <div className="space-y-5">
-          {sections.map((section, i) => (
-            <div key={i} className="rounded-2xl bg-card border border-border px-5 py-4">
-              <h2 className="font-body text-sm font-semibold text-foreground mb-2">
-                {section.title}
-              </h2>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                {section.text}
-              </p>
+        {/* Carte intro */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl p-5 mb-5 shadow-sm overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "rgba(184,151,62,0.2)" }}>
+              <FileText size={20} className="text-gold" strokeWidth={1.5} />
             </div>
+            <div>
+              <p className="font-body text-[10px] text-white/40 uppercase tracking-widest">Version 1.0 — 2025</p>
+              <p className="font-display text-base font-light text-white">Conditions Generales de Vente</p>
+            </div>
+          </div>
+          <p className="font-body text-xs text-white/60 leading-relaxed">
+            En souscrivant au service Connect Reformer, vous acceptez sans reserve les presentes conditions. L'engagement minimum est de 12 mois.
+          </p>
+        </motion.div>
+
+        {/* Encart alerte engagement */}
+        <div className="rounded-2xl p-4 mb-5 border"
+          style={{ backgroundColor: "rgba(239,68,68,0.05)", borderColor: "rgba(239,68,68,0.2)" }}>
+          <div className="flex items-start gap-2">
+            <Shield size={14} color="#EF4444" style={{ flexShrink: 0, marginTop: 1 }} />
+            <p className="font-body text-xs leading-relaxed" style={{ color: "#EF4444" }}>
+              <strong>Important :</strong> La suppression de votre compte dans l'application ne constitue pas une resiliation d'abonnement. Les prelevements continuent jusqu'a resiliation formelle par email.
+            </p>
+          </div>
+        </div>
+
+        {/* Articles accordeon */}
+        <div className="space-y-2 mb-6">
+          {ARTICLES.map((art, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03 }}
+              className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+              <button
+                onClick={() => setOpenIdx(openIdx === i ? null : i)}
+                className="w-full flex items-center gap-3 p-4 text-left"
+                style={{ WebkitTapHighlightColor: "transparent" }}>
+                <span className="font-body text-xs font-semibold flex-shrink-0"
+                  style={{ color: "#B8973E" }}>
+                  {art.num}
+                </span>
+                <span className="font-body text-sm font-medium text-foreground flex-1">
+                  {art.title}
+                </span>
+                {openIdx === i
+                  ? <ChevronUp size={16} className="text-muted-foreground flex-shrink-0" />
+                  : <ChevronDown size={16} className="text-muted-foreground flex-shrink-0" />
+                }
+              </button>
+
+              {openIdx === i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}>
+                  <div className="px-4 pb-4">
+                    <div style={{ height: 1, backgroundColor: "rgba(28,27,25,0.06)", marginBottom: 12 }} />
+                    {art.content.split("\n").map((line, li) => (
+                      <p key={li} className="font-body text-xs text-muted-foreground leading-relaxed mb-1.5">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
           ))}
         </div>
 
-        {/* Accept button */}
-        <div className="mt-8 mb-4">
-          <button onClick={() => navigate(-1)}
-            className="w-full rounded-xl bg-foreground text-background font-body font-semibold py-3">
-            {fr ? "J'ai lu et j'accepte les CGV" : "I have read and accept the Terms"}
-          </button>
+        {/* Contact */}
+        <div className="bg-card rounded-2xl p-4 mb-4 border border-border text-center">
+          <p className="font-body text-xs text-muted-foreground mb-1">
+            {t("Une question sur nos CGV ?", "Questions about our terms?")}
+          </p>
+          <p className="font-body text-xs font-semibold text-gold">contact@connectreformer.com</p>
         </div>
 
-        <p className="font-body text-[10px] text-muted-foreground text-center pb-8">
-          {fr
-            ? "En cliquant sur ce bouton, vous retournez au formulaire d'inscription."
-            : "By clicking this button, you return to the registration form."}
-        </p>
       </div>
-    </div>
+      <BottomNav />
+    </MobileLayout>
   );
 }
