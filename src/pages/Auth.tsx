@@ -19,6 +19,7 @@ export default function Auth() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"apple" | "google" | null>(null);
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -30,7 +31,7 @@ export default function Auth() {
       if (error) setError(t("Email ou mot de passe incorrect", "Wrong email or password"));
       else navigate("/home");
     } else if (mode === "register") {
-      const { error } = await signUp({ email, password, firstName, lastName, language: "fr" });
+      const { error } = await signUp({ email, password, firstName, lastName, language: "fr", referralCode: referralCode || undefined });
       if (error) setError(error.message);
       else setSuccess(t("Vérifiez votre email pour activer votre compte", "Check your email to activate your account"));
     } else {
@@ -231,6 +232,35 @@ export default function Auth() {
                 style={{ background: "none", border: "none", cursor: "pointer", padding: "0 16px 0 0", color: "#B8B0A6" }}>
                 {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+            </div>
+          )}
+
+          {/* Champ code parrainage — visible uniquement à l'inscription */}
+          {mode === "register" && (
+            <div style={{ position: "relative" }}>
+              <input
+                placeholder={t("Code parrainage (optionnel)", "Referral code (optional)")}
+                value={referralCode}
+                onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                style={{
+                  ...inputStyle,
+                  paddingLeft: 42,
+                  letterSpacing: referralCode ? "0.08em" : "normal",
+                  textTransform: "uppercase",
+                }}
+              />
+              <span style={{
+                position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                fontSize: 16, color: "#B8973E",
+              }}>✦</span>
+              {referralCode.length > 0 && (
+                <span style={{
+                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                  fontSize: 11, color: "#22C55E", fontWeight: 600,
+                }}>
+                  {t("Code appliqué", "Code applied")} ✓
+                </span>
+              )}
             </div>
           )}
 
