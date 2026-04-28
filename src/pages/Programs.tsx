@@ -79,7 +79,7 @@ const PROGRAMS: Program[] = [
         description: "On pose les bases : respiration, centrage, alignement.",
         focus: ["Respiration latérale", "Activation du transverse", "Alignement vertébral"],
         sessions: [
-          { day: 1, title: "Intro Pilates", duration: "20 min", type: "workout", description: "Présentation des principes fondamentaux", calories: 100 },
+          { day: 1, title: "Intro Pilates", duration: "20 min", type: "workout", description: "Présentation des principes mobility", calories: 100 },
           { day: 2, title: "Repos actif", duration: "—", type: "rest", description: "Étirements doux ou marche" },
           { day: 3, title: "Respiration & Centre", duration: "25 min", type: "workout", description: "Travail sur la respiration profonde", calories: 120 },
           { day: 4, title: "Repos", duration: "—", type: "rest", description: "Récupération complète" },
@@ -150,7 +150,7 @@ const PROGRAMS: Program[] = [
     colorLight: "#FEF2F2",
     icon: Flame,
     description: "6 semaines pour transformer ta silhouette avec le Pilates. Des séances progressives qui combinent renforcement musculaire, cardio doux et flexibilité.",
-    benefits: ["Perte de poids", "Ventre plat", "Cuisses & fessiers toniques", "Métabolisme boosté"],
+    benefits: ["Perte de poids", "Ventre plat", "Cuisses & booty toniques", "Métabolisme boosté"],
     equipment: ["Tapis", "Élastique", "Ballon Pilates"],
     weeks: [
       { weekNumber: 1, theme: "Activation Métabolique", description: "Réveille ton métabolisme.", focus: ["Cardio Pilates", "Core intense", "Mobilité"], sessions: [
@@ -258,7 +258,7 @@ const PROGRAMS: Program[] = [
     colorLight: "#D1FAE5",
     icon: Zap,
     locked: true,
-    description: "Le programme le plus intense pour un core en béton. 4 semaines de gainage Pilates avancé pour sculpter ta ceinture abdominale.",
+    description: "Le programme le plus intense pour un core en béton. 4 semaines de gainage Pilates avancé pour sculpter ta ceinture abs.",
     benefits: ["Core en acier", "Posture parfaite", "Performance sportive", "Dos renforcé"],
     equipment: ["Tapis", "Ballon", "Élastique fort"],
     weeks: Array.from({ length: 4 }, (_, i) => ({
