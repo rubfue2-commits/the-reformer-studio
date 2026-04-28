@@ -20,6 +20,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"apple" | "google" | null>(null);
   const [referralCode, setReferralCode] = useState("");
+  const [cgvAccepted, setCgvAccepted] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -235,32 +236,58 @@ export default function Auth() {
             </div>
           )}
 
-          {/* Champ code parrainage — visible uniquement à l'inscription */}
+          {/* Champ code parrainage */}
           {mode === "register" && (
             <div style={{ position: "relative" }}>
               <input
                 placeholder={t("Code parrainage (optionnel)", "Referral code (optional)")}
                 value={referralCode}
                 onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                style={{
-                  ...inputStyle,
-                  paddingLeft: 42,
-                  letterSpacing: referralCode ? "0.08em" : "normal",
-                  textTransform: "uppercase",
-                }}
+                style={{ ...inputStyle, paddingLeft: 42, letterSpacing: referralCode ? "0.08em" : "normal", textTransform: "uppercase" }}
               />
-              <span style={{
-                position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
-                fontSize: 16, color: "#B8973E",
-              }}>✦</span>
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16, color: "#B8973E" }}>✦</span>
               {referralCode.length > 0 && (
-                <span style={{
-                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
-                  fontSize: 11, color: "#22C55E", fontWeight: 600,
-                }}>
+                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#22C55E", fontWeight: 600 }}>
                   {t("Code appliqué", "Code applied")} ✓
                 </span>
               )}
+            </div>
+          )}
+
+          {/* Case à cocher CGV — obligatoire à l'inscription */}
+          {mode === "register" && (
+            <div style={{
+              display: "flex", alignItems: "flex-start", gap: 10,
+              padding: "12px 14px",
+              border: cgvAccepted ? "1px solid rgba(184,151,62,0.4)" : "1px solid rgba(28,27,25,0.1)",
+              borderRadius: 12,
+              backgroundColor: cgvAccepted ? "rgba(184,151,62,0.04)" : "white",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }} onClick={() => setCgvAccepted(!cgvAccepted)}>
+              {/* Checkbox custom */}
+              <div style={{
+                width: 20, height: 20, borderRadius: 5, flexShrink: 0, marginTop: 1,
+                border: cgvAccepted ? "none" : "1.5px solid rgba(28,27,25,0.2)",
+                backgroundColor: cgvAccepted ? "#B8973E" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all 0.2s",
+              }}>
+                {cgvAccepted && (
+                  <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                    <path d="M1 4L4 7L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <p style={{ fontSize: 12, color: "#6B6560", lineHeight: 1.55, margin: 0, userSelect: "none" }}>
+                {t("J'ai lu et j'accepte les", "I have read and accept the")}{" "}
+                <span
+                  onClick={e => { e.stopPropagation(); /* navigate vers CGV */ }}
+                  style={{ color: "#B8973E", fontWeight: 600, textDecoration: "underline", cursor: "pointer" }}>
+                  {t("Conditions Générales de Vente", "Terms and Conditions")}
+                </span>
+                {" "}{t("de Connect Reformer, incluant l'engagement de 12 mois et la caution de 500€.", "of Connect Reformer, including the 12-month commitment and 500€ deposit.")}
+              </p>
             </div>
           )}
 
