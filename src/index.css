@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
 body {
   height: 100%;
   overflow: hidden;
@@ -30,7 +32,6 @@ input, textarea, select {
 @tailwind utilities;
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 /* Reset */
 *, *::before, *::after {
@@ -142,9 +143,6 @@ html, body {
   }
 }
 
-
-
-
 /* ══════════════════════════════════════════════
    iOS CAPACITOR — RESPONSIVE TOUTES TAILLES
    iPhone SE (375px) → iPhone 16 Pro Max (430px)
@@ -172,7 +170,6 @@ input, textarea, select, button {
   --nav-height:    60px;
   --footer-height: calc(var(--nav-height) + var(--safe-bottom));
 }
-
 
 /* ══ iPAD — Tous les formats ══ */
 @media (min-width: 768px) {
