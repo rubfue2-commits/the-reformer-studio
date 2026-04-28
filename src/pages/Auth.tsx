@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { supabase } from "@/lib/supabase";
-import { Browser } from "@capacitor/browser";
 
 export default function Auth() {
   const { t } = useLanguage();
@@ -359,13 +358,7 @@ export default function Auth() {
               )}
             </p>
             <button
-              onClick={async () => {
-                try {
-                  await Browser.open({ url: "https://connectreformer.com" });
-                } catch {
-                  window.open("https://connectreformer.com", "_blank");
-                }
-              }}
+              onClick={() => window.open("https://connectreformer.com", "_system")}
               style={{
                 width: "100%",
                 padding: "13px 16px",
