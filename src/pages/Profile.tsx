@@ -237,6 +237,21 @@ const Profile = () => {
       </div>
       {/* Bouton RGPD suppression compte */}
       <div className="px-5 pb-4">
+        {/* Bouton CGV */}
+        <button
+          onClick={() => navigate("/cgv")}
+          style={{
+            width: "100%", padding: "12px 16px",
+            border: "1px solid rgba(28,27,25,0.1)",
+            borderRadius: 12, backgroundColor: "transparent",
+            color: "#6B6560", fontSize: 13, fontFamily: "inherit",
+            cursor: "pointer", display: "flex", alignItems: "center",
+            justifyContent: "space-between", marginBottom: 8,
+          }}>
+          <span>Conditions Générales de Vente</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
         <button
           onClick={() => navigate("/delete-account")}
           style={{
