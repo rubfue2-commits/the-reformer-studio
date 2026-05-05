@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ type Mode = "faceId" | "login" | "reset";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
+  const { signIn } = useAuth();
 
   const [mode, setMode] = useState<Mode>("faceId");
   const [email, setEmail] = useState("");
@@ -21,16 +21,20 @@ export default function Auth() {
   const [success, setSuccess] = useState("");
   const [biometryAvailable, setBiometryAvailable] = useState(false);
 
-  // Vérifier si Face ID est disponible au chargement
-  useEffect(() => {
-    checkBiometry();
-  }, []);
+  // ── Empêcher le double déclenchement Face ID ──────────
+  const hasLaunchedBio = useRef(false);
 
-  const checkBiometry = async () => {
+  useEffect(() => {
+    // Ne lancer qu'une seule fois au montage
+    if (hasLaunchedBio.current) return;
+    hasLaunchedBio.current = true;
+    checkAndLaunchBiometry();
+  }, []); // deps vide = une seule fois
+
+  const checkAndLaunchBiometry = async () => {
     try {
       const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
       if (!isNative) {
-        // Sur web/simulateur — aller direct au formulaire
         setMode("login");
         return;
       }
@@ -39,8 +43,9 @@ export default function Auth() {
       if (info.isAvailable) {
         setBiometryAvailable(true);
         setMode("faceId");
-        // Lancer Face ID automatiquement
-        setTimeout(() => triggerFaceId(), 300);
+        // Lancer Face ID automatiquement après un court délai
+        await new Promise(r => setTimeout(r, 400));
+        await launchFaceId();
       } else {
         setMode("login");
       }
@@ -49,7 +54,7 @@ export default function Auth() {
     }
   };
 
-  const triggerFaceId = async () => {
+  const launchFaceId = async () => {
     setBioLoading(true);
     setError("");
     try {
@@ -60,13 +65,19 @@ export default function Auth() {
         allowDeviceCredential: false,
         iosFallbackTitle: "Utiliser email et mot de passe",
       });
-      // Face ID validé — naviguer vers l'app
-      navigate("/home");
+      // Succès — accès à l'app
+      navigate("/home", { replace: true });
     } catch {
-      // Face ID annulé ou echec — afficher le formulaire
+      // Annulé ou échec → formulaire
       setMode("login");
     }
     setBioLoading(false);
+  };
+
+  // Bouton manuel "Utiliser Face ID"
+  const handleFaceIdPress = async () => {
+    if (bioLoading) return;
+    await launchFaceId();
   };
 
   const handleLogin = async () => {
@@ -74,7 +85,7 @@ export default function Auth() {
     setError(""); setLoading(true);
     const { error } = await signIn(email, password);
     if (error) setError("Email ou mot de passe incorrect.");
-    else navigate("/home");
+    else navigate("/home", { replace: true });
     setLoading(false);
   };
 
@@ -118,12 +129,11 @@ export default function Auth() {
 
       <AnimatePresence mode="wait">
 
-        {/* ── Ecran Face ID ── */}
+        {/* ── Écran Face ID ── */}
         {mode === "faceId" && (
           <motion.div key="faceId" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             style={{ width: "100%", maxWidth: 380, textAlign: "center" }}>
             <div style={{ backgroundColor: "white", borderRadius: 24, padding: "36px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
-              {/* Icone Face ID */}
               <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#1C1B19", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                 {bioLoading ? (
                   <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2.5px solid rgba(255,255,255,0.2)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} />
@@ -140,21 +150,17 @@ export default function Auth() {
                   </svg>
                 )}
               </div>
-
               <p style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19", margin: "0 0 6px" }}>
                 {bioLoading ? "Verification..." : "Connexion avec Face ID"}
               </p>
               <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 24px", lineHeight: 1.5 }}>
                 {bioLoading ? "Regardez votre iPhone" : "Utilisez Face ID pour acceder a votre espace"}
               </p>
-
-              <button onClick={triggerFaceId} disabled={bioLoading}
+              <button onClick={handleFaceIdPress} disabled={bioLoading}
                 style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: bioLoading ? 0.7 : 1 }}>
                 {bioLoading ? "..." : "Utiliser Face ID"}
               </button>
             </div>
-
-            {/* Lien vers formulaire */}
             <button onClick={() => setMode("login")}
               style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit", padding: "8px" }}>
               Utiliser mon email et mot de passe
@@ -162,11 +168,10 @@ export default function Auth() {
           </motion.div>
         )}
 
-        {/* ── Formulaire email/mot de passe ── */}
+        {/* ── Formulaire ── */}
         {(mode === "login" || mode === "reset") && (
           <motion.div key="form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             style={{ width: "100%", maxWidth: 380 }}>
-
             <div style={{ backgroundColor: "white", borderRadius: 24, padding: "28px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1C1B19", margin: "0 0 4px" }}>
                 {mode === "login" ? "Connexion" : "Mot de passe oublie"}
@@ -174,17 +179,13 @@ export default function Auth() {
               <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 20px" }}>
                 {mode === "login" ? "Accedez a votre espace Connect Reformer" : "Nous vous enverrons un lien de reinitialisation"}
               </p>
-
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {/* Email */}
                 <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
                   <Mail size={16} color="#B8B0A6" style={{ marginLeft: 16, flexShrink: 0 }} />
                   <input type="email" placeholder="email@exemple.fr" value={email}
                     onChange={e => setEmail(e.target.value)}
                     style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#1C1B19", padding: "14px 16px 14px 10px", backgroundColor: "transparent", fontFamily: "inherit" }} />
                 </div>
-
-                {/* Mot de passe */}
                 {mode === "login" && (
                   <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
                     <input type={showPass ? "text" : "password"} placeholder="Mot de passe" value={password}
@@ -196,10 +197,8 @@ export default function Auth() {
                     </button>
                   </div>
                 )}
-
                 {error && <p style={{ fontSize: 13, color: "#EF4444", margin: 0 }}>{error}</p>}
                 {success && <p style={{ fontSize: 13, color: "#22C55E", margin: 0 }}>{success}</p>}
-
                 <button onClick={mode === "login" ? handleLogin : handleReset} disabled={loading}
                   style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1, fontFamily: "inherit" }}>
                   {loading
@@ -207,7 +206,6 @@ export default function Auth() {
                     : <>{mode === "login" ? "Se connecter" : "Envoyer le lien"} <ArrowRight size={16} /></>
                   }
                 </button>
-
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
                   {mode === "login" && (
                     <button onClick={() => { setMode("reset"); setError(""); setSuccess(""); }}
@@ -221,9 +219,8 @@ export default function Auth() {
                       Retour a la connexion
                     </button>
                   )}
-                  {/* Retour Face ID si dispo */}
                   {biometryAvailable && mode === "login" && (
-                    <button onClick={() => { setMode("faceId"); setTimeout(triggerFaceId, 200); }}
+                    <button onClick={handleFaceIdPress}
                       style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                       Utiliser Face ID
                     </button>
@@ -234,9 +231,7 @@ export default function Auth() {
 
             {/* Encart commander */}
             <div style={{ backgroundColor: "white", borderRadius: 20, padding: "18px 20px", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", border: "1px solid rgba(184,151,62,0.15)", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
-                Pas encore de machine Connect Reformer ?
-              </p>
+              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>Pas encore de machine Connect Reformer ?</p>
               <button onClick={openSite}
                 style={{ width: "100%", padding: "13px 16px", backgroundColor: "#1C1B19", color: "#FDFAF7", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                 <div style={{ position: "relative", width: 20, height: 20, flexShrink: 0 }}>
@@ -250,7 +245,6 @@ export default function Auth() {
         )}
 
       </AnimatePresence>
-
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
