@@ -257,7 +257,7 @@ export default function Achievements() {
   const loadStats = async () => {
     const [sessRes, wellRes, measRes, refRes, revRes, progRes] = await Promise.all([
       supabase.from("sessions").select("id, completed_at, duration_minutes, category, workout_id").eq("user_id", user!.id),
-      supabase.from("wellness_entries").select("id, score, mood_score, sleep_quality, stress_level", { count: "exact" }).eq("user_id", user!.id),
+      supabase.from("wellness_entries").select("id, score, mood, sleep, stress", { count: "exact" }).eq("user_id", user!.id),
       supabase.from("measurements").select("id", { count: "exact" }).eq("user_id", user!.id),
       supabase.from("referrals").select("id", { count: "exact" }).eq("referrer_id", user!.id),
       supabase.from("program_reviews").select("id", { count: "exact" }).eq("user_id", user!.id),
@@ -268,7 +268,7 @@ export default function Achievements() {
     const total = sessions.length;
     // Score parfait = wellness entry avec score >= 95 ou toutes les métriques au max
     const perfectScores = (wellRes.data || []).filter(w => {
-      const s = (w.mood_score || 0) + (w.sleep_quality || 0) + (w.stress_level || 0);
+      const s = (w.mood || 0) + (w.sleep || 0) + (w.stress || 0);
       return s >= 13; // 5+5+3 max
     }).length;
 
