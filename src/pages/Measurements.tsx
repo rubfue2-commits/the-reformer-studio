@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Plus, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { ChevronLeft, Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import { Keyboard } from "@capacitor/keyboard";
 
 interface Measurement {
   id: string; measured_at: string;
@@ -14,12 +15,12 @@ interface Measurement {
 }
 
 const FIELDS = [
-  { key: "weight_kg",  label: "Poids",      unit: "kg",  icon: "⚖️" },
-  { key: "waist_cm",   label: "Tour de taille", unit: "cm", icon: "📏" },
-  { key: "hips_cm",    label: "Tour de hanches", unit: "cm", icon: "📐" },
-  { key: "chest_cm",   label: "Tour de poitrine", unit: "cm", icon: "💪" },
-  { key: "thighs_cm",  label: "Tour de cuisses", unit: "cm", icon: "🦵" },
-  { key: "arms_cm",    label: "Tour de bras", unit: "cm", icon: "💪" },
+  { key: "weight_kg",  label: "Poids",           unit: "kg", emoji: "⚖️" },
+  { key: "waist_cm",   label: "Tour de taille",   unit: "cm", emoji: "📏" },
+  { key: "hips_cm",    label: "Tour de hanches",  unit: "cm", emoji: "📐" },
+  { key: "chest_cm",   label: "Tour de poitrine", unit: "cm", emoji: "💪" },
+  { key: "thighs_cm",  label: "Tour de cuisses",  unit: "cm", emoji: "🦵" },
+  { key: "arms_cm",    label: "Tour de bras",     unit: "cm", emoji: "💪" },
 ];
 
 export default function Measurements() {
@@ -29,11 +30,36 @@ export default function Measurements() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (user) load(); }, [user]);
+  useEffect(() => {
+    if (user) load();
+
+    // Écouter le clavier iOS
+    const showSub = Keyboard.addListener("keyboardWillShow", (info) => {
+      setKeyboardHeight(info.keyboardHeight);
+    });
+    const hideSub = Keyboard.addListener("keyboardWillHide", () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.then(l => l.remove());
+      hideSub.then(l => l.remove());
+    };
+  }, [user]);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Scroll l'input dans la vue après un délai (clavier en train d'apparaître)
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 350);
+  };
 
   const load = async () => {
-    const { data } = await supabase.from("measurements").select("*").eq("user_id", user!.id).order("measured_at", { ascending: false }).limit(10);
+    const { data } = await supabase.from("measurements").select("*")
+      .eq("user_id", user!.id).order("measured_at", { ascending: false }).limit(10);
     setMeasurements(data || []);
   };
 
@@ -51,19 +77,18 @@ export default function Measurements() {
 
   const latest = measurements[0];
   const previous = measurements[1];
-
   const getDiff = (key: string) => {
-    if (!latest || !previous) return null;
-    const l = (latest as any)[key]; const p = (previous as any)[key];
+    const l = latest ? (latest as any)[key] : null;
+    const p = previous ? (previous as any)[key] : null;
     if (!l || !p) return null;
-    return ((l - p) as number).toFixed(1);
+    return (l - p).toFixed(1);
   };
 
   return (
     <MobileLayout>
-      <div className="px-5 pt-12 pb-28">
+      <div className="px-5 pt-12 pb-4">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate("/wellness")} className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+          <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div className="flex-1">
@@ -88,12 +113,13 @@ export default function Measurements() {
                 const diffNum = diff ? parseFloat(diff) : 0;
                 return (
                   <div key={f.key} style={{ backgroundColor: "#FAFAF8", borderRadius: 14, padding: "12px" }}>
-                    <p style={{ fontSize: 11, color: "#8B8578", marginBottom: 3 }}>{f.icon} {f.label}</p>
+                    <p style={{ fontSize: 11, color: "#8B8578", marginBottom: 3 }}>{f.emoji} {f.label}</p>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                       <span style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19" }}>{val}</span>
                       <span style={{ fontSize: 11, color: "#8B8578" }}>{f.unit}</span>
                       {diff && (
-                        <span style={{ fontSize: 11, fontWeight: 600, color: diffNum < 0 ? "#16A34A" : diffNum > 0 ? "#EF4444" : "#8B8578" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: diffNum < 0 ? "#16A34A" : diffNum > 0 ? "#EF4444" : "#8B8578", display: "flex", alignItems: "center", gap: 2 }}>
+                          {diffNum < 0 ? <TrendingDown size={10} /> : <TrendingUp size={10} />}
                           {diffNum > 0 ? "+" : ""}{diff}
                         </span>
                       )}
@@ -112,7 +138,8 @@ export default function Measurements() {
             <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.6, maxWidth: 240, margin: "0 auto 16px" }}>
               Enregistre tes premières mensurations pour suivre tes progrès.
             </p>
-            <button onClick={() => setShowForm(true)} style={{ padding: "12px 24px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            <button onClick={() => setShowForm(true)}
+              style={{ padding: "12px 24px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               Saisir mes mensurations
             </button>
           </div>
@@ -120,12 +147,14 @@ export default function Measurements() {
 
         {/* Historique */}
         {measurements.length > 0 && (
-          <div>
+          <div className="bg-card rounded-3xl border border-border p-4 shadow-sm">
             <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">Historique</p>
-            {measurements.slice(0, 5).map(m => (
-              <div key={m.id} style={{ padding: "12px 0", borderBottom: "1px solid rgba(28,27,25,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p style={{ fontSize: 13, color: "#6B6560" }}>{new Date(m.measured_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</p>
-                <div style={{ display: "flex", gap: 12 }}>
+            {measurements.slice(0, 6).map((m, i) => (
+              <div key={m.id} style={{ padding: "10px 0", borderBottom: i < Math.min(measurements.length, 6) - 1 ? "1px solid rgba(28,27,25,0.06)" : "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ fontSize: 13, color: "#6B6560" }}>
+                  {new Date(m.measured_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
+                </p>
+                <div style={{ display: "flex", gap: 10 }}>
                   {m.weight_kg && <span style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19" }}>{m.weight_kg} kg</span>}
                   {m.waist_cm && <span style={{ fontSize: 12, color: "#8B8578" }}>T: {m.waist_cm} cm</span>}
                 </div>
@@ -133,38 +162,74 @@ export default function Measurements() {
             ))}
           </div>
         )}
-
-        {/* Formulaire de saisie */}
-        <AnimatePresence>
-          {showForm && (
-            <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "flex-end" }}>
-              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25 }}
-                style={{ backgroundColor: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px", paddingBottom: "calc(24px + env(safe-area-inset-bottom))", width: "100%", maxHeight: "75vh", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19" }}>Nouvelle prise</h3>
-                  <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#8B8578" }}>×</button>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {FIELDS.map(f => (
-                    <div key={f.key}>
-                      <label style={{ fontSize: 12, color: "#6B6560", display: "block", marginBottom: 4 }}>{f.emoji} {f.label} ({f.unit})</label>
-                      <input type="number" step="0.1" placeholder="—" value={form[f.key] || ""}
-                        onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                        onFocus={e => setTimeout(() => e.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
-                        inputMode="decimal"
-                        style={{ width: "100%", padding: "12px 14px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 10, fontSize: 16, color: "#1C1B19", fontFamily: "inherit", outline: "none", boxSizing: "border-box" as const }} />
-                    </div>
-                  ))}
-                  <button onClick={save} disabled={saving}
-                    style={{ width: "100%", padding: "14px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}>
-                    {saving ? "Sauvegarde..." : "Enregistrer"}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* ── Sheet de saisie — remonte avec le clavier ── */}
+      <AnimatePresence>
+        {showForm && (
+          <>
+            {/* Overlay */}
+            <div onClick={() => setShowForm(false)}
+              style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 998 }} />
+
+            {/* Sheet — remonte de la hauteur du clavier */}
+            <motion.div
+              ref={formRef}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              style={{
+                position: "fixed",
+                left: 0, right: 0,
+                bottom: keyboardHeight > 0 ? keyboardHeight : 0,
+                zIndex: 999,
+                backgroundColor: "white",
+                borderRadius: "24px 24px 0 0",
+                maxHeight: "85vh",
+                overflowY: "auto",
+                WebkitOverflowScrolling: "touch",
+                padding: "20px 20px 40px",
+              }}>
+              {/* Handle */}
+              <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: "#D1CCC5", margin: "0 auto 20px" }} />
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Nouvelle prise</h3>
+                <button onClick={() => setShowForm(false)}
+                  style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#8B8578", lineHeight: 1 }}>×</button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {FIELDS.map(f => (
+                  <div key={f.key}>
+                    <label style={{ fontSize: 12, color: "#6B6560", display: "block", marginBottom: 6, fontWeight: 500 }}>
+                      {f.emoji} {f.label} <span style={{ color: "#B8B0A6" }}>({f.unit})</span>
+                    </label>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 12, overflow: "hidden", backgroundColor: "#FAFAF8" }}>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        placeholder="—"
+                        value={form[f.key] || ""}
+                        onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                        onFocus={handleFocus}
+                        style={{ flex: 1, padding: "14px 16px", border: "none", outline: "none", fontSize: 16, color: "#1C1B19", fontFamily: "inherit", backgroundColor: "transparent" }}
+                      />
+                      <span style={{ paddingRight: 14, fontSize: 13, color: "#B8B0A6", fontWeight: 500 }}>{f.unit}</span>
+                    </div>
+                  </div>
+                ))}
+
+                <button onClick={save} disabled={saving}
+                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginTop: 6, opacity: saving ? 0.7 : 1 }}>
+                  {saving ? "Sauvegarde..." : "Enregistrer mes mensurations"}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <BottomNav />
     </MobileLayout>
   );
