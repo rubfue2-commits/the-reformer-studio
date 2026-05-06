@@ -256,8 +256,8 @@ export default function Achievements() {
 
   const loadStats = async () => {
     const [sessRes, wellRes, measRes, refRes, revRes, progRes] = await Promise.all([
-      supabase.from("sessions").select("id, completed_at, duration_minutes, category").eq("user_id", user!.id),
-      supabase.from("wellness_entries").select("id, score", { count: "exact" }).eq("user_id", user!.id),
+      supabase.from("sessions").select("id, completed_at, duration_minutes, category, workout_id").eq("user_id", user!.id),
+      supabase.from("wellness_entries").select("id, score, mood_score, sleep_quality, stress_level", { count: "exact" }).eq("user_id", user!.id),
       supabase.from("measurements").select("id", { count: "exact" }).eq("user_id", user!.id),
       supabase.from("referrals").select("id", { count: "exact" }).eq("referrer_id", user!.id),
       supabase.from("program_reviews").select("id", { count: "exact" }).eq("user_id", user!.id),
@@ -266,6 +266,11 @@ export default function Achievements() {
 
     const sessions = sessRes.data || [];
     const total = sessions.length;
+    // Score parfait = wellness entry avec score >= 95 ou toutes les métriques au max
+    const perfectScores = (wellRes.data || []).filter(w => {
+      const s = (w.mood_score || 0) + (w.sleep_quality || 0) + (w.stress_level || 0);
+      return s >= 13; // 5+5+3 max
+    }).length;
 
     // Calcul série
     const dates = [...new Set(sessions.map(s => new Date(s.completed_at).toDateString()))].sort(
@@ -299,7 +304,8 @@ export default function Achievements() {
     const doubleDays = Object.values(dayCounts).filter(c => c >= 2).length;
 
     // Variété de cours
-    const categories = new Set(sessions.map(s => s.category).filter(Boolean));
+    // Variété basée sur workout_id distincts (catégorie remplie progressivement)
+    const categories = new Set(sessions.map(s => s.category || s.workout_id).filter(Boolean));
 
     // Semaine parfaite (7 séances en 7 jours consécutifs)
     let perfectWeek = 0;
@@ -322,7 +328,7 @@ export default function Achievements() {
       reviews: revRes.count || 0, varietyTypes: categories.size,
       earlyBird, nightOwl, lunchBreak, weekendSessions,
       longSessions, programsDone: progRes.count || 0,
-      perfectScore: 0, comeback: 0,
+      perfectScore: perfectScores, comeback: 0,
       perfectWeek, doubleDay: doubleDays, daysOnApp,
     });
   };
