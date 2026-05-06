@@ -11,9 +11,10 @@ import BottomNav from "@/components/BottomNav";
 // ── Types ─────────────────────────────────────────────────────
 interface WellnessEntry {
   id: string; entry_date: string;
-  mood_score: number; energy_level: number;
-  sleep_quality: number; stress_level: number;
-  notes?: string; score?: number;
+  mood: number; energy: number;
+  sleep: number; stress: number;
+  body?: number; note?: string;
+  tags?: string[]; score?: number;
 }
 
 interface WeekStats {
@@ -146,10 +147,10 @@ export default function Wellness() {
       }
 
       setWeekStats({
-        avgMood:   avg(last7.map(e => e.mood_score)),
-        avgEnergy: avg(last7.map(e => e.energy_level)),
-        avgSleep:  avg(last7.map(e => e.sleep_quality)),
-        avgStress: avg(last7.map(e => e.stress_level)),
+        avgMood:   avg(last7.map(e => e.mood)),
+        avgEnergy: avg(last7.map(e => e.energy)),
+        avgSleep:  avg(last7.map(e => e.sleep)),
+        avgStress: avg(last7.map(e => e.stress)),
         totalEntries: entries.length,
         streak,
       });
@@ -165,13 +166,13 @@ export default function Wellness() {
     await supabase.from("wellness_entries").upsert({
       user_id: user.id,
       entry_date: today(),
-      mood_score: mood,
-      energy_level: energy,
-      sleep_quality: sleep,
-      stress_level: stress,
-      notes: feelings.length > 0 ? feelings.join(", ") + (notes ? " — " + notes : "") : notes,
+      mood: mood,
+      energy: energy,
+      sleep: sleep,
+      stress: stress,
+      tags: feelings,
+      note: notes,
       score: globalScore,
-      updated_at: new Date().toISOString(),
     }, { onConflict: "user_id,entry_date" });
 
     await loadData();
@@ -293,17 +294,17 @@ export default function Wellness() {
                     <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Journal du jour</p>
                     <p className="font-display text-lg font-light text-white">Journée enregistrée ✓</p>
                     <p className="font-body text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-                      Score {todayEntry.score || Math.round(((todayEntry.mood_score + todayEntry.energy_level + todayEntry.sleep_quality + todayEntry.stress_level) / 20) * 100)}/100 · Reviens demain !
+                      Score {todayEntry.score || Math.round(((todayEntry.mood + todayEntry.energy + todayEntry.sleep + todayEntry.stress) / 20) * 100)}/100 · Reviens demain !
                     </p>
                   </div>
                 </div>
                 {/* Mini scores */}
                 <div className="flex gap-3 mt-4">
                   {[
-                    { label: "Humeur", value: todayEntry.mood_score, color: "#EC4899" },
-                    { label: "Énergie", value: todayEntry.energy_level, color: "#F59E0B" },
-                    { label: "Sommeil", value: todayEntry.sleep_quality, color: "#6366F1" },
-                    { label: "Stress", value: todayEntry.stress_level, color: "#10B981" },
+                    { label: "Humeur", value: todayEntry.mood, color: "#EC4899" },
+                    { label: "Énergie", value: todayEntry.energy, color: "#F59E0B" },
+                    { label: "Sommeil", value: todayEntry.sleep, color: "#6366F1" },
+                    { label: "Stress", value: todayEntry.stress, color: "#10B981" },
                   ].map(s => (
                     <div key={s.label} style={{ flex: 1, textAlign: "center" }}>
                       <p style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}/5</p>
@@ -333,7 +334,7 @@ export default function Wellness() {
                   <p className="font-body text-[11px] text-muted-foreground mb-4">Score global sur les 14 derniers jours</p>
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
                     {history.slice(0, 14).reverse().map((e, i) => {
-                      const score = e.score || Math.round(((e.mood_score + e.energy_level + e.sleep_quality + e.stress_level) / 20) * 100);
+                      const score = e.score || Math.round(((e.mood + e.energy + e.sleep + e.stress) / 20) * 100);
                       const height = Math.max(8, (score / 100) * 80);
                       const isToday = e.entry_date === today();
                       return (
