@@ -327,28 +327,92 @@ export default function Wellness() {
                 </>
               )}
 
-              {/* Graphique 7 jours */}
-              {history.length >= 2 && (
-                <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-5">
-                  <p className="font-body text-xs font-semibold text-foreground mb-1">Évolution du bien-être</p>
-                  <p className="font-body text-[11px] text-muted-foreground mb-4">Score global sur les 14 derniers jours</p>
-                  <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
-                    {history.slice(0, 14).reverse().map((e, i) => {
-                      const score = e.score || Math.round(((e.mood + e.energy + e.sleep + e.stress) / 20) * 100);
-                      const height = Math.max(8, (score / 100) * 80);
-                      const isToday = e.entry_date === today();
-                      return (
-                        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                          <div style={{ width: "100%", height, backgroundColor: isToday ? "#B8973E" : (score >= 70 ? "#22C55E" : score >= 50 ? "#F59E0B" : "#EF4444") + (isToday ? "" : "80"), borderRadius: 4, transition: "height 0.5s ease" }} />
-                          <p style={{ fontSize: 8, color: "#B8B0A6" }}>
-                            {new Date(e.entry_date).toLocaleDateString("fr-FR", { weekday: "narrow" })}
-                          </p>
+              {/* Graphique courbe SVG bien-être */}
+              {history.length >= 2 && (() => {
+                const data = history.slice(0, 21).reverse();
+                const scores = data.map(e => e.score || Math.round(((e.mood + e.energy + e.sleep + e.stress) / 20) * 100));
+                const W = 320, H = 120, PAD = 16;
+                const minS = Math.max(0, Math.min(...scores) - 10);
+                const maxS = Math.min(100, Math.max(...scores) + 10);
+                const xStep = (W - PAD * 2) / Math.max(scores.length - 1, 1);
+                const yScale = (s: number) => H - PAD - ((s - minS) / (maxS - minS)) * (H - PAD * 2);
+                const pts = scores.map((s, i) => [PAD + i * xStep, yScale(s)] as [number,number]);
+                // Courbe smooth via cubic bezier
+                const path = pts.reduce((acc, [x, y], i) => {
+                  if (i === 0) return `M ${x} ${y}`;
+                  const [px, py] = pts[i - 1];
+                  const cx = (px + x) / 2;
+                  return acc + ` C ${cx} ${py} ${cx} ${y} ${x} ${y}`;
+                }, "");
+                const areaPath = path + ` L ${pts[pts.length-1][0]} ${H - PAD} L ${PAD} ${H - PAD} Z`;
+                const todayScore = scores[scores.length - 1];
+                const scoreColor = todayScore >= 75 ? "#22C55E" : todayScore >= 50 ? "#B8973E" : "#EF4444";
+                return (
+                  <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-5">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                      <div>
+                        <p className="font-body text-xs font-semibold text-foreground">Évolution du bien-être</p>
+                        <p className="font-body text-[11px] text-muted-foreground">Score global — {data.length} derniers jours</p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <p style={{ fontSize: 22, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{todayScore}</p>
+                        <p style={{ fontSize: 10, color: "#8B8578" }}>/ 100</p>
+                      </div>
+                    </div>
+                    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible", marginTop: 8 }}>
+                      <defs>
+                        <linearGradient id="wellGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={scoreColor} stopOpacity="0.25" />
+                          <stop offset="100%" stopColor={scoreColor} stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      {/* Lignes grille */}
+                      {[25,50,75,100].map(v => {
+                        const y = yScale(Math.min(v, maxS));
+                        if (y < PAD || y > H - PAD) return null;
+                        return <g key={v}>
+                          <line x1={PAD} y1={y} x2={W-PAD} y2={y} stroke="rgba(28,27,25,0.05)" strokeWidth="1" />
+                          <text x={PAD - 2} y={y + 3} textAnchor="end" fontSize="8" fill="#C4BDB5">{v}</text>
+                        </g>;
+                      })}
+                      {/* Aire */}
+                      <path d={areaPath} fill="url(#wellGrad)" />
+                      {/* Courbe */}
+                      <path d={path} fill="none" stroke={scoreColor} strokeWidth="2.5" strokeLinecap="round" />
+                      {/* Points */}
+                      {pts.map(([x, y], i) => {
+                        const isLast = i === pts.length - 1;
+                        return <g key={i}>
+                          <circle cx={x} cy={y} r={isLast ? 5 : 3} fill={isLast ? scoreColor : "white"} stroke={scoreColor} strokeWidth={isLast ? 0 : 2} />
+                          {isLast && <circle cx={x} cy={y} r={9} fill={scoreColor} fillOpacity="0.2" />}
+                        </g>;
+                      })}
+                      {/* Labels jours */}
+                      {data.map((e, i) => {
+                        if (data.length > 10 && i % 2 !== 0) return null;
+                        const [x] = pts[i];
+                        return <text key={i} x={x} y={H} textAnchor="middle" fontSize="8" fill="#C4BDB5">
+                          {new Date(e.entry_date).toLocaleDateString("fr-FR", { weekday: "narrow" })}
+                        </text>;
+                      })}
+                    </svg>
+                    {/* Légende métriques */}
+                    <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
+                      {[
+                        { label: "Humeur", value: data[data.length-1]?.mood, color: "#EC4899" },
+                        { label: "Énergie", value: data[data.length-1]?.energy, color: "#F59E0B" },
+                        { label: "Sommeil", value: data[data.length-1]?.sleep, color: "#6366F1" },
+                        { label: "Stress", value: data[data.length-1]?.stress, color: "#10B981" },
+                      ].map(m => (
+                        <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: m.color }} />
+                          <span style={{ fontSize: 11, color: "#6B6560" }}>{m.label} <strong style={{ color: "#1C1B19" }}>{m.value}/5</strong></span>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Insights santé */}
               <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">Tes insights personnalisés</p>
