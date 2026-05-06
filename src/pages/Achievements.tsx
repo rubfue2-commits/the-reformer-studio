@@ -1,16 +1,91 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Flame, Target, Star, Award, Zap, Heart, Trophy, Crown, Sparkles, Lock, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import MobileLayout from "@/components/MobileLayout";
-import BottomNav from "@/components/BottomNav";
-import { useLanguage } from "@/i18n/LanguageContext";
-import { useSessions } from "@/hooks/useSessions";
-import { useAuth } from "@/contexts/AuthContext";
+import { const BADGES = [
+  // ── Séances ─────────────────────────────────────────────────────
+  { id: "first",    icon: Star,     color: "#B8973E", bg: "#FAEEDA",
+    titleFr: "Première séance",    titleEn: "First session",
+    descFr: "Tu as complété ta toute première séance. Le début d'une belle aventure !",
+    descEn: "You completed your very first session. The start of a great journey!",
+    threshold: 1, xp: 50 },
 
-const DEMO_EMAIL = "rubenfuentes@orange.fr";
+  { id: "ten",      icon: Target,   color: "#3B82F6", bg: "#EFF6FF",
+    titleFr: "10 séances",         titleEn: "10 sessions",
+    descFr: "10 séances complétées. Tu prends de bonnes habitudes !",
+    descEn: "10 sessions done. You're building great habits!",
+    threshold: 10, xp: 150 },
 
-const BADGES = [
+  { id: "twenty5",  icon: Award,    color: "#8B5CF6", bg: "#F5F3FF",
+    titleFr: "25 séances",         titleEn: "25 sessions",
+    descFr: "25 séances ! Tu es sur la bonne voie.",
+    descEn: "25 sessions! You're on the right track.",
+    threshold: 25, xp: 300 },
+
+  { id: "fifty",    icon: Zap,      color: "#F59E0B", bg: "#FFFBEB",
+    titleFr: "50 séances",         titleEn: "50 sessions",
+    descFr: "50 séances ! Tu es une vraie pratiquante.",
+    descEn: "50 sessions! You're a true practitioner.",
+    threshold: 50, xp: 500 },
+
+  { id: "hundred",  icon: Trophy,   color: "#EF4444", bg: "#FEF2F2",
+    titleFr: "100 séances",        titleEn: "100 sessions",
+    descFr: "100 séances complétées. Quelle régularité impressionnante !",
+    descEn: "100 sessions completed. What impressive consistency!",
+    threshold: 100, xp: 1000 },
+
+  { id: "two_fifty", icon: Flame,   color: "#F97316", bg: "#FFF7ED",
+    titleFr: "250 séances",        titleEn: "250 sessions",
+    descFr: "250 séances ! Tu es une icône du Reformer.",
+    descEn: "250 sessions! You're a Reformer icon.",
+    threshold: 250, xp: 2000 },
+
+  { id: "five_hundred", icon: Crown, color: "#EC4899", bg: "#FDF2F8",
+    titleFr: "500 séances",        titleEn: "500 sessions",
+    descFr: "500 séances ! Une légende est née.",
+    descEn: "500 sessions! A legend is born.",
+    threshold: 500, xp: 4000 },
+
+  { id: "thousand", icon: Sparkles, color: "#B8973E", bg: "#FAEEDA",
+    titleFr: "1000 séances",       titleEn: "1000 sessions",
+    descFr: "1000 séances ! Tu es au sommet. Le Reformer n'a plus de secret pour toi.",
+    descEn: "1000 sessions! You're at the top. The Reformer holds no more secrets.",
+    threshold: 1000, xp: 10000 },
+
+  // ── Séries ──────────────────────────────────────────────────────
+  { id: "streak7",  icon: Flame,    color: "#EF4444", bg: "#FEF2F2",
+    titleFr: "7 jours de feu",     titleEn: "7-day streak",
+    descFr: "7 jours consécutifs de pratique. Tu es en feu !",
+    descEn: "7 consecutive days of practice. You're on fire!",
+    threshold: 7, isStreak: true, xp: 200 },
+
+  { id: "streak14", icon: Flame,    color: "#F97316", bg: "#FFF7ED",
+    titleFr: "14 jours sans pause", titleEn: "14-day streak",
+    descFr: "14 jours d'affilée ! Ta régularité est exemplaire.",
+    descEn: "14 days in a row! Your consistency is exemplary.",
+    threshold: 14, isStreak: true, xp: 350 },
+
+  { id: "streak30", icon: Flame,    color: "#8B5CF6", bg: "#F5F3FF",
+    titleFr: "30 jours de légende", titleEn: "30-day streak",
+    descFr: "30 jours consécutifs. Tu es une machine !",
+    descEn: "30 consecutive days. You're a machine!",
+    threshold: 30, isStreak: true, xp: 700 },
+
+  { id: "streak60", icon: Crown,    color: "#EC4899", bg: "#FDF2F8",
+    titleFr: "60 jours de feu",    titleEn: "60-day streak",
+    descFr: "60 jours sans interruption. Discipline de championne !",
+    descEn: "60 days without a break. Champion discipline!",
+    threshold: 60, isStreak: true, xp: 1500 },
+
+  // ── Programmes ───────────────────────────────────────────────────
+  { id: "prog_first", icon: BookOpen, color: "#10B981", bg: "#ECFDF5",
+    titleFr: "Premier programme",  titleEn: "First program",
+    descFr: "Tu as démarré ton premier programme. Continue !",
+    descEn: "You started your first program. Keep going!",
+    threshold: 1, isProgram: true, xp: 100 },
+
+  { id: "prog5",    icon: BookOpen, color: "#3B82F6", bg: "#EFF6FF",
+    titleFr: "5 programmes",       titleEn: "5 programs",
+    descFr: "5 programmes complétés. Tu explores tout !",
+    descEn: "5 programs completed. You're exploring everything!",
+    threshold: 5, isProgram: true, xp: 400 },
+] as constconst BADGES = [
   { id: "first",    icon: Star,     color: "#B8973E", bg: "#FAEEDA",
     titleFr: "Première séance",   titleEn: "First session",
     descFr: "Tu as complété ta toute première séance. Le début d'une belle aventure !",
