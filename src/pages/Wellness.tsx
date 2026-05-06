@@ -9,12 +9,20 @@ import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 
 // ── Types ─────────────────────────────────────────────────────
+// Structure DB exacte wellness_entries
 interface WellnessEntry {
-  id: string; entry_date: string;
-  mood: number; energy: number;
-  sleep: number; stress: number;
-  body?: number; note?: string;
-  tags?: string[]; score?: number;
+  id: string;
+  user_id: string;
+  entry_date: string;   // date (YYYY-MM-DD)
+  mood: number;         // smallint 1-5
+  energy: number;       // smallint 1-5
+  sleep: number;        // smallint 1-5
+  stress: number;       // smallint 1-5
+  body?: number;        // smallint 1-5 (optionnel)
+  note?: string;        // text
+  tags?: string[];      // array
+  score?: number;       // integer calculé
+  created_at?: string;
 }
 
 interface WeekStats {
@@ -123,8 +131,16 @@ export default function Wellness() {
     const todayStr = today();
 
     const [todayRes, historyRes] = await Promise.all([
-      supabase.from("wellness_entries").select("*").eq("user_id", user!.id).eq("entry_date", todayStr).maybeSingle(),
-      supabase.from("wellness_entries").select("*").eq("user_id", user!.id).order("entry_date", { ascending: false }).limit(30),
+      supabase.from("wellness_entries")
+      .select("id, user_id, entry_date, mood, energy, sleep, stress, body, note, tags, score, created_at")
+      .eq("user_id", user!.id)
+      .eq("entry_date", todayStr)
+      .maybeSingle(),
+      supabase.from("wellness_entries")
+      .select("id, user_id, entry_date, mood, energy, sleep, stress, body, note, tags, score, created_at")
+      .eq("user_id", user!.id)
+      .order("entry_date", { ascending: false })
+      .limit(30),
     ]);
 
     setTodayEntry(todayRes.data);
@@ -163,17 +179,19 @@ export default function Wellness() {
     setSaving(true);
     const globalScore = Math.round(((mood + energy + sleep + stress) / 20) * 100);
 
-    await supabase.from("wellness_entries").upsert({
+    // Upsert avec les vrais noms de colonnes DB
+    const { error: upsertError } = await supabase.from("wellness_entries").upsert({
       user_id: user.id,
-      entry_date: today(),
-      mood: mood,
-      energy: energy,
-      sleep: sleep,
-      stress: stress,
-      tags: feelings,
-      note: notes,
-      score: globalScore,
+      entry_date: today(),   // date YYYY-MM-DD
+      mood,                  // smallint 1-5
+      energy,                // smallint 1-5
+      sleep,                 // smallint 1-5
+      stress,                // smallint 1-5
+      tags: feelings,        // array text[]
+      note: notes,           // text
+      score: globalScore,    // integer
     }, { onConflict: "user_id,entry_date" });
+    if (upsertError) { console.error("Wellness upsert error:", upsertError); setSaving(false); return; }
 
     await loadData();
     setSaving(false);
