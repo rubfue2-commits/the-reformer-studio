@@ -139,7 +139,7 @@ export default function Measurements() {
           {showForm && (
             <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "flex-end" }}>
               <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25 }}
-                style={{ backgroundColor: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", width: "100%", maxHeight: "80vh", overflowY: "auto" }}>
+                style={{ backgroundColor: "white", borderRadius: "24px 24px 0 0", padding: "24px 20px", paddingBottom: "calc(24px + env(safe-area-inset-bottom))", width: "100%", maxHeight: "75vh", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                   <h3 style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19" }}>Nouvelle prise</h3>
                   <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#8B8578" }}>×</button>
@@ -150,7 +150,9 @@ export default function Measurements() {
                       <label style={{ fontSize: 12, color: "#6B6560", display: "block", marginBottom: 4 }}>{f.emoji} {f.label} ({f.unit})</label>
                       <input type="number" step="0.1" placeholder="—" value={form[f.key] || ""}
                         onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                        style={{ width: "100%", padding: "12px 14px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 10, fontSize: 15, color: "#1C1B19", fontFamily: "inherit", outline: "none", boxSizing: "border-box" as const }} />
+                        onFocus={e => setTimeout(() => e.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" }), 350)}
+                        inputMode="decimal"
+                        style={{ width: "100%", padding: "12px 14px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 10, fontSize: 16, color: "#1C1B19", fontFamily: "inherit", outline: "none", boxSizing: "border-box" as const }} />
                     </div>
                   ))}
                   <button onClick={save} disabled={saving}
