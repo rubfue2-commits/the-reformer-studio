@@ -21,92 +21,122 @@ export default function Auth() {
   const [success, setSuccess] = useState("");
   const [biometryAvailable, setBiometryAvailable] = useState(false);
 
-  // ── Empêcher le double déclenchement Face ID ──────────
-  const hasLaunchedBio = useRef(false);
+  // ── Garde strict — Face ID ne se lance QU'UNE seule fois ──
+  const launched = useRef(false);
 
   useEffect(() => {
-    // Ne lancer qu'une seule fois au montage
-    if (hasLaunchedBio.current) return;
-    hasLaunchedBio.current = true;
-    checkAndLaunchBiometry();
-  }, []); // deps vide = une seule fois
+    // Bloquer tout second appel
+    if (launched.current) return;
+    launched.current = true;
 
-  const checkAndLaunchBiometry = async () => {
-    try {
-      const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
-      if (!isNative) {
-        setMode("login");
-        return;
-      }
-      const { BiometricAuth } = await import("@aparajita/capacitor-biometric-auth");
-      const info = await BiometricAuth.checkBiometry();
-      if (info.isAvailable) {
-        setBiometryAvailable(true);
-        setMode("faceId");
-        // Lancer Face ID automatiquement après un court délai
-        await new Promise(r => setTimeout(r, 400));
-        await launchFaceId();
-      } else {
-        setMode("login");
-      }
-    } catch {
+    // Vérifier si on est sur un vrai iPhone
+    const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+    if (!isNative) {
+      // Sur web/simulateur → formulaire directement
       setMode("login");
+      return;
     }
-  };
 
-  const launchFaceId = async () => {
+    // Sur iPhone → tenter Face ID une seule fois
+    (async () => {
+      try {
+        const { BiometricAuth } = await import("@aparajita/capacitor-biometric-auth");
+        const info = await BiometricAuth.checkBiometry();
+
+        if (!info.isAvailable) {
+          // Pas de Face ID configuré → formulaire
+          setMode("login");
+          return;
+        }
+
+        setBiometryAvailable(true);
+        setBioLoading(true);
+
+        try {
+          await BiometricAuth.authenticate({
+            reason: "Accédez à votre espace Connect Reformer",
+            cancelTitle: "Utiliser email et mot de passe",
+            allowDeviceCredential: false,
+            iosFallbackTitle: "Utiliser email et mot de passe",
+          });
+          // ✅ Face ID validé → accès immédiat
+          navigate("/home", { replace: true });
+        } catch {
+          // ❌ Face ID échoué ou annulé → formulaire directement
+          setMode("login");
+        }
+
+        setBioLoading(false);
+      } catch {
+        // Erreur inattendue → formulaire
+        setMode("login");
+      }
+    })();
+  }, []); // ← deps vide = une seule exécution au montage, jamais relancé
+
+  // ── Face ID manuel (bouton) ────────────────────────────────
+  const handleFaceIdManual = async () => {
+    if (bioLoading) return;
     setBioLoading(true);
     setError("");
     try {
       const { BiometricAuth } = await import("@aparajita/capacitor-biometric-auth");
       await BiometricAuth.authenticate({
-        reason: "Accedez a votre espace Connect Reformer",
+        reason: "Accédez à votre espace Connect Reformer",
         cancelTitle: "Utiliser email et mot de passe",
         allowDeviceCredential: false,
         iosFallbackTitle: "Utiliser email et mot de passe",
       });
-      // Succès — accès à l'app
       navigate("/home", { replace: true });
     } catch {
-      // Annulé ou échec → formulaire
       setMode("login");
     }
     setBioLoading(false);
   };
 
-  // Bouton manuel "Utiliser Face ID"
-  const handleFaceIdPress = async () => {
-    if (bioLoading) return;
-    await launchFaceId();
-  };
-
+  // ── Connexion email/mot de passe ───────────────────────────
   const handleLogin = async () => {
-    if (!email || !password) { setError("Remplissez tous les champs."); return; }
-    setError(""); setLoading(true);
-    const { error } = await signIn(email, password);
-    if (error) setError("Email ou mot de passe incorrect.");
-    else navigate("/home", { replace: true });
+    if (!email.trim() || !password) {
+      setError("Remplissez tous les champs.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    const { error } = await signIn(email.trim(), password);
+    if (error) {
+      setError("Email ou mot de passe incorrect.");
+    } else {
+      navigate("/home", { replace: true });
+    }
     setLoading(false);
   };
 
+  // ── Mot de passe oublié ────────────────────────────────────
   const handleReset = async () => {
-    if (!email) { setError("Entrez votre email."); return; }
-    setError(""); setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    if (!email.trim()) {
+      setError("Entrez votre email.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: window.location.origin + "/reset-password",
     });
     if (error) setError(error.message);
-    else setSuccess("Lien envoye ! Verifiez votre email.");
+    else setSuccess("Lien envoyé ! Vérifiez votre email.");
     setLoading(false);
   };
 
-  const openSite = () => window.open("https://connectreformer.com", "_system");
-
   const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "14px 16px",
-    border: "1px solid rgba(28,27,25,0.12)", borderRadius: 12,
-    backgroundColor: "white", fontSize: 15, color: "#1C1B19",
-    outline: "none", boxSizing: "border-box", fontFamily: "inherit",
+    width: "100%",
+    border: "1px solid rgba(28,27,25,0.12)",
+    borderRadius: 12,
+    backgroundColor: "white",
+    fontSize: 15,
+    color: "#1C1B19",
+    outline: "none",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
   };
 
   return (
@@ -131,14 +161,17 @@ export default function Auth() {
 
         {/* ── Écran Face ID ── */}
         {mode === "faceId" && (
-          <motion.div key="faceId" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+          <motion.div key="faceId"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
             style={{ width: "100%", maxWidth: 380, textAlign: "center" }}>
-            <div style={{ backgroundColor: "white", borderRadius: 24, padding: "36px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
+
+            <div style={{ backgroundColor: "white", borderRadius: 24, padding: "40px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
+              {/* Icône */}
               <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#1C1B19", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                 {bioLoading ? (
                   <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2.5px solid rgba(255,255,255,0.2)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} />
                 ) : (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
                     <rect x="2" y="2" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
                     <rect x="29" y="2" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
                     <rect x="2" y="29" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
@@ -150,77 +183,96 @@ export default function Auth() {
                   </svg>
                 )}
               </div>
-              <p style={{ fontSize: 18, fontWeight: 600, color: "#1C1B19", margin: "0 0 6px" }}>
-                {bioLoading ? "Verification..." : "Connexion avec Face ID"}
+
+              <p style={{ fontSize: 19, fontWeight: 600, color: "#1C1B19", margin: "0 0 8px" }}>
+                {bioLoading ? "Vérification..." : "Connexion avec Face ID"}
               </p>
-              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 24px", lineHeight: 1.5 }}>
-                {bioLoading ? "Regardez votre iPhone" : "Utilisez Face ID pour acceder a votre espace"}
+              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 28px", lineHeight: 1.5 }}>
+                {bioLoading ? "Regardez votre iPhone" : "Face ID s'ouvre automatiquement"}
               </p>
-              <button onClick={handleFaceIdPress} disabled={bioLoading}
-                style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: bioLoading ? 0.7 : 1 }}>
-                {bioLoading ? "..." : "Utiliser Face ID"}
-              </button>
+
+              {!bioLoading && (
+                <button onClick={handleFaceIdManual}
+                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Utiliser Face ID
+                </button>
+              )}
             </div>
+
             <button onClick={() => setMode("login")}
-              style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit", padding: "8px" }}>
+              style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit", padding: 8 }}>
               Utiliser mon email et mot de passe
             </button>
           </motion.div>
         )}
 
-        {/* ── Formulaire ── */}
+        {/* ── Formulaire login / reset ── */}
         {(mode === "login" || mode === "reset") && (
-          <motion.div key="form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+          <motion.div key="form"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             style={{ width: "100%", maxWidth: 380 }}>
+
             <div style={{ backgroundColor: "white", borderRadius: 24, padding: "28px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1C1B19", margin: "0 0 4px" }}>
-                {mode === "login" ? "Connexion" : "Mot de passe oublie"}
+                {mode === "login" ? "Connexion" : "Mot de passe oublié"}
               </h2>
               <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 20px" }}>
-                {mode === "login" ? "Accedez a votre espace Connect Reformer" : "Nous vous enverrons un lien de reinitialisation"}
+                {mode === "login" ? "Accédez à votre espace Connect Reformer" : "Nous vous enverrons un lien de réinitialisation"}
               </p>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {/* Email */}
                 <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
                   <Mail size={16} color="#B8B0A6" style={{ marginLeft: 16, flexShrink: 0 }} />
                   <input type="email" placeholder="email@exemple.fr" value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => { setEmail(e.target.value); setError(""); }}
+                    onKeyDown={e => e.key === "Enter" && (mode === "login" ? handleLogin() : handleReset())}
                     style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#1C1B19", padding: "14px 16px 14px 10px", backgroundColor: "transparent", fontFamily: "inherit" }} />
                 </div>
+
+                {/* Mot de passe */}
                 {mode === "login" && (
                   <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
                     <input type={showPass ? "text" : "password"} placeholder="Mot de passe" value={password}
-                      onChange={e => setPassword(e.target.value)}
+                      onChange={e => { setPassword(e.target.value); setError(""); }}
+                      onKeyDown={e => e.key === "Enter" && handleLogin()}
                       style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#1C1B19", padding: "14px 16px", backgroundColor: "transparent", fontFamily: "inherit" }} />
-                    <button onClick={() => setShowPass(!showPass)}
+                    <button onClick={() => setShowPass(p => !p)}
                       style={{ background: "none", border: "none", cursor: "pointer", padding: "0 16px 0 0", color: "#B8B0A6" }}>
                       {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 )}
+
+                {/* Messages */}
                 {error && <p style={{ fontSize: 13, color: "#EF4444", margin: 0 }}>{error}</p>}
                 {success && <p style={{ fontSize: 13, color: "#22C55E", margin: 0 }}>{success}</p>}
+
+                {/* Bouton principal */}
                 <button onClick={mode === "login" ? handleLogin : handleReset} disabled={loading}
-                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1, fontFamily: "inherit" }}>
+                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: loading ? 0.7 : 1, fontFamily: "inherit" }}>
                   {loading
                     ? <div style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(0,0,0,0.2)", borderTopColor: "#1C1B19", animation: "spin 0.8s linear infinite" }} />
-                    : <>{mode === "login" ? "Se connecter" : "Envoyer le lien"} <ArrowRight size={16} /></>
+                    : <>{mode === "login" ? "Se connecter" : "Envoyer le lien"}<ArrowRight size={16} /></>
                   }
                 </button>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+
+                {/* Liens secondaires */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center", marginTop: 4 }}>
                   {mode === "login" && (
                     <button onClick={() => { setMode("reset"); setError(""); setSuccess(""); }}
                       style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                      Mot de passe oublie ?
+                      Mot de passe oublié ?
                     </button>
                   )}
                   {mode === "reset" && (
                     <button onClick={() => { setMode("login"); setError(""); setSuccess(""); }}
                       style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                      Retour a la connexion
+                      ← Retour à la connexion
                     </button>
                   )}
                   {biometryAvailable && mode === "login" && (
-                    <button onClick={handleFaceIdPress}
+                    <button onClick={handleFaceIdManual} disabled={bioLoading}
                       style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                       Utiliser Face ID
                     </button>
@@ -229,10 +281,12 @@ export default function Auth() {
               </div>
             </div>
 
-            {/* Encart commander */}
+            {/* Encart commande */}
             <div style={{ backgroundColor: "white", borderRadius: 20, padding: "18px 20px", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", border: "1px solid rgba(184,151,62,0.15)", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>Pas encore de machine Connect Reformer ?</p>
-              <button onClick={openSite}
+              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
+                Pas encore de machine Connect Reformer ?
+              </p>
+              <button onClick={() => window.open("https://connectreformer.com", "_system")}
                 style={{ width: "100%", padding: "13px 16px", backgroundColor: "#1C1B19", color: "#FDFAF7", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                 <div style={{ position: "relative", width: 20, height: 20, flexShrink: 0 }}>
                   <div style={{ position: "absolute", left: 2, top: 0, width: 7, height: 18, borderRadius: 3, backgroundColor: "#FFFFFF", transform: "rotate(15deg)" }} />
@@ -245,6 +299,7 @@ export default function Auth() {
         )}
 
       </AnimatePresence>
+
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
