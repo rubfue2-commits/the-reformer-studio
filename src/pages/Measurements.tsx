@@ -17,8 +17,8 @@ interface Measurement {
   waist_cm?: number;     // numeric
   hips_cm?: number;      // numeric
   chest_cm?: number;     // numeric
-  thigh_cm?: number;     // numeric (pas thighs_cm)
-  arm_cm?: number;       // numeric (pas arms_cm)
+  thigh_cm?: number;     // numeric (pas thigh_cm)
+  arm_cm?: number;       // numeric (pas arm_cm)
   notes?: string;        // text (pas note)
   created_at?: string;
 }
