@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Play, Flame, TrendingUp, Award, ChevronRight, Zap, Star, BookOpen } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import Logo from "@/components/Logo";
@@ -20,13 +22,61 @@ const weekData = [
 ];
 
 const recentBadges = [
-  { icon: Flame,  label: "7 jours",    color: "#B8973E" },
-  { icon: Star,   label: "10 séances", color: "#A78BFA" },
+  { icon: Flame,  label: `${streak} jours`,    color: "#B8973E" },
+  { icon: Star,   label: `${weekSessions} séances`, color: "#A78BFA" },
 ];
 
 const Home = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [monthStats, setMonthStats] = useState({ sessions: 0, minutes: 0, completion: 0, level: 1 });
+  const [streak, setStreak] = useState(0);
+  const [weekSessions, setWeekSessions] = useState(0);
+
+  useEffect(() => {
+    if (user) loadStats();
+  }, [user]);
+
+  const loadStats = async () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const startOfWeek = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [monthRes, weekRes, allRes] = await Promise.all([
+      supabase.from("sessions").select("id, duration_minutes, completed_at").eq("user_id", user!.id).gte("completed_at", startOfMonth),
+      supabase.from("sessions").select("id").eq("user_id", user!.id).gte("completed_at", startOfWeek),
+      supabase.from("sessions").select("completed_at").eq("user_id", user!.id).order("completed_at", { ascending: false }).limit(90),
+    ]);
+
+    const monthSessions = monthRes.data || [];
+    const totalMin = monthSessions.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+    const totalH = Math.round(totalMin / 60);
+
+    // Calcul streak
+    const dates = [...new Set((allRes.data || []).map(s => new Date(s.completed_at).toDateString()))];
+    let s = 0;
+    const today = new Date();
+    for (let i = 0; i < dates.length; i++) {
+      const diff = Math.round((today.getTime() - new Date(dates[i]).getTime()) / 86400000);
+      if (diff === i || diff === i + 1) s++;
+      else break;
+    }
+
+    // Niveau XP (basé sur total sessions)
+    const totalSessions = allRes.data?.length || 0;
+    const lvl = Math.floor(totalSessions / 25) + 1;
+
+    setMonthStats({
+      sessions: monthSessions.length,
+      minutes: totalMin,
+      completion: totalSessions > 0 ? Math.min(100, Math.round((monthSessions.length / 20) * 100)) : 0,
+      level: lvl,
+    });
+    setStreak(s);
+    setWeekSessions((weekRes.data || []).length);
+  };
+
   const { user } = useAuth();
   const { profile } = useProfile();
   const { stats } = useSessions();
