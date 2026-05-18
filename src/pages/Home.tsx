@@ -9,7 +9,6 @@ import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import Logo from "@/components/Logo";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useSessions } from "@/hooks/useSessions";
 import { useScore } from "@/hooks/useScore";
@@ -77,7 +76,6 @@ const Home = () => {
     setWeekSessions((weekRes.data || []).length);
   };
 
-  const { user } = useAuth();
   const { profile } = useProfile();
   const { stats } = useSessions();
   const isDemo = user?.email === DEMO_EMAIL;
