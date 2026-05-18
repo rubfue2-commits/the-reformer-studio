@@ -22,6 +22,8 @@ export default function Programs() {
   const { user } = useAuth();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [userProgress, setUserProgress] = useState<Record<string, UserProgress>>({});
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [programSessions, setProgramSessions] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadPrograms(); }, []);
@@ -37,6 +39,20 @@ export default function Programs() {
     setLoading(false);
   };
 
+
+  const loadProgramSessions = async (programId: string) => {
+    if (programSessions[programId]) {
+      setExpandedId(expandedId === programId ? null : programId);
+      return;
+    }
+    const { data } = await supabase
+      .from("program_sessions")
+      .select("*, workouts(name_fr, duration_minutes, difficulty)")
+      .eq("program_id", programId)
+      .order("order_index", { ascending: true });
+    setProgramSessions(prev => ({ ...prev, [programId]: data || [] }));
+    setExpandedId(programId);
+  };
   const startProgram = async (programId: string) => {
     if (!user) return;
     await supabase.from("user_program_progress").upsert({ user_id: user.id, program_id: programId, started_at: new Date().toISOString() }, { onConflict: "user_id,program_id" });
@@ -96,6 +112,32 @@ export default function Programs() {
                           <div style={{ height: "100%", backgroundColor: "#B8973E", borderRadius: 2, width: `${Math.min(100, ((progress.completed_sessions || 0) / (program.duration_weeks * 3)) * 100)}%`, transition: "width 0.4s" }} />
                         </div>
                         <p style={{ fontSize: 11, color: "#8B8578" }}>{progress.completed_sessions || 0} séances complétées</p>
+                      </div>
+                    )}
+
+                    {/* Bouton voir séances */}
+                    <button onClick={() => loadProgramSessions(program.id)}
+                      style={{ width: "100%", padding: "10px", border: "1px solid rgba(28,27,25,0.1)", borderRadius: 10, backgroundColor: "transparent", fontSize: 13, color: "#6B6560", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8 }}>
+                      <span>{expandedId === program.id ? "▲" : "▼"}</span>
+                      {expandedId === program.id ? "Masquer les séances" : "Voir les séances"}
+                    </button>
+
+                    {/* Liste des séances */}
+                    {expandedId === program.id && programSessions[program.id] && (
+                      <div style={{ backgroundColor: "rgba(28,27,25,0.03)", borderRadius: 12, padding: "8px 12px", marginBottom: 8 }}>
+                        {programSessions[program.id].length === 0 ? (
+                          <p style={{ fontSize: 12, color: "#8B8578", textAlign: "center", padding: "8px 0" }}>Séances à venir</p>
+                        ) : (
+                          programSessions[program.id].map((ps, i) => (
+                            <div key={ps.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: i < programSessions[program.id].length - 1 ? "1px solid rgba(28,27,25,0.05)" : "none" }}>
+                              <span style={{ width: 20, height: 20, borderRadius: "50%", backgroundColor: "#B8973E22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#B8973E", flexShrink: 0 }}>{i+1}</span>
+                              <div style={{ flex: 1 }}>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#1C1B19", margin: 0 }}>{ps.workouts?.name_fr || "Séance"}</p>
+                                <p style={{ fontSize: 11, color: "#8B8578", margin: 0 }}>{ps.workouts?.duration_minutes || 0} min · Sem. {ps.week_number}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
 
