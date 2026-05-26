@@ -21,8 +21,8 @@ const weekData = [
 ];
 
 const recentBadges = [
-  { icon: Flame,  label: `${streak} jours`,    color: "#B8973E" },
-  { icon: Star,   label: `${weekSessions} séances`, color: "#A78BFA" },
+  { icon: Flame,  label: `${monthStats.monthStats.streak || 0} jours`,    color: "#B8973E" },
+  { icon: Star,   label: `${monthStats.monthStats.weekSessions || 0} séances`, color: "#A78BFA" },
 ];
 
 const Home = () => {
@@ -30,8 +30,8 @@ const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [monthStats, setMonthStats] = useState({ sessions: 0, minutes: 0, completion: 0, level: 1 });
-  const [streak, setStreak] = useState(0);
-  const [weekSessions, setWeekSessions] = useState(0);
+  const [monthStats.streak, setStreak] = useState(0);
+  const [monthStats.weekSessions, setWeekSessions] = useState(0);
 
   useEffect(() => {
     if (user) loadStats();
@@ -52,7 +52,7 @@ const Home = () => {
     const totalMin = monthSessions.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
     const totalH = Math.round(totalMin / 60);
 
-    // Calcul streak
+    // Calcul monthStats.streak
     const dates = [...new Set((allRes.data || []).map(s => new Date(s.completed_at).toDateString()))];
     let s = 0;
     const today = new Date();
