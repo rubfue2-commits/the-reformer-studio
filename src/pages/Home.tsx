@@ -29,7 +29,10 @@ const Home = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [monthStats, setMonthStats] = useState({ sessions: 0, minutes: 0, completion: 0, level: 1 });
+  const [monthStats, setMonthStats] = useState({ sessions: 0, minutes: 0, completion: 0, level: 1, streak: 0, weekSessions: 0 });
+  // Aliases pour la compatibilité
+  const streak = monthStats.streak;
+  const weekSessions = monthStats.weekSessions;
   const [monthStats.streak, setStreak] = useState(0);
   const [monthStats.weekSessions, setWeekSessions] = useState(0);
 
