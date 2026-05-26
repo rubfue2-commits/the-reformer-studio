@@ -7,9 +7,7 @@ const config: CapacitorConfig = {
 
   server: {
     androidScheme: 'https',
-    // Pas de iosScheme — Capacitor utilise capacitor:// par défaut (obligatoire pour iOS)
     hostname: 'app',
-    cleartext: false,
   },
 
   ios: {
@@ -27,8 +25,6 @@ const config: CapacitorConfig = {
       launchAutoHide: true,
       backgroundColor: '#F5F3EE',
       showSpinner: false,
-      splashFullScreen: true,
-      splashImmersive: true,
     },
     StatusBar: {
       style: 'Light',
