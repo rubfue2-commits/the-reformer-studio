@@ -33,8 +33,6 @@ const Home = () => {
   // Aliases pour la compatibilité
   const streak = monthStats.streak;
   const weekSessions = monthStats.weekSessions;
-  const [monthStats.streak, setStreak] = useState(0);
-  const [monthStats.weekSessions, setWeekSessions] = useState(0);
 
   useEffect(() => {
     if (user) loadStats();
