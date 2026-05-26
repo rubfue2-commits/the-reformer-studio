@@ -332,8 +332,8 @@ const Home = () => {
             {[
               { value: String(displayTotalSessions), label: t("Séances","Sessions") },
               { value: displayTotalTime,              label: t("Temps total","Total time") },
-              { value: "92%",                         label: t("Complétion","Completion") },
-              { value: "Niv.3",                       label: t("Niveau XP","XP Level") },
+              { value: monthStats.completion + "%",   label: t("Complétion","Completion") },
+              { value: `Niv.${monthStats.level}`,                       label: t("Niveau XP","XP Level") },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
                 <p className="font-display text-xl text-foreground">{value}</p>
