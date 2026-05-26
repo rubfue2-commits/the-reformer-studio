@@ -7,7 +7,9 @@ const config: CapacitorConfig = {
 
   server: {
     androidScheme: 'https',
-    iosScheme: 'https',
+    // Pas de iosScheme — Capacitor utilise capacitor:// par défaut (obligatoire pour iOS)
+    hostname: 'app',
+    cleartext: false,
   },
 
   ios: {
@@ -16,8 +18,6 @@ const config: CapacitorConfig = {
     allowsLinkPreview: false,
     scrollEnabled: true,
     preferredContentMode: 'mobile',
-    // Toutes les orientations autorisées
-    // La rotation paysage ne s'active que dans le player vidéo
     limitsNavigationsToAppBoundDomains: false,
   },
 
