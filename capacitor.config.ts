@@ -5,20 +5,6 @@ const config: CapacitorConfig = {
   appName: 'Connect Reformer',
   webDir: 'dist',
 
-  server: {
-    androidScheme: 'https',
-    hostname: 'app',
-  },
-
-  ios: {
-    scheme: 'connectreformer',
-    backgroundColor: '#F5F3EE',
-    allowsLinkPreview: false,
-    scrollEnabled: true,
-    preferredContentMode: 'mobile',
-    limitsNavigationsToAppBoundDomains: false,
-  },
-
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
