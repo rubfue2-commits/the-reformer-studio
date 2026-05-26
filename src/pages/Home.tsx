@@ -21,8 +21,8 @@ const weekData = [
 ];
 
 const recentBadges = [
-  { icon: Flame,  label: `${monthStats.monthStats.streak || 0} jours`,    color: "#B8973E" },
-  { icon: Star,   label: `${monthStats.monthStats.weekSessions || 0} séances`, color: "#A78BFA" },
+  { icon: Flame,  label: `${monthStats.streak || 0} jours`,    color: "#B8973E" },
+  { icon: Star,   label: `${monthStats.weekSessions || 0} séances`, color: "#A78BFA" },
 ];
 
 const Home = () => {
