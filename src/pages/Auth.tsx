@@ -262,7 +262,7 @@ export default function Auth() {
                 {/* Email */}
                 <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
                   <Mail size={16} color="#B8B0A6" style={{ marginLeft: 16, flexShrink: 0 }} />
-                  <input type="email" placeholder="email@exemple.fr" value={email}
+                  <input type="email" placeholder="email@exemple.fr" value={email} autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false}
                     onChange={e => { setEmail(e.target.value); setError(""); }}
                     onKeyDown={e => e.key === "Enter" && (mode === "login" ? handleLogin() : handleReset())}
                     style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#1C1B19", padding: "14px 16px 14px 10px", backgroundColor: "transparent", fontFamily: "inherit" }} />
@@ -271,7 +271,7 @@ export default function Auth() {
                 {/* Mot de passe */}
                 {mode === "login" && (
                   <div style={{ display: "flex", alignItems: "center", ...inputStyle, padding: 0 }}>
-                    <input type={showPass ? "text" : "password"} placeholder="Mot de passe" value={password}
+                    <input type={showPass ? "text" : "password"} placeholder="Mot de passe" value={password} autoComplete="current-password"
                       onChange={e => { setPassword(e.target.value); setError(""); }}
                       onKeyDown={e => e.key === "Enter" && handleLogin()}
                       style={{ flex: 1, border: "none", outline: "none", fontSize: 15, color: "#1C1B19", padding: "14px 16px", backgroundColor: "transparent", fontFamily: "inherit" }} />
