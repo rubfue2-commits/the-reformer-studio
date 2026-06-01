@@ -28,7 +28,7 @@ const Profile = () => {
   const displayName = isDemo
     ? "Camille Laurent"
     : profile
-      ? `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || user?.email || ""
+      ? `${userProfile?.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || user?.email || ""
       : user?.email || "";
 
   const displayEmail = user?.email || "";
