@@ -1,147 +1,128 @@
-// supabase/functions/stripe-webhook/index.ts
-// Edge Function : reçoit et traite les événements Stripe
-// Déployer : supabase functions deploy stripe-webhook
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
-  apiVersion: "2024-06-20",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-const supabaseAdmin = createClient(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
+// Vérification signature Stripe
+async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
+  try {
+    const parts = signature.split(",").reduce((acc: Record<string, string>, part) => {
+      const [k, v] = part.split("=");
+      acc[k] = v;
+      return acc;
+    }, {});
+    
+    const timestamp = parts["t"];
+    const sig = parts["v1"];
+    const payload = timestamp + "." + body;
+    
+    const key = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+    );
+    const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+    const expected = Array.from(new Uint8Array(signed)).map(b => b.toString(16).padStart(2, "0")).join("");
+    
+    return expected === sig;
+  } catch {
+    return false;
+  }
+}
 
 serve(async (req) => {
-  const signature = req.headers.get("stripe-signature");
-  const body = await req.text();
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "";
-
-  // Verify Stripe signature
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(body, signature ?? "", webhookSecret);
-  } catch (err) {
-    console.error("Webhook signature verification failed:", err.message);
-    return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 400 });
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
-  console.log("Stripe event received:", event.type);
-
   try {
-    switch (event.type) {
-
-      // ── Checkout completed (first payment) ──────────────────────────────
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.user_id;
-        const plan = session.metadata?.plan;
-        if (!userId) break;
-
-        const updateData: Record<string, unknown> = {
-          user_id: userId,
-          plan: plan ?? "monthly",
-          status: "active",
-          stripe_customer_id: session.customer as string,
-          current_period_start: new Date().toISOString(),
-        };
-
-        // For subscriptions, get end date; for one-time (annual), set +1 year
-        if (session.subscription) {
-          const sub = await stripe.subscriptions.retrieve(session.subscription as string);
-          updateData.stripe_subscription_id = sub.id;
-          updateData.stripe_price_id = sub.items.data[0].price.id;
-          updateData.current_period_end = new Date(sub.current_period_end * 1000).toISOString();
-        } else {
-          // Annual one-time payment — 12 months access
-          const end = new Date();
-          end.setFullYear(end.getFullYear() + 1);
-          updateData.current_period_end = end.toISOString();
-        }
-
-        await supabaseAdmin.from("subscriptions").upsert(updateData, { onConflict: "user_id" });
-        console.log("Subscription activated for user:", userId);
-        break;
+    const body = await req.text();
+    const signature = req.headers.get("stripe-signature") || "";
+    
+    // Vérifier la signature Stripe
+    if (STRIPE_WEBHOOK_SECRET) {
+      const valid = await verifyStripeSignature(body, signature, STRIPE_WEBHOOK_SECRET);
+      if (!valid) {
+        return new Response("Invalid signature", { status: 400 });
       }
-
-      // ── Recurring invoice paid ────────────────────────────────────────────
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId = invoice.customer as string;
-
-        const { data: sub } = await supabaseAdmin
-          .from("subscriptions")
-          .select("user_id")
-          .eq("stripe_customer_id", customerId)
-          .single();
-
-        if (sub) {
-          const stripeSub = await stripe.subscriptions.retrieve(invoice.subscription as string);
-          await supabaseAdmin.from("subscriptions").update({
-            status: "active",
-            current_period_start: new Date(stripeSub.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
-          }).eq("user_id", sub.user_id);
-        }
-        break;
-      }
-
-      // ── Payment failed ────────────────────────────────────────────────────
-      case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId = invoice.customer as string;
-
-        await supabaseAdmin.from("subscriptions")
-          .update({ status: "past_due" })
-          .eq("stripe_customer_id", customerId);
-
-        console.log("Payment failed for customer:", customerId);
-        break;
-      }
-
-      // ── Subscription canceled ─────────────────────────────────────────────
-      case "customer.subscription.deleted": {
-        const stripeSub = event.data.object as Stripe.Subscription;
-        const customerId = stripeSub.customer as string;
-
-        await supabaseAdmin.from("subscriptions")
-          .update({
-            status: "canceled",
-            canceled_at: new Date().toISOString(),
-          })
-          .eq("stripe_customer_id", customerId);
-
-        console.log("Subscription canceled for customer:", customerId);
-        break;
-      }
-
-      // ── Subscription updated (plan change, renewal) ───────────────────────
-      case "customer.subscription.updated": {
-        const stripeSub = event.data.object as Stripe.Subscription;
-        const customerId = stripeSub.customer as string;
-
-        await supabaseAdmin.from("subscriptions").update({
-          status: stripeSub.status === "active" ? "active" : stripeSub.status as string,
-          current_period_start: new Date(stripeSub.current_period_start * 1000).toISOString(),
-          current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
-          canceled_at: stripeSub.canceled_at ? new Date(stripeSub.canceled_at * 1000).toISOString() : null,
-        }).eq("stripe_customer_id", customerId);
-        break;
-      }
-
-      default:
-        console.log("Unhandled event type:", event.type);
     }
-  } catch (err) {
-    console.error("Error processing webhook event:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
-  }
 
-  return new Response(JSON.stringify({ received: true }), {
-    headers: { "Content-Type": "application/json" },
-  });
+    const event = JSON.parse(body);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    console.log("Stripe event:", event.type);
+
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        const customerEmail = session.customer_details?.email || session.customer_email;
+        const customerId = session.customer;
+        
+        if (customerEmail) {
+          // Trouver l'utilisateur par email
+          const { data: authUsers } = await supabase.auth.admin.listUsers();
+          const user = authUsers?.users?.find(u => u.email === customerEmail);
+          
+          if (user) {
+            await supabase.from("profiles").update({
+              has_active_subscription: true,
+              stripe_customer_id: customerId,
+            }).eq("id", user.id);
+            console.log("Subscription activated for:", customerEmail);
+          }
+        }
+        break;
+      }
+
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const subscription = event.data.object;
+        const customerId = subscription.customer;
+        const isActive = ["active", "trialing"].includes(subscription.status);
+        
+        // Trouver par stripe_customer_id
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+          
+        if (profile) {
+          await supabase.from("profiles").update({
+            has_active_subscription: isActive,
+          }).eq("id", profile.id);
+          console.log("Subscription updated:", customerId, "active:", isActive);
+        }
+        break;
+      }
+
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object;
+        const customerId = subscription.customer;
+        
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+          
+        if (profile) {
+          await supabase.from("profiles").update({
+            has_active_subscription: false,
+          }).eq("id", profile.id);
+          console.log("Subscription cancelled:", customerId);
+        }
+        break;
+      }
+    }
+
+    return new Response(JSON.stringify({ received: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return new Response("Webhook error: " + err.message, { status: 500 });
+  }
 });
