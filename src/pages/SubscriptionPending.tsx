@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function SubscriptionPending() {
   const { profile, refreshProfile, signOut } = useAuth();
   const [checking, setChecking] = useState(false);
+  const [plan, setPlan] = useState<'monthly' | 'annual'>('monthly');
 
   const checkSubscription = async () => {
     setChecking(true);
@@ -57,7 +58,21 @@ export default function SubscriptionPending() {
             </div>
           ))}
 
-          <button onClick={() => window.open("https://connectreformer.com/inscription", "_system")}
+          {/* Sélecteur de plan */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {[
+              { key: 'monthly', label: '56€/mois', sub: 'Mensuel' },
+              { key: 'annual', label: '588€/an', sub: '49€/mois — Économie 84€' },
+            ].map(p => (
+              <button key={p.key} onClick={() => setPlan(p.key as any)}
+                style={{ flex: 1, padding: "12px 8px", borderRadius: 12, border: plan === p.key ? "2px solid #B8973E" : "1px solid rgba(28,27,25,0.1)", backgroundColor: plan === p.key ? "#B8973E15" : "white", cursor: "pointer", fontFamily: "inherit" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#1C1B19", margin: 0 }}>{p.label}</p>
+                <p style={{ fontSize: 10, color: "#8B8578", margin: 0 }}>{p.sub}</p>
+              </button>
+            ))}
+          </div>
+
+          <button onClick={() => window.open(plan === 'annual' ? "https://buy.stripe.com/test_dRmcMY3Uz91f02hcoN0RG03" : "https://buy.stripe.com/test_14AeV68aPcdrg1f1K90RG02", "_system")}
             style={{ width: "100%", marginTop: 20, padding: "14px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}>
             Finaliser mon inscription
             <ExternalLink size={15} />
