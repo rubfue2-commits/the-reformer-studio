@@ -8,7 +8,7 @@ import BottomNav from "@/components/BottomNav";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [streak, setStreak] = useState(0);
   const [weekSessions, setWeekSessions] = useState(0);
@@ -77,7 +77,9 @@ export default function Home() {
 
         {/* Header */}
         <div className="mb-8">
-          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Bonjour</p>
+          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+            {profile?.first_name ? `Bonjour, ${profile.first_name} 👋` : "Bonjour 👋"}
+          </p>
           <h1 className="font-display text-3xl font-light text-foreground">Prête à bouger ?</h1>
         </div>
 
