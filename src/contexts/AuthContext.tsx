@@ -1,26 +1,25 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
-interface SignUpParams {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  language: string;
-  referralCode?: string;
+interface Profile {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar_url?: string;
+  subscription_status?: string;
+  created_at?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (params: SignUpParams) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<{ error: any }>;
-  signInWithApple: () => Promise<{ error: any }>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,115 +27,58 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  // loading = true tant qu'on n'a pas vérifié la session persistée
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Récupérer la session déjà persistée (localStorage iOS)
-    //    → si l'utilisateur était connecté, on le retrouve ici sans prompt
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) loadProfile(session.user.id);
+      else setLoading(false);
     });
 
-    // 2. Écouter les changements de session (login, logout, refresh token)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) loadProfile(session.user.id);
+      else { setProfile(null); setLoading(false); }
+    });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email, avatar_url, subscription_status, created_at")
+        .eq("id", userId)
+        .maybeSingle();
+      setProfile(data);
+    } catch (e) {
+      console.error("loadProfile error:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) await loadProfile(user.id);
+  };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
-  const signUp = async ({ email, password, firstName, lastName, language, referralCode }: SignUpParams) => {
-    // 1. Créer le compte
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          language,
-          referral_code_used: referralCode || null,
-        },
-      },
-    });
-
-    // 2. Si code parrainage fourni — vérifier et enregistrer
-    if (!error && data.user && referralCode) {
-      try {
-        // Vérifier que le code existe
-        const { data: codeData } = await supabase
-          .from('referral_codes')
-          .select('user_id, code')
-          .eq('code', referralCode.toUpperCase())
-          .single();
-
-        if (codeData) {
-          // Créer le parrainage en base
-          await supabase.from('referrals').insert({
-            referrer_id: codeData.user_id,
-            referred_id: data.user.id,
-            referred_email: email,
-            code_used: referralCode.toUpperCase(),
-            status: 'pending',
-          });
-        }
-      } catch (e) {
-        // Le code est invalide — on ne bloque pas l'inscription
-        console.log('Referral code invalid or already used:', referralCode);
-      }
-    }
-
-    return { error };
-  };
-
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-  };
-
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    return { error };
-  };
-
-  const signInWithApple = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: { redirectTo: window.location.origin },
-    });
-    return { error };
-  };
-
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { error };
+    setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{
-      user, session, loading,
-      signIn, signUp, signOut,
-      signInWithGoogle, signInWithApple,
-      resetPassword,
-    }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signIn, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
