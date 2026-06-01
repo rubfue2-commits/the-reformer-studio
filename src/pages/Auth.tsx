@@ -1,3 +1,4 @@
+import { App } from "@capacitor/app";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, Mail } from "lucide-react";
@@ -73,6 +74,43 @@ export default function Auth() {
       }
     })();
   }, []); // ← deps vide = une seule exécution au montage, jamais relancé
+
+  // Écouter les deep links (Magic Link depuis email)
+  useEffect(() => {
+    const handleDeepLink = async ({ url }: { url: string }) => {
+      if (url.includes('access_token') || url.includes('token_hash')) {
+        try {
+          // Extraire les tokens du deep link
+          const params = new URLSearchParams(url.split('?')[1] || url.split('#')[1] || '');
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          
+          if (accessToken) {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || '',
+            });
+            if (!error) {
+              navigate("/home", { replace: true });
+            }
+          }
+        } catch (e) {
+          console.error("Deep link error:", e);
+        }
+      }
+    };
+
+    const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+    if (isNative) {
+      App.addListener('appUrlOpen', handleDeepLink);
+      // Vérifier si l'app a été ouverte avec un deep link
+      App.getLaunchUrl().then(({ url }) => { if (url) handleDeepLink({ url }); });
+    }
+
+    return () => { if (isNative) App.removeAllListeners(); };
+  }, []);
+
 
   // ── Face ID manuel (bouton) ────────────────────────────────
   const handleFaceIdManual = async () => {
