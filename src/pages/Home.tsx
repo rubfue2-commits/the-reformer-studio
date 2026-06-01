@@ -1,3 +1,4 @@
+import WelcomeModal from "@/components/WelcomeModal";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Flame, Clock, Trophy, Star } from "lucide-react";
@@ -17,9 +18,18 @@ export default function Home() {
   const [completion, setCompletion] = useState(0);
   const [level, setLevel] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    if (user) loadStats();
+    if (user) {
+      loadStats();
+      // Afficher le popup uniquement à la première connexion
+      const key = `welcome_shown_${user.id}`;
+      if (!localStorage.getItem(key)) {
+        setTimeout(() => setShowWelcome(true), 800);
+        localStorage.setItem(key, "true");
+      }
+    }
   }, [user]);
 
   const loadStats = async () => {
@@ -137,6 +147,14 @@ export default function Home() {
 
       </div>
       <BottomNav />
+
+      {/* Modal de bienvenue — première connexion */}
+      {showWelcome && (
+        <WelcomeModal
+          firstName={profile?.first_name}
+          onClose={() => setShowWelcome(false)}
+        />
+      )}
     </MobileLayout>
   );
 }
