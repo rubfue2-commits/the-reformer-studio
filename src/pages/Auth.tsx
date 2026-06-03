@@ -23,6 +23,7 @@ export default function Auth() {
   const [biometryAvailable, setBiometryAvailable] = useState(false);
 
   // ── Garde strict — Face ID ne se lance QU'UNE seule fois ──
+  const launched = useRef(false);
 
   useEffect(() => {
     // Bloquer tout second appel
