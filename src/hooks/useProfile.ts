@@ -26,7 +26,7 @@ export function useProfile(): UseProfileResult {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     if (err) setError(err.message);
     else { setProfile(data as Profile); setError(null); }
     setLoading(false);
