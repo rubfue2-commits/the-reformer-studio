@@ -18,7 +18,6 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ── Garde strict — Face ID ne se lance QU'UNE seule fois ──
   const launched = useRef(false);
 
   useEffect(() => {
@@ -34,12 +33,10 @@ export default function Auth() {
       return;
     }
 
-    // Sur iPhone → tenter Face ID une seule fois
     (async () => {
       try {
 
         if (!info.isAvailable) {
-          // Pas de Face ID configuré → formulaire
           setMode("login");
           return;
         }
@@ -95,7 +92,6 @@ export default function Auth() {
   }, []);
 
 
-  // ── Face ID manuel (bouton) ────────────────────────────────
     setError("");
     try {
       navigate("/home", { replace: true });
@@ -169,45 +165,6 @@ export default function Auth() {
 
       <AnimatePresence mode="wait">
 
-        {/* ── Écran Face ID ── */}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-            style={{ width: "100%", maxWidth: 380, textAlign: "center" }}>
-
-            <div style={{ backgroundColor: "white", borderRadius: 24, padding: "40px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
-              {/* Icône */}
-              <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#1C1B19", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2.5px solid rgba(255,255,255,0.2)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} />
-                ) : (
-                  <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
-                    <rect x="2" y="2" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
-                    <rect x="29" y="2" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
-                    <rect x="2" y="29" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
-                    <rect x="29" y="29" width="9" height="9" rx="2.5" stroke="#B8973E" strokeWidth="2"/>
-                    <circle cx="14" cy="16" r="2" fill="white"/>
-                    <circle cx="26" cy="16" r="2" fill="white"/>
-                    <path d="M14 26 C14 26 17 29 20 29 C23 29 26 26 26 26" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-                    <path d="M20 16 L20 22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                )}
-              </div>
-
-              <p style={{ fontSize: 19, fontWeight: 600, color: "#1C1B19", margin: "0 0 8px" }}>
-              </p>
-              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 28px", lineHeight: 1.5 }}>
-              </p>
-
-                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                  Utiliser Face ID
-                </button>
-              )}
-            </div>
-
-            <button onClick={() => setMode("login")}
-              style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit", padding: 8 }}>
-              Utiliser mon email et mot de passe
-            </button>
-          </motion.div>
-        )}
 
         {/* ── Formulaire login / reset ── */}
         {(mode === "login" || mode === "reset") && (
@@ -276,7 +233,6 @@ export default function Auth() {
                   )}
                   {biometryAvailable && mode === "login" && (
                       style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                      Utiliser Face ID
                     </button>
                   )}
                 </div>
