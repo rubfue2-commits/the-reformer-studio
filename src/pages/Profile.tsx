@@ -53,8 +53,8 @@ const Profile = () => {
 
   const menuItems = [
     { icon: Bell,         label: t("Notifications", "Notifications"), action: () => navigate("/notifications") },
-    { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => {} },
-    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => {} },
+    { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => navigate("/subscription") },
+    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => { window.open("mailto:hello@connectreformer.com", "_blank"); } },
   ];
 
   const quickLinks = [
