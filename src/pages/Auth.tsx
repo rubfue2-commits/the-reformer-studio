@@ -15,10 +15,8 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [bioLoading, setBioLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [biometryAvailable, setBiometryAvailable] = useState(false);
 
   // ── Garde strict — Face ID ne se lance QU'UNE seule fois ──
   const launched = useRef(false);
@@ -46,23 +44,13 @@ export default function Auth() {
           return;
         }
 
-        setBiometryAvailable(true);
-        setBioLoading(true);
 
         try {
-            reason: "Accédez à votre espace Connect Reformer",
-            cancelTitle: "Utiliser email et mot de passe",
-            allowDeviceCredential: false,
-            iosFallbackTitle: "Utiliser email et mot de passe",
-          });
-          // ✅ Face ID validé → accès immédiat
           navigate("/home", { replace: true });
         } catch {
-          // ❌ Face ID échoué ou annulé → formulaire directement
           setMode("login");
         }
 
-        setBioLoading(false);
       } catch {
         // Erreur inattendue → formulaire
         setMode("login");
@@ -108,20 +96,12 @@ export default function Auth() {
 
 
   // ── Face ID manuel (bouton) ────────────────────────────────
-    if (bioLoading) return;
-    setBioLoading(true);
     setError("");
     try {
-        reason: "Accédez à votre espace Connect Reformer",
-        cancelTitle: "Utiliser email et mot de passe",
-        allowDeviceCredential: false,
-        iosFallbackTitle: "Utiliser email et mot de passe",
-      });
       navigate("/home", { replace: true });
     } catch {
       setMode("login");
     }
-    setBioLoading(false);
   };
 
   // ── Connexion email/mot de passe ───────────────────────────
@@ -196,7 +176,6 @@ export default function Auth() {
             <div style={{ backgroundColor: "white", borderRadius: 24, padding: "40px 24px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               {/* Icône */}
               <div style={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "#1C1B19", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                {bioLoading ? (
                   <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2.5px solid rgba(255,255,255,0.2)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} />
                 ) : (
                   <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
@@ -213,13 +192,10 @@ export default function Auth() {
               </div>
 
               <p style={{ fontSize: 19, fontWeight: 600, color: "#1C1B19", margin: "0 0 8px" }}>
-                {bioLoading ? "Vérification..." : "Connexion avec Face ID"}
               </p>
               <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 28px", lineHeight: 1.5 }}>
-                {bioLoading ? "Regardez votre iPhone" : "Face ID s'ouvre automatiquement"}
               </p>
 
-              {!bioLoading && (
                   style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                   Utiliser Face ID
                 </button>
