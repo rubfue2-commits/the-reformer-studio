@@ -6,13 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 
-type Mode = "faceId" | "login" | "reset";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
-  const [mode, setMode] = useState<Mode>("faceId");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -41,8 +39,6 @@ export default function Auth() {
     // Sur iPhone → tenter Face ID une seule fois
     (async () => {
       try {
-        const { BiometricAuth } = await import("@aparajita/capacitor-biometric-auth");
-        const info = await BiometricAuth.checkBiometry();
 
         if (!info.isAvailable) {
           // Pas de Face ID configuré → formulaire
@@ -54,7 +50,6 @@ export default function Auth() {
         setBioLoading(true);
 
         try {
-          await BiometricAuth.authenticate({
             reason: "Accédez à votre espace Connect Reformer",
             cancelTitle: "Utiliser email et mot de passe",
             allowDeviceCredential: false,
@@ -113,13 +108,10 @@ export default function Auth() {
 
 
   // ── Face ID manuel (bouton) ────────────────────────────────
-  const handleFaceIdManual = async () => {
     if (bioLoading) return;
     setBioLoading(true);
     setError("");
     try {
-      const { BiometricAuth } = await import("@aparajita/capacitor-biometric-auth");
-      await BiometricAuth.authenticate({
         reason: "Accédez à votre espace Connect Reformer",
         cancelTitle: "Utiliser email et mot de passe",
         allowDeviceCredential: false,
@@ -198,8 +190,6 @@ export default function Auth() {
       <AnimatePresence mode="wait">
 
         {/* ── Écran Face ID ── */}
-        {mode === "faceId" && (
-          <motion.div key="faceId"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
             style={{ width: "100%", maxWidth: 380, textAlign: "center" }}>
 
@@ -230,7 +220,6 @@ export default function Auth() {
               </p>
 
               {!bioLoading && (
-                <button onClick={handleFaceIdManual}
                   style={{ width: "100%", padding: "15px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                   Utiliser Face ID
                 </button>
@@ -310,7 +299,6 @@ export default function Auth() {
                     </button>
                   )}
                   {biometryAvailable && mode === "login" && (
-                    <button onClick={handleFaceIdManual} disabled={bioLoading}
                       style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                       Utiliser Face ID
                     </button>
