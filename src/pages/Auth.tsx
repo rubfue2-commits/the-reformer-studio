@@ -231,10 +231,6 @@ export default function Auth() {
                       ← Retour à la connexion
                     </button>
                   )}
-                  {biometryAvailable && mode === "login" && (
-                      style={{ background: "none", border: "none", color: "#B8973E", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
