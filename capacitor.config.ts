@@ -4,26 +4,21 @@ const config: CapacitorConfig = {
   appId: 'com.connectreformer.app',
   appName: 'Connect Reformer',
   webDir: 'dist',
-
+  server: {
+    androidScheme: 'https'
+  },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 2500,
       launchAutoHide: true,
-      backgroundColor: '#F5F3EE',
+      backgroundColor: '#F2EDE4',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
       showSpinner: false,
-    },
-    StatusBar: {
-      style: 'Light',
-      backgroundColor: '#F5F3EE',
-      overlaysWebView: false,
-    },
-    Keyboard: {
-      resize: 'body',
-      style: 'light',
-      resizeOnFullScreen: true,
-    },
-    PushNotifications: {
-      presentationOptions: ['badge', 'sound', 'alert'],
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#B8922A',
+      splashFullScreen: true,
+      splashImmersive: true,
     },
   },
 };
