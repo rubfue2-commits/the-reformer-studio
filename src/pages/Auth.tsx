@@ -37,12 +37,17 @@ export default function Auth() {
         if (err) throw err;
         navigate("/home", { replace: true });
       } else {
-        const { error: err } = await supabase.auth.resetPasswordForEmail(email);
+        const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: 'https://connectreformer.com/reset-password',
+        });
         if (err) throw err;
-        setSuccess("Email de réinitialisation envoyé !");
+        setSuccess("Email envoyé ! Vérifiez votre boîte mail (et vos spams) pour réinitialiser votre mot de passe.");
       }
     } catch (err: any) {
-      setError(err.message || "Une erreur est survenue");
+      const msg = err.message || "";
+      if (msg.includes("Invalid login")) setError("Email ou mot de passe incorrect.");
+      else if (msg.includes("Email not confirmed")) setError("Veuillez confirmer votre email avant de vous connecter.");
+      else setError(msg || "Une erreur est survenue, réessayez.");
     } finally {
       setLoading(false);
     }
@@ -80,53 +85,65 @@ export default function Auth() {
 
           <div style={{ backgroundColor: "white", borderRadius: 24, padding: "36px 28px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1C1B19", marginBottom: 6, textAlign: "center" }}>
-              {mode === "login" ? "Connexion" : mode === "signup" ? "Créer un compte" : "Réinitialiser"}
+              {mode === "login" ? "Connexion" : mode === "signup" ? "Créer un compte" : "Mot de passe oublié"}
             </h2>
             <p style={{ fontSize: 13, color: "#8B8578", marginBottom: 24, textAlign: "center" }}>
-              {mode === "login" ? "Accédez à votre espace" : mode === "signup" ? "Rejoignez Connect Reformer" : "Entrez votre email"}
+              {mode === "login" ? "Accédez à votre espace" : mode === "signup" ? "Rejoignez Connect Reformer" : "Entrez votre email pour recevoir un lien de réinitialisation"}
             </p>
 
-            <form onSubmit={handleSubmit}>
-              {mode === "signup" && (
-                <>
-                  <input style={inp} type="text" placeholder="Prénom" value={firstName} onChange={e => setFirstName(e.target.value)} required />
-                  <input style={inp} type="text" placeholder="Nom" value={lastName} onChange={e => setLastName(e.target.value)} required />
-                </>
-              )}
-              <input style={inp} type="email" placeholder="Adresse email" value={email} onChange={e => setEmail(e.target.value)} required />
-              {mode !== "reset" && (
-                <input style={inp} type="password" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} required />
-              )}
-
-              {error && <div style={{ color: "#E53935", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{error}</div>}
-              {success && <div style={{ color: "#2E7D32", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{success}</div>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{ width: "100%", padding: "15px", backgroundColor: "#B8922A", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: loading ? 0.7 : 1, marginTop: 4 }}
-              >
-                {loading ? "..." : mode === "login" ? "Se connecter" : mode === "signup" ? "Créer mon compte" : "Envoyer"}
-              </button>
-            </form>
-
-            <div style={{ marginTop: 20, textAlign: "center", display: "flex", flexDirection: "column", gap: 10 }}>
-              {mode === "login" && (
-                <>
-                  <button onClick={() => { setMode("reset"); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                    Mot de passe oublié ?
-                  </button>
-                  <button onClick={() => { setMode("signup"); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: "#B8922A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    Créer un compte
-                  </button>
-                </>
-              )}
-              {(mode === "signup" || mode === "reset") && (
-                <button onClick={() => { setMode("login"); setError(""); setSuccess(""); }} style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                  Retour à la connexion
+            {success ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <div style={{ fontSize: 40, marginBottom: 16 }}>✉️</div>
+                <p style={{ color: "#2E7D32", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>{success}</p>
+                <button
+                  onClick={() => { setMode("login"); setSuccess(""); setEmail(""); }}
+                  style={{ background: "none", border: "none", color: "#B8922A", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+                >
+                  Retour à la connexion →
                 </button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                {mode === "signup" && (
+                  <>
+                    <input style={inp} type="text" placeholder="Prénom" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+                    <input style={inp} type="text" placeholder="Nom" value={lastName} onChange={e => setLastName(e.target.value)} required />
+                  </>
+                )}
+                <input style={inp} type="email" placeholder="Adresse email" value={email} onChange={e => setEmail(e.target.value)} required />
+                {mode !== "reset" && (
+                  <input style={inp} type="password" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} required />
+                )}
+                {error && <div style={{ color: "#E53935", fontSize: 13, marginBottom: 10, textAlign: "center", lineHeight: 1.4 }}>{error}</div>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{ width: "100%", padding: "15px", backgroundColor: "#B8922A", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: loading ? 0.7 : 1, marginTop: 4 }}
+                >
+                  {loading ? "..." : mode === "login" ? "Se connecter" : mode === "signup" ? "Créer mon compte" : "Envoyer le lien"}
+                </button>
+              </form>
+            )}
+
+            {!success && (
+              <div style={{ marginTop: 20, textAlign: "center", display: "flex", flexDirection: "column", gap: 10 }}>
+                {mode === "login" && (
+                  <>
+                    <button onClick={() => { setMode("reset"); setError(""); }} style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                      Mot de passe oublié ?
+                    </button>
+                    <button onClick={() => { setMode("signup"); setError(""); }} style={{ background: "none", border: "none", color: "#B8922A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      Créer un compte
+                    </button>
+                  </>
+                )}
+                {(mode === "signup" || mode === "reset") && (
+                  <button onClick={() => { setMode("login"); setError(""); }} style={{ background: "none", border: "none", color: "#8B8578", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                    Retour à la connexion
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       </AnimatePresence>
