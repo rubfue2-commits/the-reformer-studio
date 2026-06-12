@@ -54,7 +54,7 @@ const Profile = () => {
   const menuItems = [
     { icon: Bell,         label: t("Notifications", "Notifications"), action: () => navigate("/notifications") },
     { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => navigate("/preferences") },
-    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => { window.location.href = "mailto:hello@connectreformer.com"; } },
+    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => navigate("/support") },
   ];
 
   const quickLinks = [
