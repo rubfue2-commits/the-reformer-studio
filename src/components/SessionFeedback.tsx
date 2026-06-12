@@ -29,10 +29,10 @@ type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 type FeelLevel = "terrible" | "moyen" | "bien" | "super" | "excellent";
 
 const FEEL_OPTIONS: { id: FeelLevel; emoji: string; label: string; color: string }[] = [
-  { id: "terrible",  emoji: "😩", label: t("Difficile", "Hard"),  color: "#EF4444" },
-  { id: "moyen",     emoji: "😕", label: t("Moyen", "Medium"),      color: "#F97316" },
-  { id: "bien",      emoji: "😊", label: t("Bien", "Good"),       color: "#B8973E" },
-  { id: "super",     emoji: "😄", label: t("Super", "Great"),      color: "#4CAF50" },
+  { id: "terrible",  emoji: "😩", label_fr: "Difficile", label_en: "Hard",  color: "#EF4444" },
+  { id: "moyen",     emoji: "😕", label_fr: "Moyen", label_en: "Medium",      color: "#F97316" },
+  { id: "bien",      emoji: "😊", label_fr: "Bien", label_en: "Good",       color: "#B8973E" },
+  { id: "super",     emoji: "😄", label_fr: "Super", label_en: "Great",      color: "#4CAF50" },
   { id: "excellent", emoji: "🔥", label: "Excellent!", color: "#6366F1" },
 ];
 
@@ -208,7 +208,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
                     border: feel === opt.id ? `1.5px solid ${opt.color}` : "1px solid var(--border)"
                   }}>
                   <span style={{ fontSize: 22 }}>{opt.emoji}</span>
-                  <span className="font-body text-[9px] text-muted-foreground">{opt.label}</span>
+                  <span className="font-body text-[9px] text-muted-foreground">{t(opt.label_fr, opt.label_en)}</span>
                 </button>
               ))}
             </div>
@@ -343,7 +343,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
             <div className="flex items-center justify-between">
               <span className="font-body text-xs text-muted-foreground">Ressenti</span>
               <span className="font-body text-sm" style={{ color: feelData.color }}>
-                {feelData.emoji} {feelData.label}
+                {feelData.emoji} {t(feelData.label_fr, feelData.label_en)}
               </span>
             </div>
             <div className="flex items-center justify-between">

@@ -12,9 +12,9 @@ interface Session { id: string; name_fr: string; description_fr: string; duratio
 interface Review { rating: number; comment: string | null; }
 
 const DIFF: Record<string, { label: string; color: string; bg: string }> = {
-  beginner:     { label: t("Débutant", "Beginner"),      color: "#16A34A", bg: "rgba(22,163,74,0.1)" },
-  intermediate: { label: t("Intermédiaire", "Intermediate"), color: "#B8973E", bg: "rgba(184,151,62,0.1)" },
-  advanced:     { label: t("Avancé", "Advanced"),        color: "#EF4444", bg: "rgba(239,68,68,0.1)" },
+  beginner:     { label_fr: "Débutant", label_en: "Beginner",      color: "#16A34A", bg: "rgba(22,163,74,0.1)" },
+  intermediate: { label_fr: "Intermédiaire", label_en: "Intermediate", color: "#B8973E", bg: "rgba(184,151,62,0.1)" },
+  advanced:     { label_fr: "Avancé", label_en: "Advanced",        color: "#EF4444", bg: "rgba(239,68,68,0.1)" },
 };
 
 function StarRating({ value, onChange, readonly = false }: { value: number; onChange?: (v: number) => void; readonly?: boolean }) {
@@ -256,7 +256,7 @@ export default function VideoLibrary() {
                                   <Clock size={11} /> {session.duration_minutes} min
                                 </span>
                                 {session.estimated_calories && <span style={{ fontSize: 11, color: "#8B8578" }}>~{session.estimated_calories} kcal</span>}
-                                <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6, backgroundColor: diff.bg, color: diff.color }}>{diff.label}</span>
+                                <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6, backgroundColor: diff.bg, color: diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
                               </div>
                             </div>
                           </div>
@@ -396,7 +396,7 @@ export default function VideoLibrary() {
                           </div>
                           <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
                             <span style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#8B8578" }}><Clock size={11}/> {s.duration_minutes} min</span>
-                            <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor:diff.bg, color:diff.color }}>{diff.label}</span>
+                            <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor:diff.bg, color:diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
                             <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : t("Pilates au sol", "Mat Pilates")}</span>
                             {s.body_zone && <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(ZONES.find(z => z.key === s.body_zone)?.label) || s.body_zone}</span>}
                             {cat && <span style={{ fontSize:11, color:"#B8973E" }}>{cat.emoji} {cat.name_fr}</span>}
