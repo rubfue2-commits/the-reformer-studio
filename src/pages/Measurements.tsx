@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Keyboard } from "@capacitor/keyboard";
@@ -29,12 +30,12 @@ interface Measurement {
 const DECREASING_IS_GOOD = ['weight_kg','waist_cm','hips_cm','thigh_cm','chest_cm','arm_cm'];
 
 const FIELDS = [
-  { key: "weight_kg", label: "Poids",           unit: "kg", emoji: "⚖️", color: "#B8973E" },
-  { key: "waist_cm",  label: "Tour de taille",   unit: "cm", emoji: "📏", color: "#EC4899" },
-  { key: "hips_cm",   label: "Tour de hanches",  unit: "cm", emoji: "📐", color: "#8B5CF6" },
-  { key: "chest_cm",  label: "Tour de poitrine", unit: "cm", emoji: "💪", color: "#3B82F6" },
-  { key: "thigh_cm",  label: "Tour de cuisses",  unit: "cm", emoji: "🦵", color: "#10B981" },
-  { key: "arm_cm",    label: "Tour de bras",     unit: "cm", emoji: "💪", color: "#F97316" },
+  { key: "weight_kg", label_fr: "Poids",           label_en: "Weight",      unit: "kg", emoji: "⚖️", color: "#B8973E" },
+  { key: "waist_cm",  label_fr: "Tour de taille",  label_en: "Waist",       unit: "cm", emoji: "📏", color: "#EC4899" },
+  { key: "hips_cm",   label_fr: "Tour de hanches", label_en: "Hips",        unit: "cm", emoji: "📐", color: "#8B5CF6" },
+  { key: "chest_cm",  label_fr: "Tour de poitrine",label_en: "Chest",       unit: "cm", emoji: "💪", color: "#3B82F6" },
+  { key: "thigh_cm",  label_fr: "Tour de cuisses", label_en: "Thigh",       unit: "cm", emoji: "🦵", color: "#10B981" },
+  { key: "arm_cm",    label_fr: "Tour de bras",    label_en: "Arm",         unit: "cm", emoji: "💪", color: "#F97316" },
 ];
 
 // ── Graphique SVG smooth ──────────────────────────────────────
@@ -69,7 +70,7 @@ function MetricChart({ data, field, color, label, unit }: {
     <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-4">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
         <div>
-          <p className="font-body text-sm font-semibold text-foreground">{label}</p>
+          <p className="font-body text-sm font-semibold text-foreground">{t(label_fr, label_en)}</p>
           <p className="font-body text-[11px] text-muted-foreground">
             {values.length} mesures · depuis {new Date(data[0].measured_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}
           </p>
@@ -248,7 +249,7 @@ export default function Measurements() {
           </button>
           <div className="flex-1">
             <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Bien-être</p>
-            <h1 className="font-display text-2xl font-light text-foreground">Mensurations</h1>
+            <h1 className="font-display text-2xl font-light text-foreground">t("Mensurations", "Measurements")</h1>
           </div>
           <button onClick={() => setShowForm(true)}
             style={{ width:36, height:36, borderRadius:"50%", backgroundColor:"#B8973E", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -260,7 +261,7 @@ export default function Measurements() {
         {measurements.length === 0 && !showForm && (
           <div style={{ textAlign:"center", padding:"48px 20px" }}>
             <p style={{ fontSize:40, marginBottom:16 }}>📏</p>
-            <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>Première prise</p>
+            <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>t("Première prise", "First entry")</p>
             <p style={{ fontSize:13, color:"#8B8578", lineHeight:1.7, maxWidth:240, margin:"0 auto 24px" }}>
               Enregistre tes premières mensurations pour visualiser ton évolution au fil du temps.
             </p>
@@ -289,7 +290,7 @@ export default function Measurements() {
                     return (
                       <button key={f.key} onClick={() => setActiveMetric(f.key)}
                         style={{ background: selectedMetric===f.key ? f.color+"15" : "white", borderRadius:16, padding:"12px 14px", border: selectedMetric===f.key ? `1.5px solid ${f.color}40` : "1px solid rgba(28,27,25,0.08)", cursor:"pointer", textAlign:"left", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
-                        <p style={{ fontSize:12, color:"#8B8578", marginBottom:4 }}>{f.emoji} {f.label}</p>
+                        <p style={{ fontSize:12, color:"#8B8578", marginBottom:4 }}>{f.emoji} {t(f.label_fr, f.label_en)}</p>
                         <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between" }}>
                           <p style={{ fontSize:20, fontWeight:700, color:"#1C1B19", margin:0 }}>
                             {val}<span style={{ fontSize:11, color:"#8B8578", fontWeight:400 }}> {f.unit}</span>
@@ -311,20 +312,20 @@ export default function Measurements() {
             {/* Graphique */}
             {availableMetrics.length > 0 && (
               <>
-                <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">Évolution</p>
+                <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">t("Évolution", "Progress")</p>
                 <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth:"none" }}>
                   {availableMetrics.map(f => (
                     <button key={f.key} onClick={() => setActiveMetric(f.key)}
                       className="flex-shrink-0 font-body text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
                       style={{ backgroundColor: selectedMetric===f.key ? f.color : "rgba(28,27,25,0.07)", color: selectedMetric===f.key ? "white" : "#6B6560", border:"none", cursor:"pointer", fontFamily:"inherit" }}>
-                      {f.emoji} {f.label}
+                      {f.emoji} {t(f.label_fr, f.label_en)}
                     </button>
                   ))}
                 </div>
                 {selectedMetric && (() => {
                   const field = FIELDS.find(f => f.key === selectedMetric)!;
                   const pts = measurements.filter(m => (m as any)[selectedMetric] != null);
-                  return <MetricChart data={pts} field={selectedMetric} color={field.color} label={field.label} unit={field.unit}/>;
+                  return <MetricChart data={pts} field={selectedMetric} color={field.color} label={t(field.label_fr, field.label_en)} unit={field.unit}/>;
                 })()}
               </>
             )}
@@ -340,13 +341,13 @@ export default function Measurements() {
               return (
                 <div style={{ marginTop:24, marginBottom:8 }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
-                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>Mon évolution en photos</p>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>t("Mon évolution en photos", "My photo progress")</p>
                     <div style={{ display:"flex", gap:6 }}>
                       {(["front","side"] as const).map(k => (
                         <button key={k} onClick={() => setCompareMode(k)}
                           style={{ padding:"5px 12px", borderRadius:999, fontSize:11, fontWeight:600, border:"none", cursor:"pointer", fontFamily:"inherit",
                             backgroundColor: compareMode===k ? "#B8973E" : "rgba(28,27,25,0.07)", color: compareMode===k ? "#1C1B19" : "#6B6560" }}>
-                          {k === "front" ? "Face" : "Profil"}
+                          {k === "front" ? t("Face", "Front") : t("Profil", "Side")}
                         </button>
                       ))}
                     </div>
@@ -394,8 +395,8 @@ export default function Measurements() {
               <div style={{ width:36, height:4, borderRadius:2, backgroundColor:"#D1CCC5", margin:"0 auto 20px" }}/>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
                 <div>
-                  <h3 style={{ fontSize:18, fontWeight:600, color:"#1C1B19", margin:0 }}>Nouvelle prise</h3>
-                  <p style={{ fontSize:12, color:"#8B8578", margin:"2px 0 0" }}>Remplis uniquement ce que tu connais</p>
+                  <h3 style={{ fontSize:18, fontWeight:600, color:"#1C1B19", margin:0 }}>t("Nouvelle prise", "New entry")</h3>
+                  <p style={{ fontSize:12, color:"#8B8578", margin:"2px 0 0" }}>t("Remplis uniquement ce que tu connais", "Fill in only what you know")</p>
                 </div>
                 <button onClick={() => setShowForm(false)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:"#8B8578", lineHeight:1 }}>×</button>
               </div>
@@ -403,7 +404,7 @@ export default function Measurements() {
                 {FIELDS.map(f => (
                   <div key={f.key}>
                     <label style={{ fontSize:12, color:"#6B6560", display:"block", marginBottom:6, fontWeight:500 }}>
-                      {f.emoji} {f.label} <span style={{ color:"#B8B0A6" }}>({f.unit})</span>
+                      {f.emoji} {t(f.label_fr, f.label_en)} <span style={{ color:"#B8B0A6" }}>({f.unit})</span>
                     </label>
                     <div style={{ display:"flex", alignItems:"center", border:"1px solid rgba(28,27,25,0.12)", borderRadius:12, overflow:"hidden", backgroundColor:"#FAFAF8" }}>
                       <input type="number" inputMode="decimal" step="0.1" placeholder="—" value={form[f.key] || ""}
@@ -418,13 +419,13 @@ export default function Measurements() {
                 <div style={{ marginTop:4 }}>
                   <p style={{ fontSize:12, color:"#8B8578", marginBottom:8, fontWeight:500 }}>📸 Photos de suivi (optionnel)</p>
                   <div style={{ display:"flex", gap:10 }}>
-                    {([["front","De face",photoFront,setPhotoFront],["side","De profil",photoSide,setPhotoSide]] as const).map(([kind,label,file,setter]) => (
+                    {([["front","De face","Front view",photoFront,setPhotoFront],["side","De profil","Side view",photoSide,setPhotoSide]] as const).map(([kind,label_fr,label_en,file,setter]) => (
                       <label key={kind} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6, padding:"18px 10px", borderRadius:14, border: file ? "1.5px solid #B8973E" : "1.5px dashed rgba(28,27,25,0.18)", backgroundColor: file ? "#B8973E12" : "white", cursor:"pointer" }}>
                         <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
                           onChange={e => { const f = e.target.files?.[0]; if (f) (setter as any)(f); }}/>
                         <span style={{ fontSize:22 }}>{file ? "✅" : "📷"}</span>
-                        <span style={{ fontSize:12, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{label}</span>
-                        <span style={{ fontSize:10, color:"#B8B0A6" }}>{file ? "Photo prête" : "Prendre une photo"}</span>
+                        <span style={{ fontSize:12, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{t(label_fr, label_en)}</span>
+                        <span style={{ fontSize:10, color:"#B8B0A6" }}>{file ? t("Photo prête", "Photo ready") : t("Prendre une photo", "Take a photo")}</span>
                       </label>
                     ))}
                   </div>
@@ -432,7 +433,7 @@ export default function Measurements() {
 
                 <button onClick={save} disabled={saving}
                   style={{ width:"100%", padding:"15px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:14, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", marginTop:6, opacity: saving?0.7:1 }}>
-                  {saving ? "Sauvegarde..." : "Enregistrer mes mensurations"}
+                  {saving ? t("Sauvegarde...", "Saving...") : t("Enregistrer mes mensurations", "Save measurements")}
                 </button>
               </div>
             </motion.div>

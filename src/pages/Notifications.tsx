@@ -109,8 +109,8 @@ export default function Notifications() {
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div className="flex-1">
-            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Paramètres</p>
-            <h1 className="font-display text-2xl font-light text-foreground">Notifications</h1>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("Paramètres", "Settings")}</p>
+            <h1 className="font-display text-2xl font-light text-foreground">{t("Notifications", "Notifications")}</h1>
           </div>
           {/* Indicateur sauvegarde */}
           <AnimatePresence>
@@ -118,8 +118,8 @@ export default function Notifications() {
               <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
                 style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, backgroundColor: saved ? "rgba(34,197,94,0.1)" : "rgba(184,151,62,0.1)" }}>
                 {saved
-                  ? <><Check size={12} color="#22C55E" /><span style={{ fontSize: 11, color: "#22C55E", fontWeight: 600 }}>Sauvegardé</span></>
-                  : <><div style={{ width: 10, height: 10, borderRadius: "50%", border: "1.5px solid rgba(184,151,62,0.3)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} /><span style={{ fontSize: 11, color: "#B8973E" }}>Sauvegarde...</span></>
+                  ? <><Check size={12} color="#22C55E" /><span style={{ fontSize: 11, color: "#22C55E", fontWeight: 600 }}>{t("Sauvegardé", "Saved")}</span></>
+                  : <><div style={{ width: 10, height: 10, borderRadius: "50%", border: "1.5px solid rgba(184,151,62,0.3)", borderTopColor: "#B8973E", animation: "spin 0.8s linear infinite" }} /><span style={{ fontSize: 11, color: "#B8973E" }}>{t("Sauvegarde...", "Saving...")}</span></>
                 }
               </motion.div>
             )}
@@ -132,7 +132,7 @@ export default function Notifications() {
             style={{ borderRadius: 16, padding: "14px 16px", marginBottom: 20, backgroundColor: "rgba(184,151,62,0.08)", border: "1px solid rgba(184,151,62,0.2)", display: "flex", alignItems: "flex-start", gap: 12 }}>
             <BellOff size={18} color="#B8973E" style={{ flexShrink: 0, marginTop: 1 }} />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19", margin: "0 0 3px" }}>Notifications désactivées</p>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19", margin: "0 0 3px" }}>{t("Notifications désactivées", "Notifications disabled")}</p>
               <p style={{ fontSize: 12, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
                 Autorisez les notifications pour recevoir vos rappels.
               </p>

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,10 +29,10 @@ type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 type FeelLevel = "terrible" | "moyen" | "bien" | "super" | "excellent";
 
 const FEEL_OPTIONS: { id: FeelLevel; emoji: string; label: string; color: string }[] = [
-  { id: "terrible",  emoji: "😩", label: "Difficile",  color: "#EF4444" },
-  { id: "moyen",     emoji: "😕", label: "Moyen",      color: "#F97316" },
-  { id: "bien",      emoji: "😊", label: "Bien",       color: "#B8973E" },
-  { id: "super",     emoji: "😄", label: "Super",      color: "#4CAF50" },
+  { id: "terrible",  emoji: "😩", label: t("Difficile", "Hard"),  color: "#EF4444" },
+  { id: "moyen",     emoji: "😕", label: t("Moyen", "Medium"),      color: "#F97316" },
+  { id: "bien",      emoji: "😊", label: t("Bien", "Good"),       color: "#B8973E" },
+  { id: "super",     emoji: "😄", label: t("Super", "Great"),      color: "#4CAF50" },
   { id: "excellent", emoji: "🔥", label: "Excellent!", color: "#6366F1" },
 ];
 
@@ -152,7 +153,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-14 pb-4 border-b border-border sticky top-0 bg-background z-10">
           <div>
-            <h2 className="font-display text-xl font-light text-foreground">Ton avis</h2>
+            <h2 className="font-display text-xl font-light text-foreground">{t("Ton avis", "Your review")}</h2>
             <p className="font-body text-xs text-muted-foreground">{result.videoTitle}</p>
           </div>
           <button onClick={() => setStep("celebration")}
@@ -165,8 +166,8 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
 
           {/* 1. Niveau de difficulté */}
           <div>
-            <p className="font-body text-sm font-medium text-foreground mb-1">Niveau de difficulté ressenti</p>
-            <p className="font-body text-xs text-muted-foreground mb-3">Comment tu as trouvé l'intensité ?</p>
+            <p className="font-body text-sm font-medium text-foreground mb-1">{t("Niveau de difficulté ressenti", "Perceived difficulty level")}</p>
+            <p className="font-body text-xs text-muted-foreground mb-3">{t("Comment tu as trouvé l'intensité ?", "How did you find the intensity?")}</p>
             <div className="flex gap-2">
               {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(level => {
                 const labels = ["Trop facile", "Facile", "Adapté", "Intense", "Trop dur"];
@@ -194,8 +195,8 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
 
           {/* 2. Comment tu te sens */}
           <div>
-            <p className="font-body text-sm font-medium text-foreground mb-1">Comment tu te sens après ?</p>
-            <p className="font-body text-xs text-muted-foreground mb-3">Physiquement et mentalement</p>
+            <p className="font-body text-sm font-medium text-foreground mb-1">{t("Comment tu te sens après ?", "How do you feel after?")}</p>
+            <p className="font-body text-xs text-muted-foreground mb-3">{t("Physiquement et mentalement", "Physically and mentally")}</p>
             <div className="flex gap-2">
               {FEEL_OPTIONS.map(opt => (
                 <button key={opt.id} onClick={() => setFeel(opt.id)}
@@ -215,7 +216,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
 
           {/* 3. Zones travaillées */}
           <div>
-            <p className="font-body text-sm font-medium text-foreground mb-1">Zones travaillées</p>
+            <p className="font-body text-sm font-medium text-foreground mb-1">{t("Zones travaillées", "Zones worked")}</p>
             <p className="font-body text-xs text-muted-foreground mb-3">Où tu as senti l'effort ? (optionnel)</p>
             <div className="flex flex-wrap gap-2">
               {BODY_ZONES.map(zone => {
@@ -235,8 +236,8 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
 
           {/* 4. Note du cours */}
           <div>
-            <p className="font-body text-sm font-medium text-foreground mb-1">Note le cours</p>
-            <p className="font-body text-xs text-muted-foreground mb-3">Ton avis aide les autres pratiquantes</p>
+            <p className="font-body text-sm font-medium text-foreground mb-1">{t("Note le cours", "Rate the session")}</p>
+            <p className="font-body text-xs text-muted-foreground mb-3">{t("Ton avis aide les autres pratiquantes", "Your review helps other practitioners")}</p>
             <div className="flex gap-2 mb-2">
               {[1, 2, 3, 4, 5].map(star => (
                 <button key={star}

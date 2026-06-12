@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronDown, ChevronUp, FileText, AlertTriangle, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 
@@ -111,8 +112,8 @@ export default function CGV() {
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>
-            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Juridique</p>
-            <h1 className="font-display text-2xl font-light text-foreground">Conditions Generales</h1>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("Juridique", "Legal")}</p>
+            <h1 className="font-display text-2xl font-light text-foreground">{t("Conditions Generales", "General Conditions")}</h1>
           </div>
         </div>
 
@@ -126,7 +127,7 @@ export default function CGV() {
             </div>
             <div>
               <p className="font-body text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.4)" }}>Version 1.1 — 2025</p>
-              <p className="font-display text-base font-light text-white">Conditions Generales de Vente</p>
+              <p className="font-display text-base font-light text-white">{t("Conditions Generales de Vente", "Terms of Sale")}</p>
             </div>
           </div>
           <p className="font-body text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
@@ -202,7 +203,7 @@ export default function CGV() {
         {/* Recapitulatif */}
         <div className="bg-card rounded-3xl border border-border overflow-hidden mb-4">
           <div className="p-4 border-b border-border">
-            <p className="font-body text-xs font-semibold text-foreground uppercase tracking-widest">Recapitulatif des dispositions essentielles</p>
+            <p className="font-body text-xs font-semibold text-foreground uppercase tracking-widest">{t("Recapitulatif des dispositions essentielles", "Summary of key provisions")}</p>
           </div>
           {RECAP.map((item, i) => (
             <div key={i} style={{ padding: "10px 16px", borderBottom: i < RECAP.length - 1 ? "1px solid rgba(28,27,25,0.06)" : "none", backgroundColor: item.critical ? "rgba(239,68,68,0.03)" : i % 2 === 0 ? "rgba(28,27,25,0.01)" : "transparent" }}>
@@ -216,8 +217,8 @@ export default function CGV() {
 
         {/* Contact */}
         <div className="bg-card rounded-2xl p-4 mb-4 border border-border text-center">
-          <p className="font-body text-xs text-muted-foreground mb-1">Pour toute question relative aux presentes CGV</p>
-          <p className="font-body text-xs font-semibold text-gold">contact@connectreformer.com</p>
+          <p className="font-body text-xs text-muted-foreground mb-1">{t("Pour toute question relative aux presentes CGV", "For any question regarding these Terms")}</p>
+          <p className="font-body text-xs font-semibold text-gold">{t("contact@connectreformer.com", "contact@connectreformer.com")}</p>
         </div>
 
       </div>

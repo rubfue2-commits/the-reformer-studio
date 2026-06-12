@@ -57,7 +57,7 @@ export default function DeleteAccount() {
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>
-            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">RGPD</p>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("RGPD", "GDPR")}</p>
             <h1 className="font-display text-2xl font-light text-foreground">{t("Supprimer mon compte", "Delete my account")}</h1>
           </div>
         </div>

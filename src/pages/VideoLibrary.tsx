@@ -12,9 +12,9 @@ interface Session { id: string; name_fr: string; description_fr: string; duratio
 interface Review { rating: number; comment: string | null; }
 
 const DIFF: Record<string, { label: string; color: string; bg: string }> = {
-  beginner:     { label: "Débutant",      color: "#16A34A", bg: "rgba(22,163,74,0.1)" },
-  intermediate: { label: "Intermédiaire", color: "#B8973E", bg: "rgba(184,151,62,0.1)" },
-  advanced:     { label: "Avancé",        color: "#EF4444", bg: "rgba(239,68,68,0.1)" },
+  beginner:     { label: t("Débutant", "Beginner"),      color: "#16A34A", bg: "rgba(22,163,74,0.1)" },
+  intermediate: { label: t("Intermédiaire", "Intermediate"), color: "#B8973E", bg: "rgba(184,151,62,0.1)" },
+  advanced:     { label: t("Avancé", "Advanced"),        color: "#EF4444", bg: "rgba(239,68,68,0.1)" },
 };
 
 function StarRating({ value, onChange, readonly = false }: { value: number; onChange?: (v: number) => void; readonly?: boolean }) {
@@ -54,30 +54,30 @@ export default function VideoLibrary() {
   const [showResults, setShowResults] = useState(false);
 
   const DURATIONS = [
-    { key: "u15", label: "- de 15" },
-    { key: "15-25", label: "15 à 25" },
-    { key: "25-35", label: "25 à 35" },
-    { key: "35+", label: "+ de 35" },
+    { key: "u15", label: t("- de 15", "Under 15") },
+    { key: "15-25", label: t("15 à 25", "15 to 25") },
+    { key: "25-35", label: t("25 à 35", "25 to 35") },
+    { key: "35+", label: t("+ de 35", "Over 35") },
   ];
   const INTENSITIES = [
-    { key: "beginner", label: "Faible" },
-    { key: "intermediate", label: "Moyenne" },
-    { key: "advanced", label: "Élevée" },
+    { key: "beginner", label: t("Faible", "Low") },
+    { key: "intermediate", label: t("Moyenne", "Medium") },
+    { key: "advanced", label: t("Élevée", "High") },
   ];
   const EQUIPMENTS = [
-    { key: "reformer", label: "Reformer" },
-    { key: "mat", label: "Pilates au sol" },
+    { key: "reformer", label: t("Reformer", "Reformer") },
+    { key: "mat", label: t("Pilates au sol", "Mat Pilates") },
   ];
   const DISCIPLINES = [
-    { key: "pilates", label: "Pilates" },
-    { key: "renforcement", label: "Renforcement" },
-    { key: "stretching", label: "Stretching" },
+    { key: "pilates", label: t("Pilates", "Pilates") },
+    { key: "renforcement", label: t("Renforcement", "Strengthening") },
+    { key: "stretching", label: t("Stretching", "Stretching") },
   ];
   const ZONES = [
-    { key: "full_body", label: "Full body" },
-    { key: "abs", label: "Abdos" },
-    { key: "lower", label: "Bas du corps" },
-    { key: "upper", label: "Haut du corps" },
+    { key: "full_body", label: t("Full body", "Full body") },
+    { key: "abs", label: t("Abdos", "Abs") },
+    { key: "lower", label: t("Bas du corps", "Lower body") },
+    { key: "upper", label: t("Haut du corps", "Upper body") },
   ];
 
   const toggle = (arr: string[], set: (v: string[]) => void, key: string) =>
@@ -157,15 +157,15 @@ export default function VideoLibrary() {
             <motion.div key="categories" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-5">
               <div className="mb-4">
                 <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Connect Reformer</p>
-                <h1 className="font-display text-3xl font-light text-foreground">Séances</h1>
-                <p className="font-body text-sm text-muted-foreground mt-1">Choisissez un type de cours</p>
+                <h1 className="font-display text-3xl font-light text-foreground">{t("Séances", "Sessions")}</h1>
+                <p className="font-body text-sm text-muted-foreground mt-1">{t("Choisissez un type de cours", "Choose a type of session")}</p>
               </div>
 
               {/* Recherche + filtres */}
               <button onClick={openFilters}
                 style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"14px 18px", backgroundColor:"white", border:"1px solid rgba(28,27,25,0.08)", borderRadius:999, marginBottom:20, cursor:"pointer", fontFamily:"inherit", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
                 <Search size={17} color="#8B8578"/>
-                <span style={{ flex:1, textAlign:"left", fontSize:14, color:"#8B8578" }}>Rechercher une séance</span>
+                <span style={{ flex:1, textAlign:"left", fontSize:14, color:"#8B8578" }}>{t("Rechercher une séance", "Search for a session")}</span>
                 <span style={{ display:"flex", alignItems:"center", gap:5, fontSize:12, fontWeight:600, color:"#B8973E" }}>
                   <SlidersHorizontal size={14}/> Filtres
                 </span>
@@ -209,7 +209,7 @@ export default function VideoLibrary() {
                     {selectedCat.emoji}
                   </div>
                   <div>
-                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Séances</p>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("Séances", "Sessions")}</p>
                     <h2 className="font-display text-xl font-light text-foreground">{selectedCat.name_fr}</h2>
                   </div>
                 </div>
@@ -218,8 +218,8 @@ export default function VideoLibrary() {
               {sessions.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "60px 20px" }}>
                   <p style={{ fontSize: 32, marginBottom: 8 }}>🎬</p>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: "#1C1B19", marginBottom: 4 }}>Séances à venir</p>
-                  <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.5 }}>Les vidéos de ce programme sont en cours de production.</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: "#1C1B19", marginBottom: 4 }}>{t("Séances à venir", "Upcoming sessions")}</p>
+                  <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.5 }}>{t("Les vidéos de ce programme sont en cours de production.", "Videos for this program are being produced.")}</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -267,20 +267,20 @@ export default function VideoLibrary() {
                               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <StarRating value={myReview.rating} readonly />
                                 <button onClick={() => { setReviewingId(session.id); setTempRating(myReview.rating); setTempComment(myReview.comment || ""); }}
-                                  style={{ fontSize: 11, color: "#B8973E", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>Modifier</button>
+                                  style={{ fontSize: 11, color: "#B8973E", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>{t("Modifier", "Edit")}</button>
                               </div>
                             ) : !isReviewing ? (
                               <button onClick={() => { setReviewingId(session.id); setTempRating(0); setTempComment(""); }}
                                 style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
                                 <MessageSquare size={12} color="#B8973E" />
-                                <span style={{ fontSize: 12, color: "#B8973E", fontWeight: 600 }}>Mon avis</span>
+                                <span style={{ fontSize: 12, color: "#B8973E", fontWeight: 600 }}>{t("Mon avis", "My review")}</span>
                               </button>
                             ) : null}
                             <AnimatePresence>
                               {isReviewing && (
                                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
                                   <div style={{ paddingTop: 8 }}>
-                                    <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>Comment tu as trouvé cette séance ?</p>
+                                    <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>{t("Comment tu as trouvé cette séance ?", "How did you find this session?")}</p>
                                     <StarRating value={tempRating} onChange={setTempRating} />
                                     <textarea value={tempComment} onChange={e => setTempComment(e.target.value)} placeholder="Un commentaire ? (optionnel)" rows={2}
                                       style={{ width: "100%", marginTop: 8, padding: "8px 10px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 8, fontSize: 12, fontFamily: "inherit", resize: "none", outline: "none", backgroundColor: "#FAFAF8", boxSizing: "border-box" as const }} />
@@ -319,7 +319,7 @@ export default function VideoLibrary() {
                 <ChevronLeft size={18} color="white"/>
               </button>
               <h2 style={{ flex:1, fontSize:22, fontWeight:700, color:"#1C1B19", margin:0, fontFamily:"inherit" }}>
-                {showResults ? `${filtered.length} séance${filtered.length > 1 ? "s" : ""}` : "Toutes les vidéos"}
+                {showResults ? `${filtered.length} séance${filtered.length > 1 ? "s" : ""}` : t("Toutes les vidéos", "All videos")}
               </h2>
               <button onClick={resetFilters}
                 style={{ width:38, height:38, borderRadius:"50%", backgroundColor: activeFilterCount ? "#B8973E" : "rgba(28,27,25,0.07)", border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
@@ -374,9 +374,9 @@ export default function VideoLibrary() {
                 filtered.length === 0 ? (
                   <div style={{ textAlign:"center", padding:"60px 20px" }}>
                     <p style={{ fontSize:32, marginBottom:8 }}>🔍</p>
-                    <p style={{ fontSize:15, fontWeight:600, color:"#1C1B19", marginBottom:4 }}>Aucune séance</p>
-                    <p style={{ fontSize:13, color:"#8B8578" }}>Essaie d'élargir tes filtres.</p>
-                    <button onClick={() => setShowResults(false)} style={{ marginTop:16, padding:"11px 22px", borderRadius:999, border:"none", backgroundColor:"#1C1B19", color:"white", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>Modifier les filtres</button>
+                    <p style={{ fontSize:15, fontWeight:600, color:"#1C1B19", marginBottom:4 }}>{t("Aucune séance", "No session")}</p>
+                    <p style={{ fontSize:13, color:"#8B8578" }}>{t("Essaie d'élargir tes filtres.", "Try broadening your filters.")}</p>
+                    <button onClick={() => setShowResults(false)} style={{ marginTop:16, padding:"11px 22px", borderRadius:999, border:"none", backgroundColor:"#1C1B19", color:"white", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>{t("Modifier les filtres", "Edit filters")}</button>
                   </div>
                 ) : (
                   <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
@@ -397,7 +397,7 @@ export default function VideoLibrary() {
                           <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
                             <span style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#8B8578" }}><Clock size={11}/> {s.duration_minutes} min</span>
                             <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor:diff.bg, color:diff.color }}>{diff.label}</span>
-                            <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : "Pilates au sol"}</span>
+                            <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : t("Pilates au sol", "Mat Pilates")}</span>
                             {s.body_zone && <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(ZONES.find(z => z.key === s.body_zone)?.label) || s.body_zone}</span>}
                             {cat && <span style={{ fontSize:11, color:"#B8973E" }}>{cat.emoji} {cat.name_fr}</span>}
                           </div>

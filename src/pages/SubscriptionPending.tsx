@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Clock, ExternalLink, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";

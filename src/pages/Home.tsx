@@ -1,6 +1,7 @@
 import WelcomeModal from "@/components/WelcomeModal";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { ChevronRight, Flame, Clock, Trophy, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -90,7 +91,7 @@ export default function Home() {
           <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
             {profile?.first_name ? `Bonjour, ${profile.first_name} 👋` : "Bonjour 👋"}
           </p>
-          <h1 className="font-display text-3xl font-light text-foreground">Prête à bouger ?</h1>
+          <h1 className="font-display text-3xl font-light text-foreground">{t("Prête à bouger ?", "Ready to move?")}</h1>
         </div>
 
         {/* Stats */}
@@ -109,7 +110,7 @@ export default function Home() {
         {/* Progrès du mois */}
         <div className="bg-card rounded-3xl p-5 border border-border shadow-sm mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-body text-sm font-semibold text-foreground">Progrès du mois</h3>
+            <h3 className="font-body text-sm font-semibold text-foreground">{t("Progrès du mois", "Monthly progress")}</h3>
             <button onClick={() => navigate("/wellness")} className="flex items-center gap-1 font-body text-[10px] text-gold">
               Détails <ChevronRight size={12} />
             </button>
@@ -137,11 +138,11 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => navigate("/library")} className="bg-foreground text-background rounded-3xl p-4 text-left">
             <p className="font-body text-sm font-semibold mb-1">Séances</p>
-            <p className="font-body text-xs opacity-60">Bibliothèque complète</p>
+            <p className="font-body text-xs opacity-60">{t("Bibliothèque complète", "Full library")}</p>
           </button>
           <button onClick={() => navigate("/programs")} style={{ backgroundColor: "#B8973E" }} className="rounded-3xl p-4 text-left">
             <p className="font-body text-sm font-semibold text-foreground mb-1">Programmes</p>
-            <p className="font-body text-xs text-foreground opacity-60">Suivre un plan</p>
+            <p className="font-body text-xs text-foreground opacity-60">{t("Suivre un plan", "Follow a plan")}</p>
           </button>
         </div>
 

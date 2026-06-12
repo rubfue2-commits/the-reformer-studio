@@ -375,8 +375,8 @@ export default function Achievements() {
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div className="flex-1">
-            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Profil</p>
-            <h1 className="font-display text-2xl font-light text-foreground">Badges & XP</h1>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("Profil", "Profile")}</p>
+            <h1 className="font-display text-2xl font-light text-foreground">{t("Badges & XP", "Badges & XP")}</h1>
           </div>
         </div>
 
@@ -384,11 +384,11 @@ export default function Achievements() {
         <div className="mx-5 rounded-3xl p-5 mb-4 overflow-hidden" style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Niveau</p>
+              <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>{t("Niveau", "Level")}</p>
               <p className="font-display text-3xl font-light" style={{ color: "#B8973E" }}>Niv. {level}</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>XP Total</p>
+              <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>{t("XP Total", "Total XP")}</p>
               <p className="font-body text-xl font-semibold text-white">{totalXP.toLocaleString()} XP</p>
             </div>
           </div>
@@ -495,7 +495,7 @@ export default function Achievements() {
                 </div>
               ) : (
                 <div style={{ backgroundColor: "#F5F3EE", borderRadius: 14, padding: "12px 16px" }}>
-                  <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>Progression</p>
+                  <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>{t("Progression", "Progress")}</p>
                   <div style={{ height: 6, backgroundColor: "#E8E4DE", borderRadius: 3, marginBottom: 6 }}>
                     <div style={{ height: "100%", backgroundColor: selected.color, borderRadius: 3, width: Math.min(100, Math.round((getStatValue(selected) / selected.threshold) * 100)) + "%" }} />
                   </div>

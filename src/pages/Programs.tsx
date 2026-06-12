@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { motion } from "framer-motion";
 import { Play, ChevronRight, CheckCircle, Circle, BookOpen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,9 +14,9 @@ interface Program {
 interface UserProgress { program_id: string; completed_sessions: number; is_completed: boolean; }
 
 const LEVEL_STYLE: Record<string, { label: string; color: string; bg: string }> = {
-  beginner:     { label: "Débutant",      color: "#16A34A", bg: "rgba(22,163,74,0.08)" },
-  intermediate: { label: "Intermédiaire", color: "#B8973E", bg: "rgba(184,151,62,0.08)" },
-  advanced:     { label: "Avancé",        color: "#EF4444", bg: "rgba(239,68,68,0.08)" },
+  beginner:     { label_fr: "Débutant", label_en: "Beginner", color: "#16A34A", bg: "rgba(22,163,74,0.08)" },
+  intermediate: { label_fr: "Intermédiaire", label_en: "Intermediate", color: "#B8973E", bg: "rgba(184,151,62,0.08)" },
+  advanced:     { label_fr: "Avancé", label_en: "Advanced", color: "#EF4444", bg: "rgba(239,68,68,0.08)" },
 };
 
 export default function Programs() {
@@ -63,9 +64,9 @@ export default function Programs() {
     <MobileLayout>
       <div className="px-5 pt-12 pb-28">
         <div className="mb-6">
-          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Connect Reformer</p>
-          <h1 className="font-display text-3xl font-light text-foreground">Programmes</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Des parcours complets pour progresser</p>
+          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">{t("Connect Reformer", "Connect Reformer")}</p>
+          <h1 className="font-display text-3xl font-light text-foreground">{t("Programmes", "Programs")}</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">{t("Des parcours complets pour progresser", "Complete courses to progress")}</p>
         </div>
 
         {loading ? (
@@ -75,7 +76,7 @@ export default function Programs() {
         ) : programs.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 28 }}>📋</div>
-            <p style={{ fontSize: 16, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>Programmes à venir</p>
+            <p style={{ fontSize: 16, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>{t("Programmes à venir", "Upcoming programs")}</p>
             <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.6, maxWidth: 260, margin: "0 auto" }}>
               Tes premiers programmes seront disponibles dès que les séances vidéo seront prêtes.
             </p>
@@ -95,7 +96,7 @@ export default function Programs() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                       <h3 className="font-display text-xl font-light text-foreground">{program.name_fr}</h3>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, backgroundColor: lvl.bg, color: lvl.color, flexShrink: 0, marginLeft: 8 }}>
-                        {lvl.label}
+                        {t(lvl.label_fr, lvl.label_en)}
                       </span>
                     </div>
                     {program.description_fr && (
@@ -126,7 +127,7 @@ export default function Programs() {
                     {expandedId === program.id && programSessions[program.id] && (
                       <div style={{ backgroundColor: "rgba(28,27,25,0.03)", borderRadius: 12, padding: "8px 12px", marginBottom: 8 }}>
                         {programSessions[program.id].length === 0 ? (
-                          <p style={{ fontSize: 12, color: "#8B8578", textAlign: "center", padding: "8px 0" }}>Séances à venir</p>
+                          <p style={{ fontSize: 12, color: "#8B8578", textAlign: "center", padding: "8px 0" }}>{t("Séances à venir", "Upcoming sessions")}</p>
                         ) : (
                           programSessions[program.id].map((ps, i) => (
                             <div key={ps.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: i < programSessions[program.id].length - 1 ? "1px solid rgba(28,27,25,0.05)" : "none" }}>

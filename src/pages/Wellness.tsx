@@ -274,14 +274,14 @@ export default function Wellness() {
         {/* Header */}
         <div className="mb-5">
           <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Connect Reformer</p>
-          <h1 className="font-display text-3xl font-light text-foreground">Bien-être</h1>
+          <h1 className="font-display text-3xl font-light text-foreground">{t("Bien-être", "Wellness")}</h1>
         </div>
 
         {/* Mes objectifs */}
         <div className="mb-5">
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>Mes objectifs</p>
-            {savingGoals && <span style={{ fontSize:10, color:"#B8973E" }}>Enregistrement…</span>}
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>{t("Mes objectifs", "My goals")}</p>
+            {savingGoals && <span style={{ fontSize:10, color:"#B8973E" }}>{t("Enregistrement…", "Saving…")}</span>}
           </div>
           <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
             {GOALS.map(g => {
@@ -313,8 +313,8 @@ export default function Wellness() {
             <motion.div key="form" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
 
               <div className="rounded-3xl p-4 mb-4 overflow-hidden" style={{ background: "linear-gradient(135deg, #1C1B19 0%, #2D2A22 100%)" }}>
-                <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Aujourd'hui</p>
-                <p className="font-display text-lg font-light text-white">Comment se porte votre corps ?</p>
+                <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>{t("Aujourd'hui", "Today")}</p>
+                <p className="font-display text-lg font-light text-white">{t("Comment se porte votre corps ?", "How is your body feeling?")}</p>
               </div>
 
               <div className="flex flex-col gap-3 mb-4">
@@ -326,7 +326,7 @@ export default function Wellness() {
 
               {/* Ressentis */}
               <div className="bg-card rounded-2xl p-4 border border-border mb-4">
-                <p className="font-body text-sm font-semibold text-foreground mb-3">Ce que je ressens</p>
+                <p className="font-body text-sm font-semibold text-foreground mb-3">{t("Ce que je ressens", "How I feel")}</p>
                 <div className="flex flex-wrap gap-2">
                   {FEELINGS.map(f => (
                     <button key={f} onClick={() => setFeelings(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}
@@ -340,7 +340,7 @@ export default function Wellness() {
 
               {/* Note */}
               <div className="bg-card rounded-2xl p-4 border border-border mb-4">
-                <p className="font-body text-sm font-semibold text-foreground mb-2">Note personnelle</p>
+                <p className="font-body text-sm font-semibold text-foreground mb-2">{t("Note personnelle", "Personal note")}</p>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Je me sens..."
                   rows={3} style={{ width: "100%", border: "none", outline: "none", resize: "none", fontSize: 14, color: "#1C1B19", fontFamily: "inherit", backgroundColor: "transparent", lineHeight: 1.6 }} />
               </div>
@@ -365,7 +365,7 @@ export default function Wellness() {
                     <CheckCircle size={26} color="#B8973E" />
                   </div>
                   <div>
-                    <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Journal du jour</p>
+                    <p className="font-body text-[10px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>{t("Journal du jour", "Today's journal")}</p>
                     <p className="font-display text-lg font-light text-white">Journée enregistrée ✓</p>
                     <p className="font-body text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
                       Score {todayEntry.score || Math.round(((todayEntry.mood + todayEntry.energy + todayEntry.sleep + todayEntry.stress) / 20) * 100)}/100 · Reviens demain !
@@ -375,9 +375,9 @@ export default function Wellness() {
                 {/* Mini scores */}
                 <div className="flex gap-3 mt-4">
                   {[
-                    { label: "Humeur", value: todayEntry.mood, color: "#EC4899" },
-                    { label: "Énergie", value: todayEntry.energy, color: "#F59E0B" },
-                    { label: "Sommeil", value: todayEntry.sleep, color: "#6366F1" },
+                    { label: t("Humeur", "Mood"), value: todayEntry.mood, color: "#EC4899" },
+                    { label: t("Énergie", "Energy"), value: todayEntry.energy, color: "#F59E0B" },
+                    { label: t("Sommeil", "Sleep"), value: todayEntry.sleep, color: "#6366F1" },
                     { label: "Stress", value: todayEntry.stress, color: "#10B981" },
                   ].map(s => (
                     <div key={s.label} style={{ flex: 1, textAlign: "center" }}>
@@ -425,7 +425,7 @@ export default function Wellness() {
                   <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-5">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
                       <div>
-                        <p className="font-body text-xs font-semibold text-foreground">Évolution du bien-être</p>
+                        <p className="font-body text-xs font-semibold text-foreground">{t("Évolution du bien-être", "Wellness trends")}</p>
                         <p className="font-body text-[11px] text-muted-foreground">Score global — {data.length} derniers jours</p>
                       </div>
                       <div style={{ textAlign: "right" }}>
@@ -473,9 +473,9 @@ export default function Wellness() {
                     {/* Légende métriques */}
                     <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
                       {[
-                        { label: "Humeur", value: data[data.length-1]?.mood, color: "#EC4899" },
-                        { label: "Énergie", value: data[data.length-1]?.energy, color: "#F59E0B" },
-                        { label: "Sommeil", value: data[data.length-1]?.sleep, color: "#6366F1" },
+                        { label: t("Humeur", "Mood"), value: data[data.length-1]?.mood, color: "#EC4899" },
+                        { label: t("Énergie", "Energy"), value: data[data.length-1]?.energy, color: "#F59E0B" },
+                        { label: t("Sommeil", "Sleep"), value: data[data.length-1]?.sleep, color: "#6366F1" },
                         { label: "Stress", value: data[data.length-1]?.stress, color: "#10B981" },
                       ].map(m => (
                         <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -489,7 +489,7 @@ export default function Wellness() {
               })()}
 
               {/* Insights santé */}
-              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">Tes insights personnalisés</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">{t("Tes insights personnalisés", "Your personalized insights")}</p>
               <div className="flex flex-col gap-3 mb-5">
                 {insights.map((ins, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
