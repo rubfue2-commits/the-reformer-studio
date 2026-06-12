@@ -20,6 +20,7 @@ const LEVEL_STYLE: Record<string, { label: string; color: string; bg: string }> 
 };
 
 export default function Programs() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [userProgress, setUserProgress] = useState<Record<string, UserProgress>>({});

@@ -50,6 +50,7 @@ const formatTime = (s: number) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) => {
+  const { t } = useLanguage();
   const [step, setStep] = useState<"celebration" | "feedback" | "summary">("celebration");
   const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null);
   const [feel, setFeel] = useState<FeelLevel | null>(null);

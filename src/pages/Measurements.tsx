@@ -127,6 +127,7 @@ function MetricChart({ data, field, color, label, unit }: {
 
 // ── Page ─────────────────────────────────────────────────────
 export default function Measurements() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [measurements, setMeasurements] = useState<Measurement[]>([]);

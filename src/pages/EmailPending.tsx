@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function EmailPending() {
+  const { t } = useLanguage();
   const { user, signOut } = useAuth();
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);

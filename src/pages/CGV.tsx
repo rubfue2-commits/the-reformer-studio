@@ -99,6 +99,7 @@ const RECAP = [
 ];
 
 export default function CGV() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
