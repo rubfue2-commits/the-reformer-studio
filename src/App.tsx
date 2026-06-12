@@ -21,6 +21,7 @@ import Onboarding from "./pages/Onboarding";
 import Subscription from "./pages/Subscription";
 import Preferences from "./pages/Preferences";
 import Support from "./pages/Support";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Planner from "./pages/Planner";
 import NotFound from "./pages/NotFound";
 import LanguageSelect from "./pages/LanguageSelect";
@@ -30,6 +31,7 @@ function App() {
   useEffect(() => { scheduleWorkoutReminder(); }, []);
 
   return (
+    <ErrorBoundary>
     <HashRouter>
       <AuthProvider>
         <LanguageProvider>
@@ -62,6 +64,7 @@ function App() {
         </LanguageProvider>
       </AuthProvider>
     </HashRouter>
+    </ErrorBoundary>
   );
 }
 
