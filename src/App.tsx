@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { scheduleWorkoutReminder } from "./lib/workoutReminder";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./i18n/LanguageContext";
@@ -22,6 +24,9 @@ import NotFound from "./pages/NotFound";
 import LanguageSelect from "./pages/LanguageSelect";
 
 function App() {
+  // Rappel de séance : reprogrammé à chaque ouverture de l'app (part si inactive 3 jours)
+  useEffect(() => { scheduleWorkoutReminder(); }, []);
+
   return (
     <HashRouter>
       <AuthProvider>
