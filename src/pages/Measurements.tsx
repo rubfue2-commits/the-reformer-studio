@@ -20,6 +20,8 @@ interface Measurement {
   thigh_cm?: number;     // numeric (pas thigh_cm)
   arm_cm?: number;       // numeric (pas arm_cm)
   notes?: string;        // text (pas note)
+  photo_front_path?: string | null;
+  photo_side_path?: string | null;
   created_at?: string;
 }
 
@@ -132,6 +134,35 @@ export default function Measurements() {
   const [saving, setSaving] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [activeMetric, setActiveMetric] = useState<string | null>(null);
+  const [photoFront, setPhotoFront] = useState<File | null>(null);
+  const [photoSide, setPhotoSide] = useState<File | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
+  const [compareMode, setCompareMode] = useState<"front" | "side">("front");
+
+  // Génère les URLs signées (bucket privé) pour toutes les photos
+  useEffect(() => {
+    (async () => {
+      const paths: string[] = [];
+      measurements.forEach(m => {
+        if (m.photo_front_path) paths.push(m.photo_front_path);
+        if (m.photo_side_path) paths.push(m.photo_side_path);
+      });
+      if (!paths.length) return;
+      const urls: Record<string, string> = {};
+      await Promise.all(paths.map(async p => {
+        const { data } = await supabase.storage.from("body-photos").createSignedUrl(p, 3600);
+        if (data?.signedUrl) urls[p] = data.signedUrl;
+      }));
+      setPhotoUrls(urls);
+    })();
+  }, [measurements]);
+
+  const uploadPhoto = async (file: File, kind: "front" | "side"): Promise<string | null> => {
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user!.id}/${Date.now()}-${kind}.${ext}`;
+    const { error } = await supabase.storage.from("body-photos").upload(path, file, { contentType: file.type || "image/jpeg" });
+    return error ? null : path;
+  };
 
   useEffect(() => {
     if (user) load();
@@ -146,7 +177,7 @@ export default function Measurements() {
   const load = async () => {
     const { data, error } = await supabase
       .from("measurements")
-      .select("id, user_id, measured_at, weight_kg, waist_cm, hips_cm, chest_cm, thigh_cm, arm_cm, notes, created_at")
+      .select("id, user_id, measured_at, weight_kg, waist_cm, hips_cm, chest_cm, thigh_cm, arm_cm, notes, photo_front_path, photo_side_path, created_at")
       .eq("user_id", user!.id)
       .order("measured_at", { ascending: true })
       .limit(30);
@@ -167,14 +198,26 @@ export default function Measurements() {
       }
     });
     // Vérifier qu'au moins une valeur est renseignée
-    const hasValues = FIELDS.some(f => entry[f.key] !== undefined);
+    const hasValues = FIELDS.some(f => entry[f.key] !== undefined) || photoFront || photoSide;
     if (!hasValues) { setSaving(false); return; }
+
+    // Photos optionnelles
+    if (photoFront) {
+      const p = await uploadPhoto(photoFront, "front");
+      if (p) entry.photo_front_path = p;
+    }
+    if (photoSide) {
+      const p = await uploadPhoto(photoSide, "side");
+      if (p) entry.photo_side_path = p;
+    }
 
     const { error } = await supabase.from("measurements").insert(entry);
     if (!error) {
       await load();
       setShowForm(false);
       setForm({});
+      setPhotoFront(null);
+      setPhotoSide(null);
     }
     setSaving(false);
   };
@@ -286,6 +329,46 @@ export default function Measurements() {
               </>
             )}
 
+            {/* Photos de suivi — comparaison avant/après */}
+            {(() => {
+              const withPhotos = measurements.filter(m => (compareMode === "front" ? m.photo_front_path : m.photo_side_path));
+              if (!withPhotos.length) return null;
+              const first = withPhotos[0];
+              const last = withPhotos[withPhotos.length - 1];
+              const pathOf = (m: Measurement) => compareMode === "front" ? m.photo_front_path! : m.photo_side_path!;
+              const hasBoth = withPhotos.length >= 2 && first.id !== last.id;
+              return (
+                <div style={{ marginTop:24, marginBottom:8 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>Mon évolution en photos</p>
+                    <div style={{ display:"flex", gap:6 }}>
+                      {(["front","side"] as const).map(k => (
+                        <button key={k} onClick={() => setCompareMode(k)}
+                          style={{ padding:"5px 12px", borderRadius:999, fontSize:11, fontWeight:600, border:"none", cursor:"pointer", fontFamily:"inherit",
+                            backgroundColor: compareMode===k ? "#B8973E" : "rgba(28,27,25,0.07)", color: compareMode===k ? "#1C1B19" : "#6B6560" }}>
+                          {k === "front" ? "Face" : "Profil"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", gap:10 }}>
+                    {(hasBoth ? [first, last] : [last]).map((m, i) => (
+                      <div key={m.id} style={{ flex:1 }}>
+                        <div style={{ borderRadius:16, overflow:"hidden", backgroundColor:"#EFEce5", aspectRatio:"3/4", boxShadow:"0 1px 8px rgba(0,0,0,0.06)" }}>
+                          {photoUrls[pathOf(m)]
+                            ? <img src={photoUrls[pathOf(m)]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                            : <div style={{ width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>📷</div>}
+                        </div>
+                        <p style={{ fontSize:11, color:"#8B8578", textAlign:"center", marginTop:6 }}>
+                          {hasBoth && i === 0 ? "Début · " : ""}{new Date(m.measured_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Encouragement — 1 seule mesure */}
             {measurements.length === 1 && (
               <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor:"rgba(184,151,62,0.08)", border:"1px solid rgba(184,151,62,0.2)" }}>
@@ -331,6 +414,22 @@ export default function Measurements() {
                     </div>
                   </div>
                 ))}
+                {/* Photos de suivi (optionnel) */}
+                <div style={{ marginTop:4 }}>
+                  <p style={{ fontSize:12, color:"#8B8578", marginBottom:8, fontWeight:500 }}>📸 Photos de suivi (optionnel)</p>
+                  <div style={{ display:"flex", gap:10 }}>
+                    {([["front","De face",photoFront,setPhotoFront],["side","De profil",photoSide,setPhotoSide]] as const).map(([kind,label,file,setter]) => (
+                      <label key={kind} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6, padding:"18px 10px", borderRadius:14, border: file ? "1.5px solid #B8973E" : "1.5px dashed rgba(28,27,25,0.18)", backgroundColor: file ? "#B8973E12" : "white", cursor:"pointer" }}>
+                        <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
+                          onChange={e => { const f = e.target.files?.[0]; if (f) (setter as any)(f); }}/>
+                        <span style={{ fontSize:22 }}>{file ? "✅" : "📷"}</span>
+                        <span style={{ fontSize:12, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{label}</span>
+                        <span style={{ fontSize:10, color:"#B8B0A6" }}>{file ? "Photo prête" : "Prendre une photo"}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <button onClick={save} disabled={saving}
                   style={{ width:"100%", padding:"15px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:14, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", marginTop:6, opacity: saving?0.7:1 }}>
                   {saving ? "Sauvegarde..." : "Enregistrer mes mensurations"}
