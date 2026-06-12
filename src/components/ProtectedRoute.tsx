@@ -22,8 +22,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   // Email non confirmé → page confirmation
   if (!user.email_confirmed_at) return <EmailPending />;
 
-  // Abonnement non actif → page inscription
-  if (profile && !profile.has_active_subscription) return <SubscriptionPending />;
+  // PAYWALL — passer à true au lancement public pour réserver l'app aux abonnées.
+  // (false pendant la bêta TestFlight : les testeuses en gifting gardent l'accès)
+  const PAYWALL_ENABLED = false;
+  if (PAYWALL_ENABLED && profile && !profile.has_active_subscription) return <SubscriptionPending />;
 
   // Tout est bon → accès complet
   return <>{children}</>;

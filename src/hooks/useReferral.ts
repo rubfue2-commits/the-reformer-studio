@@ -80,14 +80,21 @@ export function useReferral(): UseReferralResult {
       if (refErr) throw refErr;
       setReferrals((referralData as ReferralEntry[]) ?? []);
 
-      // 3. Récupérer l'abonnement
+      // 3. Récupérer l'abonnement — source de vérité : profiles (sync Stripe via back-office)
       const { data: subData } = await supabase
-        .from('subscriptions')
-        .select('billing_type, status, months_paid, monthly_price_cents, gift_month_applied, current_period_end')
-        .eq('user_id', user.id)
-        .single();
+        .from('profiles')
+        .select('has_active_subscription, subscription_plan, subscription_end_date')
+        .eq('id', user.id)
+        .maybeSingle();
 
-      setSubscription(subData as SubscriptionData ?? null);
+      setSubscription(subData?.has_active_subscription ? {
+        billing_type: subData.subscription_plan === 'monthly' ? 'monthly' : 'annual_upfront',
+        status: subData.subscription_plan === 'monthly' ? 'monthly_active' : 'active',
+        months_paid: 0,
+        monthly_price_cents: subData.subscription_plan === 'monthly' ? 5600 : 4900,
+        gift_month_applied: false,
+        current_period_end: (subData as any).subscription_end_date ?? null,
+      } : null);
 
     } catch (e: any) {
       setError(e.message);
