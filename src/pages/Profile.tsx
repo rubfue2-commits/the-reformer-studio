@@ -53,8 +53,8 @@ const Profile = () => {
 
   const menuItems = [
     { icon: Bell,         label: t("Notifications", "Notifications"), action: () => navigate("/notifications") },
-    { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => navigate("/subscription") },
-    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => { window.open("mailto:hello@connectreformer.com", "_blank"); } },
+    { icon: Settings,     label: t("Préférences", "Preferences"),     action: () => navigate("/preferences") },
+    { icon: HelpCircle,   label: t("Aide & support", "Help & support"), action: () => { window.location.href = "mailto:hello@connectreformer.com"; } },
   ];
 
   const quickLinks = [
@@ -235,40 +235,6 @@ const Profile = () => {
         </motion.button>
 
       </div>
-      {/* Bouton RGPD suppression compte */}
-      <div className="px-5 pb-4">
-        {/* Bouton CGV */}
-        <button
-          onClick={() => navigate("/cgv")}
-          style={{
-            width: "100%", padding: "12px 16px",
-            border: "1px solid rgba(28,27,25,0.1)",
-            borderRadius: 12, backgroundColor: "transparent",
-            color: "#6B6560", fontSize: 13, fontFamily: "inherit",
-            cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "space-between", marginBottom: 8,
-          }}>
-          <span>Conditions Générales de Vente</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-
-        <button
-          onClick={() => navigate("/delete-account")}
-          style={{
-            width: "100%", padding: "12px 16px",
-            border: "1px solid rgba(239,68,68,0.25)",
-            borderRadius: 12, backgroundColor: "transparent",
-            color: "#EF4444", fontSize: 13, fontFamily: "inherit",
-            cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", gap: 6,
-          }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
-          </svg>
-          {t("Supprimer mon compte", "Delete my account")}
-        </button>
-      </div>
-
       <BottomNav />
     </MobileLayout>
   );

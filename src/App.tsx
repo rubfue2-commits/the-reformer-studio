@@ -19,6 +19,7 @@ import DeleteAccount from "./pages/DeleteAccount";
 import CGV from "./pages/CGV";
 import Onboarding from "./pages/Onboarding";
 import Subscription from "./pages/Subscription";
+import Preferences from "./pages/Preferences";
 import Planner from "./pages/Planner";
 import NotFound from "./pages/NotFound";
 import LanguageSelect from "./pages/LanguageSelect";
@@ -51,6 +52,7 @@ function App() {
             <Route path="/cgv"          element={<ProtectedRoute><CGV /></ProtectedRoute>} />
             <Route path="/onboarding"   element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+            <Route path="/preferences"  element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
             <Route path="/planner"      element={<ProtectedRoute><Planner /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
