@@ -123,6 +123,33 @@ export default function Wellness() {
   const [stress, setStress] = useState(3);
   const [feelings, setFeelings] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [goals, setGoals] = useState<string[]>([]);
+  const [savingGoals, setSavingGoals] = useState(false);
+
+  const GOALS = [
+    { key: "perte_gras",  label: "Perte de gras",  emoji: "🔥" },
+    { key: "prise_masse", label: "Prise de masse", emoji: "💪" },
+    { key: "souplesse",   label: "Souplesse",      emoji: "🤸‍♀️" },
+    { key: "force",       label: "Force",          emoji: "🏋️‍♀️" },
+    { key: "endurance",   label: "Endurance",      emoji: "🏃‍♀️" },
+    { key: "posture",     label: "Posture",        emoji: "🧘‍♀️" },
+    { key: "tonification",label: "Tonification",   emoji: "✨" },
+    { key: "detente",     label: "Détente",        emoji: "🌿" },
+  ];
+
+  const toggleGoal = async (key: string) => {
+    const next = goals.includes(key) ? goals.filter(g => g !== key) : [...goals, key];
+    setGoals(next);
+    setSavingGoals(true);
+    await supabase.from("profiles").update({ goals: next }).eq("id", user!.id);
+    setSavingGoals(false);
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("goals").eq("id", user.id).single()
+      .then(({ data }) => { if (data?.goals) setGoals(data.goals); });
+  }, [user]);
 
   useEffect(() => { if (user) loadData(); }, [user]);
 
@@ -248,6 +275,35 @@ export default function Wellness() {
         <div className="mb-5">
           <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Connect Reformer</p>
           <h1 className="font-display text-3xl font-light text-foreground">Bien-être</h1>
+        </div>
+
+        {/* Mes objectifs */}
+        <div className="mb-5">
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+            <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>Mes objectifs</p>
+            {savingGoals && <span style={{ fontSize:10, color:"#B8973E" }}>Enregistrement…</span>}
+          </div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+            {GOALS.map(g => {
+              const on = goals.includes(g.key);
+              return (
+                <button key={g.key} onClick={() => toggleGoal(g.key)}
+                  style={{ padding:"9px 14px", borderRadius:999, fontSize:13, fontWeight:600, fontFamily:"inherit", cursor:"pointer",
+                    border: on ? "1.5px solid #B8973E" : "1.5px solid rgba(28,27,25,0.12)",
+                    backgroundColor: on ? "#B8973E" : "white",
+                    color: on ? "#1C1B19" : "#6B6560",
+                    boxShadow: on ? "0 2px 8px rgba(184,151,62,0.25)" : "none",
+                    transition: "all .15s ease" }}>
+                  {g.emoji} {g.label}
+                </button>
+              );
+            })}
+          </div>
+          {goals.length > 0 && (
+            <p style={{ fontSize:11, color:"#8B8578", marginTop:8 }}>
+              {goals.length} objectif{goals.length > 1 ? "s" : ""} sélectionné{goals.length > 1 ? "s" : ""} — tes séances recommandées s'adapteront.
+            </p>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
