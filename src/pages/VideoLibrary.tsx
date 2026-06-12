@@ -120,10 +120,22 @@ export default function VideoLibrary() {
 
   const openCategory = async (cat: Category) => {
     setSelectedCat(cat);
-    const { data } = await supabase.from("workouts").select("*").eq("category_id", cat.id).order("session_number");
-    setSessions(data || []);
+    // Vidéos du programme : catégorie principale + liaisons multi-programmes
+    const [direct, links] = await Promise.all([
+      supabase.from("workouts").select("*").eq("category_id", cat.id).order("session_number"),
+      supabase.from("workout_category_links").select("workout_id").eq("category_id", cat.id),
+    ]);
+    let merged: Session[] = (direct.data as Session[]) || [];
+    const linkedIds = (links.data || []).map((l: any) => l.workout_id).filter(id => !merged.some(s => s.id === id));
+    if (linkedIds.length) {
+      const { data: extra } = await supabase.from("workouts").select("*").in("id", linkedIds);
+      merged = merged.concat(((extra as Session[]) || []).filter(s => (s as any).is_published !== false));
+      merged.sort((a, b) => (a.session_number || 99) - (b.session_number || 99));
+    }
+    setSessions(merged);
+    const data = merged;
     if (user) {
-      const { data: r } = await supabase.from("program_reviews").select("*").eq("user_id", user.id).in("program_id", (data || []).map(s => s.id));
+      const { data: r } = await supabase.from("program_reviews").select("*").eq("user_id", user.id).in("program_id", data.map(s => s.id));
       if (r) { const map: Record<string, Review> = {}; r.forEach(x => { map[x.program_id] = x; }); setReviews(map); }
     }
   };
