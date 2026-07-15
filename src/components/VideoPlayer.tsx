@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Play, Pause, Maximize2, Volume2, VolumeX, RotateCcw } from "lucide-react";
+import { X, Play, Pause, Maximize2, Volume2, VolumeX, RotateCcw, Airplay, Cast } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 interface VideoPlayerProps {
@@ -18,6 +18,10 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
   const [isLandscape, setIsLandscape] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const hideControlsTimer = useRef<NodeJS.Timeout>();
+
+  // ── Diffusion TV (AirPlay iOS / Cast Android) ────
+  const [airplayAvailable, setAirplayAvailable] = useState(false);
+  const [platform, setPlatform] = useState<'ios' | 'android' | 'other'>('other');
 
   // ── Détecter la rotation ──────────────────────────
   useEffect(() => {
@@ -42,6 +46,55 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
       document.documentElement.style.removeProperty('--landscape');
     };
   }, []);
+
+  // ── Détecter la plateforme + disponibilité AirPlay ──
+  useEffect(() => {
+    const ua = navigator.userAgent || "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Mac/.test(ua) && "ontouchend" in document);
+    const isAndroid = /Android/.test(ua);
+    setPlatform(isIOS ? 'ios' : isAndroid ? 'android' : 'other');
+
+    const video = videoRef.current as any;
+    if (!video) return;
+
+    // API AirPlay d'Apple : écouter la disponibilité d'un appareil (Apple TV, etc.)
+    const onAvailability = (e: any) => {
+      // e.availability === 'available' quand une TV AirPlay est détectée sur le réseau
+      setAirplayAvailable(e.availability === 'available');
+    };
+
+    if (typeof video.webkitShowPlaybackTargetPicker === 'function') {
+      video.addEventListener('webkitplaybacktargetavailabilitychanged', onAvailability);
+      // Sur iOS, on affiche le bouton par défaut (l'utilisateur verra "aucun appareil" sinon)
+      if (isIOS) setAirplayAvailable(true);
+    }
+
+    return () => {
+      if (video && typeof video.removeEventListener === 'function') {
+        video.removeEventListener('webkitplaybacktargetavailabilitychanged', onAvailability);
+      }
+    };
+  }, []);
+
+  // ── Lancer la diffusion sur TV ───────────────────
+  const startCasting = () => {
+    const video = videoRef.current as any;
+    if (!video) return;
+    resetControlsTimer();
+
+    // iOS : ouvrir le sélecteur AirPlay natif d'Apple
+    if (typeof video.webkitShowPlaybackTargetPicker === 'function') {
+      video.webkitShowPlaybackTargetPicker();
+      return;
+    }
+
+    // Android / autres : Chromecast nécessite un plugin natif (à venir)
+    // Pour l'instant, on guide l'utilisateur vers la recopie d'écran système
+    alert(t(
+      "Pour diffuser sur votre télévision, utilisez la recopie d'écran depuis les réglages rapides de votre téléphone.",
+      "To cast to your TV, use screen mirroring from your phone's quick settings."
+    ));
+  };
 
   // ── Contrôles vidéo ──────────────────────────────
   const togglePlay = () => {
@@ -173,6 +226,7 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
         onClick={togglePlay}
         playsInline
         webkit-playsinline="true"
+        x-webkit-airplay="allow"
       />
 
       {/* Bouton play central */}
@@ -229,6 +283,20 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
               : <Volume2 size={18} color="rgba(255,255,255,0.7)" />
             }
           </button>
+
+          {/* Diffusion TV — AirPlay (iOS) / Cast (Android) */}
+          {(platform === 'ios' ? airplayAvailable : platform === 'android') && (
+            <button
+              onClick={startCasting}
+              aria-label={t("Diffuser sur la télévision", "Cast to TV")}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+            >
+              {platform === 'ios'
+                ? <Airplay size={19} color="#B8973E" />
+                : <Cast size={19} color="#B8973E" />
+              }
+            </button>
+          )}
 
           <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginLeft: 'auto' }}>
             {formatTime(currentTime)} / {formatTime(duration)}
