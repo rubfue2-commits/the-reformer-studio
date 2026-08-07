@@ -90,7 +90,7 @@ export default function LanguageSelect() {
           style={{ backgroundColor: "#1C1B19", boxShadow: "0 8px 32px rgba(28,27,25,0.25)" }}>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
             style={{ backgroundColor: "#2D2A22" }}>
-            <span style={{ fontSize: 22 }}>🇫🇷</span>
+            <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: 1, color: "#B8973E" }}>FR</span>
           </div>
           <div className="flex-1 text-left">
             <p className="font-body text-base font-medium text-white" style={{ fontStyle: "normal" }}>
@@ -116,7 +116,7 @@ export default function LanguageSelect() {
           style={{ backgroundColor: "white", borderColor: "#E8E4DE", boxShadow: "0 2px 12px rgba(28,27,25,0.06)" }}>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
             style={{ backgroundColor: "#F5F3EE" }}>
-            <span style={{ fontSize: 22 }}>🇬🇧</span>
+            <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: 1, color: "#B8973E" }}>EN</span>
           </div>
           <div className="flex-1 text-left">
             <p className="font-body text-base font-medium" style={{ color: "#1C1B19", fontStyle: "normal" }}>

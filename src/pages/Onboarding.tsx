@@ -4,29 +4,30 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Logo from "@/components/Logo";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 const STEPS = [
   {
     id: "goal",
-    emoji: "🎯",
+    icon: "target" as IconName,
     title: "Quel est ton objectif ?",
     options: ["Perdre du poids", "Tonifier mon corps", "Améliorer ma posture", "Récupérer après blessure", "Bien-être & relaxation"],
   },
   {
     id: "level",
-    emoji: "💪",
+    icon: "strength" as IconName,
     title: "Ton niveau en Pilates ?",
     options: ["Débutante — je commence", "Intermédiaire — quelques mois", "Avancée — je pratique régulièrement"],
   },
   {
     id: "frequency",
-    emoji: "📅",
+    icon: "calendar" as IconName,
     title: "Combien de fois par semaine ?",
     options: ["1-2 fois", "3-4 fois", "5+ fois"],
   },
   {
     id: "measurements",
-    emoji: "📏",
+    icon: "ruler" as IconName,
     title: "Tes mensurations de départ",
     isForm: true,
   },
@@ -82,7 +83,7 @@ const Onboarding = () => {
               exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
 
               <div className="mb-8">
-                <span className="text-4xl mb-4 block">{currentStep.emoji}</span>
+                <span className="mb-4 block" style={{ display:"flex", justifyContent:"center" }}><AppIcon name={currentStep.icon} size={40} /></span>
                 <h1 className="font-display text-2xl font-light" style={{ color: "#1C1B19" }}>
                   {currentStep.title}
                 </h1>

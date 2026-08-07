@@ -29,7 +29,7 @@ export async function scheduleWorkoutReminder() {
     await LocalNotifications.schedule({
       notifications: [{
         id: REMINDER_ID,
-        title: "Ta séance t'attend 🧘‍♀️",
+        title: "Ta séance t'attend",
         body: "Cela fait quelques jours… Quelques minutes sur ton Reformer suffisent pour te faire du bien.",
         schedule: { at },
         sound: "default",

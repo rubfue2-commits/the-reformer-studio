@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 type Mode = "login" | "signup" | "reset";
 
@@ -93,7 +94,7 @@ export default function Auth() {
 
             {success ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>✉️</div>
+                <div style={{ marginBottom: 16, display:"flex", justifyContent:"center" }}><AppIcon name="mail" size={40} /></div>
                 <p style={{ color: "#2E7D32", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>{success}</p>
                 <button
                   onClick={() => { setMode("login"); setSuccess(""); setEmail(""); }}

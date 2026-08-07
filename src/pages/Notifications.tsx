@@ -6,6 +6,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 // ── Types ────────────────────────────────────────────────────
 type NotifKey = "session_reminder" | "streak_alert" | "badge_notification" | "wellness_reminder" | "progress_report";
@@ -22,11 +23,11 @@ interface NotifConfig {
 }
 
 const NOTIF_CONFIG: NotifConfig[] = [
-  { key: "session_reminder",  timeKey: "session_reminder_time",  icon: "🗓", iconBg: "#FFF7ED", iconColor: "#B8973E", label: "Rappels de séance",      desc: "Notification avant chaque séance planifiée" },
-  { key: "streak_alert",      timeKey: "streak_alert_time",      icon: "🔥", iconBg: "#FFF1F0", iconColor: "#EF4444", label: "Série en danger",        desc: "Alert si tu risques de briser ta série" },
-  { key: "badge_notification",                                    icon: "🏆", iconBg: "#F3F0FF", iconColor: "#7C3AED", label: "Nouveaux badges",        desc: "Félicitations quand tu débloqucs un achievement" },
-  { key: "wellness_reminder", timeKey: "wellness_reminder_time", icon: "💛", iconBg: "#FFF0F5", iconColor: "#EC4899", label: "Journal bien-être",      desc: "Rappel pour remplir ton bilan quotidien" },
-  { key: "progress_report",                                       icon: "📈", iconBg: "#F0FFF4", iconColor: "#16A34A", label: "Rapports de progression", desc: "Bilan hebdomadaire de tes progrès" },
+  { key: "session_reminder",  timeKey: "session_reminder_time",  icon: "reminder" as IconName, iconBg: "#FFF7ED", iconColor: "#B8973E", label: "Rappels de séance",      desc: "Notification avant chaque séance planifiée" },
+  { key: "streak_alert",      timeKey: "streak_alert_time",      icon: "flame" as IconName, iconBg: "#FFF1F0", iconColor: "#EF4444", label: "Série en danger",        desc: "Alert si tu risques de briser ta série" },
+  { key: "badge_notification",                                    icon: "badge" as IconName, iconBg: "#F3F0FF", iconColor: "#7C3AED", label: "Nouveaux badges",        desc: "Félicitations quand tu débloqucs un achievement" },
+  { key: "wellness_reminder", timeKey: "wellness_reminder_time", icon: "heart" as IconName, iconBg: "#FFF0F5", iconColor: "#EC4899", label: "Journal bien-être",      desc: "Rappel pour remplir ton bilan quotidien" },
+  { key: "progress_report",                                       icon: "progress" as IconName, iconBg: "#F0FFF4", iconColor: "#16A34A", label: "Rapports de progression", desc: "Bilan hebdomadaire de tes progrès" },
 ];
 
 // ── Composant sélecteur d'heure ───────────────────────────────
@@ -159,8 +160,8 @@ export default function Notifications() {
                 {/* Ligne principale */}
                 <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
                   {/* Icône */}
-                  <div style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: notif.iconBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-                    {notif.icon}
+                  <div style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: notif.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <AppIcon name=<AppIcon name={notif.icon} size={20} /> size={20} />
                   </div>
 
                   {/* Texte */}

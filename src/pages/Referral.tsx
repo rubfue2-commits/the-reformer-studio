@@ -213,7 +213,7 @@ export default function Referral() {
             {giftApplied ? (
               <div>
                 <p className="font-body font-semibold text-sm text-foreground">
-                  {t("🎉 Ton 13e mois offert est actif !", "🎉 Your 13th free month is active!")}
+                  {t("Ton 13e mois offert est actif !", "Your 13th free month is active!")}
                 </p>
                 <p className="font-body text-xs text-muted-foreground mt-1">
                   {t("Profite bien. À partir du mois suivant, ton abonnement mensuel à 49€ commence.",

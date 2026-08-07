@@ -125,7 +125,7 @@ export function useNotifications() {
         const [h, m] = s.session_reminder_time.split(":").map(Number);
         toSchedule.push({
           id: 1,
-          title: "🧘 Connect Reformer",
+          title: "Connect Reformer",
           body: "C'est l'heure de ta séance ! Prête à bouger ?",
           schedule: { every: "day" as const, on: { hour: h, minute: m } },
           sound: "default",
@@ -136,7 +136,7 @@ export function useNotifications() {
         const [h, m] = s.streak_alert_time.split(":").map(Number);
         toSchedule.push({
           id: 2,
-          title: "🔥 Ta série est en danger !",
+          title: "Ta série est en danger",
           body: "Il te reste peu de temps pour maintenir ta série. Fais une séance !",
           schedule: { every: "day" as const, on: { hour: h, minute: m } },
           sound: "default",
@@ -147,7 +147,7 @@ export function useNotifications() {
         const [h, m] = s.wellness_reminder_time.split(":").map(Number);
         toSchedule.push({
           id: 3,
-          title: "💛 Journal bien-être",
+          title: "Journal bien-être",
           body: "N'oublie pas de remplir ton bilan du jour pour voir ton score !",
           schedule: { every: "day" as const, on: { hour: h, minute: m } },
           sound: "default",
@@ -157,7 +157,7 @@ export function useNotifications() {
       if (s.progress_report) {
         toSchedule.push({
           id: 4,
-          title: "📈 Ton bilan de la semaine",
+          title: "Ton bilan de la semaine",
           body: "Découvre tes progrès et statistiques de la semaine !",
           schedule: { every: "week" as const, on: { weekday: 1, hour: 9, minute: 0 } },
           sound: "default",

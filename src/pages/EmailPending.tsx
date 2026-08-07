@@ -44,7 +44,7 @@ export default function EmailPending() {
           </p>
           {sent ? (
             <div style={{ backgroundColor: "#10B98115", borderRadius: 12, padding: "12px 16px", marginBottom: 12 }}>
-              <p style={{ fontSize: 13, color: "#10B981", fontWeight: 600, margin: 0 }}>✅ Email renvoyé !</p>
+              <p style={{ fontSize: 13, color: "#10B981", fontWeight: 600, margin: 0 }}>Email renvoyé !</p>
             </div>
           ) : (
             <button onClick={resend} disabled={loading}

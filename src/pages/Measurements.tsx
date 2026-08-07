@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { Keyboard } from "@capacitor/keyboard";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 // ── Structure DB exacte ───────────────────────────────────────
 interface Measurement {
@@ -30,12 +31,12 @@ interface Measurement {
 const DECREASING_IS_GOOD = ['weight_kg','waist_cm','hips_cm','thigh_cm','chest_cm','arm_cm'];
 
 const FIELDS = [
-  { key: "weight_kg", label_fr: "Poids",           label_en: "Weight",      unit: "kg", emoji: "⚖️", color: "#B8973E" },
-  { key: "waist_cm",  label_fr: "Tour de taille",  label_en: "Waist",       unit: "cm", emoji: "📏", color: "#EC4899" },
-  { key: "hips_cm",   label_fr: "Tour de hanches", label_en: "Hips",        unit: "cm", emoji: "📐", color: "#8B5CF6" },
-  { key: "chest_cm",  label_fr: "Tour de poitrine",label_en: "Chest",       unit: "cm", emoji: "💪", color: "#3B82F6" },
-  { key: "thigh_cm",  label_fr: "Tour de cuisses", label_en: "Thigh",       unit: "cm", emoji: "🦵", color: "#10B981" },
-  { key: "arm_cm",    label_fr: "Tour de bras",    label_en: "Arm",         unit: "cm", emoji: "💪", color: "#F97316" },
+  { key: "weight_kg", label_fr: "Poids",           label_en: "Weight",      unit: "kg", icon: "scale" as IconName, color: "#B8973E" },
+  { key: "waist_cm",  label_fr: "Tour de taille",  label_en: "Waist",       unit: "cm", icon: "ruler" as IconName, color: "#B8973E" },
+  { key: "hips_cm",   label_fr: "Tour de hanches", label_en: "Hips",        unit: "cm", icon: "ruler" as IconName, color: "#B8973E" },
+  { key: "chest_cm",  label_fr: "Tour de poitrine",label_en: "Chest",       unit: "cm", icon: "strength" as IconName, color: "#B8973E" },
+  { key: "thigh_cm",  label_fr: "Tour de cuisses", label_en: "Thigh",       unit: "cm", icon: "strength" as IconName, color: "#B8973E" },
+  { key: "arm_cm",    label_fr: "Tour de bras",    label_en: "Arm",         unit: "cm", icon: "strength" as IconName, color: "#B8973E" },
 ];
 
 // ── Graphique SVG smooth ──────────────────────────────────────
@@ -261,7 +262,7 @@ export default function Measurements() {
         {/* Aucune donnée */}
         {measurements.length === 0 && !showForm && (
           <div style={{ textAlign:"center", padding:"48px 20px" }}>
-            <p style={{ fontSize:40, marginBottom:16 }}>📏</p>
+            <p style={{ marginBottom:16, display:"flex", justifyContent:"center" }}><AppIcon name="ruler" size={40} /></p>
             <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>t("Première prise", "First entry")</p>
             <p style={{ fontSize:13, color:"#8B8578", lineHeight:1.7, maxWidth:240, margin:"0 auto 24px" }}>
               Enregistre tes premières mensurations pour visualiser ton évolution au fil du temps.
@@ -291,7 +292,7 @@ export default function Measurements() {
                     return (
                       <button key={f.key} onClick={() => setActiveMetric(f.key)}
                         style={{ background: selectedMetric===f.key ? f.color+"15" : "white", borderRadius:16, padding:"12px 14px", border: selectedMetric===f.key ? `1.5px solid ${f.color}40` : "1px solid rgba(28,27,25,0.08)", cursor:"pointer", textAlign:"left", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
-                        <p style={{ fontSize:12, color:"#8B8578", marginBottom:4 }}>{f.emoji} {t(f.label_fr, f.label_en)}</p>
+                        <p style={{ fontSize:12, color:"#8B8578", marginBottom:4 }}><span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span></p>
                         <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between" }}>
                           <p style={{ fontSize:20, fontWeight:700, color:"#1C1B19", margin:0 }}>
                             {val}<span style={{ fontSize:11, color:"#8B8578", fontWeight:400 }}> {f.unit}</span>
@@ -319,7 +320,7 @@ export default function Measurements() {
                     <button key={f.key} onClick={() => setActiveMetric(f.key)}
                       className="flex-shrink-0 font-body text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
                       style={{ backgroundColor: selectedMetric===f.key ? f.color : "rgba(28,27,25,0.07)", color: selectedMetric===f.key ? "white" : "#6B6560", border:"none", cursor:"pointer", fontFamily:"inherit" }}>
-                      {f.emoji} {t(f.label_fr, f.label_en)}
+                      <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span>
                     </button>
                   ))}
                 </div>
@@ -359,7 +360,7 @@ export default function Measurements() {
                         <div style={{ borderRadius:16, overflow:"hidden", backgroundColor:"#EFEce5", aspectRatio:"3/4", boxShadow:"0 1px 8px rgba(0,0,0,0.06)" }}>
                           {photoUrls[pathOf(m)]
                             ? <img src={photoUrls[pathOf(m)]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-                            : <div style={{ width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>📷</div>}
+                            : <div style={{ width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center" }}><AppIcon name="camera" size={24} color="#B8B0A6" /></div>}
                         </div>
                         <p style={{ fontSize:11, color:"#8B8578", textAlign:"center", marginTop:6 }}>
                           {hasBoth && i === 0 ? "Début · " : ""}{new Date(m.measured_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})}
@@ -374,7 +375,7 @@ export default function Measurements() {
             {/* Encouragement — 1 seule mesure */}
             {measurements.length === 1 && (
               <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor:"rgba(184,151,62,0.08)", border:"1px solid rgba(184,151,62,0.2)" }}>
-                <p className="font-body text-xs font-semibold text-foreground mb-1">📈 Reviens dans quelques jours</p>
+                <p className="font-body text-xs font-semibold text-foreground mb-1"><span style={{display:"inline-flex",alignItems:"center",gap:6}}><AppIcon name="progress" size={16} />Reviens dans quelques jours</span></p>
                 <p className="font-body text-xs text-muted-foreground leading-relaxed">
                   Ajoute une deuxième prise pour voir ton graphique d'évolution apparaître.
                 </p>
@@ -405,7 +406,7 @@ export default function Measurements() {
                 {FIELDS.map(f => (
                   <div key={f.key}>
                     <label style={{ fontSize:12, color:"#6B6560", display:"block", marginBottom:6, fontWeight:500 }}>
-                      {f.emoji} {t(f.label_fr, f.label_en)} <span style={{ color:"#B8B0A6" }}>({f.unit})</span>
+                      <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span> <span style={{ color:"#B8B0A6" }}>({f.unit})</span>
                     </label>
                     <div style={{ display:"flex", alignItems:"center", border:"1px solid rgba(28,27,25,0.12)", borderRadius:12, overflow:"hidden", backgroundColor:"#FAFAF8" }}>
                       <input type="number" inputMode="decimal" step="0.1" placeholder="—" value={form[f.key] || ""}
@@ -418,13 +419,13 @@ export default function Measurements() {
                 ))}
                 {/* Photos de suivi (optionnel) */}
                 <div style={{ marginTop:4 }}>
-                  <p style={{ fontSize:12, color:"#8B8578", marginBottom:8, fontWeight:500 }}>📸 Photos de suivi (optionnel)</p>
+                  <p style={{ fontSize:12, color:"#8B8578", marginBottom:8, fontWeight:500 }}>Photos de suivi (optionnel)</p>
                   <div style={{ display:"flex", gap:10 }}>
                     {([["front","De face","Front view",photoFront,setPhotoFront],["side","De profil","Side view",photoSide,setPhotoSide]] as const).map(([kind,label_fr,label_en,file,setter]) => (
                       <label key={kind} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6, padding:"18px 10px", borderRadius:14, border: file ? "1.5px solid #B8973E" : "1.5px dashed rgba(28,27,25,0.18)", backgroundColor: file ? "#B8973E12" : "white", cursor:"pointer" }}>
                         <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
                           onChange={e => { const f = e.target.files?.[0]; if (f) (setter as any)(f); }}/>
-                        <span style={{ fontSize:22 }}>{file ? "✅" : "📷"}</span>
+                        <span style={{ display:"flex" }}>{file ? <AppIcon name="check" size={22} /> : <AppIcon name="camera" size={22} />}</span>
                         <span style={{ fontSize:12, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{t(label_fr, label_en)}</span>
                         <span style={{ fontSize:10, color:"#B8B0A6" }}>{file ? t("Photo prête", "Photo ready") : t("Prendre une photo", "Take a photo")}</span>
                       </label>

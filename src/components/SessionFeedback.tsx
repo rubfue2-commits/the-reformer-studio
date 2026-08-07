@@ -2,6 +2,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+import AppIcon, { type IconName } from "@/components/AppIcon";
   Trophy, Star, Flame, Clock, Heart, Zap,
   ChevronRight, CheckCircle, Pencil, Share2,
   TrendingUp, RotateCcw, X
@@ -28,12 +29,12 @@ interface SessionFeedbackProps {
 type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 type FeelLevel = "terrible" | "moyen" | "bien" | "super" | "excellent";
 
-const FEEL_OPTIONS: { id: FeelLevel; emoji: string; label: string; color: string }[] = [
-  { id: "terrible",  emoji: "😩", label_fr: "Difficile", label_en: "Hard",  color: "#EF4444" },
-  { id: "moyen",     emoji: "😕", label_fr: "Moyen", label_en: "Medium",      color: "#F97316" },
-  { id: "bien",      emoji: "😊", label_fr: "Bien", label_en: "Good",       color: "#B8973E" },
-  { id: "super",     emoji: "😄", label_fr: "Super", label_en: "Great",      color: "#4CAF50" },
-  { id: "excellent", emoji: "🔥", label: "Excellent!", color: "#6366F1" },
+const FEEL_OPTIONS: { id: FeelLevel; icon: IconName; label?: string; label_fr?: string; label_en?: string; color: string }[] = [
+  { id: "terrible",  icon: "mood_terrible", label_fr: "Difficile", label_en: "Hard",  color: "#B8973E" },
+  { id: "moyen",     icon: "mood_bad", label_fr: "Moyen", label_en: "Medium",      color: "#B8973E" },
+  { id: "bien",      icon: "mood_ok", label_fr: "Bien", label_en: "Good",       color: "#B8973E" },
+  { id: "super",     icon: "mood_good", label_fr: "Super", label_en: "Great",      color: "#B8973E" },
+  { id: "excellent", icon: "mood_great", label: "Excellent!", color: "#B8973E" },
 ];
 
 const BODY_ZONES = [
@@ -94,7 +95,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }} className="text-center mb-8">
           <h1 className="font-display text-4xl font-light text-white mb-2">
-            {isComplete ? "Bravo ! 🎉" : "Belle séance !"}
+            {isComplete ? "Bravo !" : "Belle séance !"}
           </h1>
           <p className="font-body text-sm text-white/60">
             {isComplete
@@ -183,7 +184,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
                       border: difficulty === level ? `1.5px solid ${colors[level - 1]}` : "1px solid var(--border)"
                     }}>
                     <span style={{ fontSize: 20 }}>
-                      {["😴", "🙂", "💪", "🔥", "😰"][level - 1]}
+                      <AppIcon name={(["moon","mood_ok","strength","flame","activity"] as IconName[])[level - 1]} size={24} />
                     </span>
                     <span className="font-body text-[8px] text-muted-foreground text-center leading-tight">
                       {labels[level - 1]}
@@ -208,7 +209,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
                     background: feel === opt.id ? opt.color + "15" : "var(--card)",
                     border: feel === opt.id ? `1.5px solid ${opt.color}` : "1px solid var(--border)"
                   }}>
-                  <span style={{ fontSize: 22 }}>{opt.emoji}</span>
+                  <span style={{ display:"flex" }}><AppIcon name={opt.icon} size={24} color={opt.color} /></span>
                   <span className="font-body text-[9px] text-muted-foreground">{t(opt.label_fr, opt.label_en)}</span>
                 </button>
               ))}
@@ -309,7 +310,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
             <CheckCircle size={32} className="text-green-500" strokeWidth={1.5} />
           </div>
           <h2 className="font-display text-2xl font-light text-foreground">Feedback enregistré !</h2>
-          <p className="font-body text-sm text-muted-foreground mt-1">Merci pour ton retour 💛</p>
+          <p className="font-body text-sm text-muted-foreground mt-1">Merci pour ton retour</p>
         </motion.div>
 
         {/* Résumé de séance */}
@@ -344,7 +345,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
             <div className="flex items-center justify-between">
               <span className="font-body text-xs text-muted-foreground">Ressenti</span>
               <span className="font-body text-sm" style={{ color: feelData.color }}>
-                {feelData.emoji} {t(feelData.label_fr, feelData.label_en)}
+                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={feelData.icon} size={18} />{t(feelData.label_fr || feelData.label || "", feelData.label_en || feelData.label || "")}</span>
               </span>
             </div>
             <div className="flex items-center justify-between">

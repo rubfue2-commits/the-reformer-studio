@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, TrendingUp, Flame, Moon, Heart, Wind, CheckCircle } from "lucide-react";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -89,11 +90,11 @@ function StatCard({ icon: Icon, label, value, color, sub }: { icon: any; label: 
 }
 
 // ── Composant conseil santé ───────────────────────────────────
-function HealthInsight({ icon, title, text, color }: { icon: string; title: string; text: string; color: string }) {
+function HealthInsight({ icon, title, text, color }: { icon: IconName; title: string; text: string; color: string }) {
   return (
     <div className="rounded-2xl p-4 border" style={{ backgroundColor: color + "08", borderColor: color + "25" }}>
       <div className="flex items-start gap-3">
-        <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
+        <span style={{ flexShrink: 0, display:"flex" }}><AppIcon name={icon} size={22} color={color} /></span>
         <div>
           <p className="font-body text-sm font-semibold text-foreground mb-1">{title}</p>
           <p className="font-body text-xs text-muted-foreground leading-relaxed">{text}</p>
@@ -127,14 +128,14 @@ export default function Wellness() {
   const [savingGoals, setSavingGoals] = useState(false);
 
   const GOALS = [
-    { key: "perte_gras",  label: "Perte de gras",  emoji: "🔥" },
-    { key: "prise_masse", label: "Prise de masse", emoji: "💪" },
-    { key: "souplesse",   label: "Souplesse",      emoji: "🤸‍♀️" },
-    { key: "force",       label: "Force",          emoji: "🏋️‍♀️" },
-    { key: "endurance",   label: "Endurance",      emoji: "🏃‍♀️" },
-    { key: "posture",     label: "Posture",        emoji: "🧘‍♀️" },
-    { key: "tonification",label: "Tonification",   emoji: "✨" },
-    { key: "detente",     label: "Détente",        emoji: "🌿" },
+    { key: "perte_gras",  label: "Perte de gras",  icon: "perte_gras" as IconName },
+    { key: "prise_masse", label: "Prise de masse", icon: "prise_masse" as IconName },
+    { key: "souplesse",   label: "Souplesse",      icon: "souplesse" as IconName },
+    { key: "force",       label: "Force",          icon: "force" as IconName },
+    { key: "endurance",   label: "Endurance",      icon: "endurance" as IconName },
+    { key: "posture",     label: "Posture",        icon: "posture" as IconName },
+    { key: "tonification",label: "Tonification",   icon: "tonification" as IconName },
+    { key: "detente",     label: "Détente",        icon: "detente" as IconName },
   ];
 
   const toggleGoal = async (key: string) => {
@@ -231,35 +232,35 @@ export default function Wellness() {
     const insights = [];
     if (!weekStats) return insights;
     
-    if (weekStats.avgSleep >= 4) insights.push({ icon: "🌙", color: "#6366F1",
+    if (weekStats.avgSleep >= 4) insights.push({ icon: "moon" as IconName, color: "#B8973E",
       title: "Sommeil récupérateur",
       text: "Ton sommeil de qualité booste tes performances Pilates de 30%. Un corps reposé progresse 2x plus vite." });
-    if (weekStats.avgSleep < 3) insights.push({ icon: "😴", color: "#8B5CF6",
+    if (weekStats.avgSleep < 3) insights.push({ icon: "moon" as IconName, color: "#B8973E",
       title: "Privilégie le sommeil",
       text: "Le Pilates améliore naturellement la qualité du sommeil. 8h de récupération permettent à tes muscles de se reconstruire." });
-    if (weekStats.avgStress >= 4) insights.push({ icon: "🧘", color: "#10B981",
+    if (weekStats.avgStress >= 4) insights.push({ icon: "posture" as IconName, color: "#B8973E",
       title: "Tu gères le stress",
       text: "Le Pilates active le système nerveux parasympathique, réduisant le cortisol jusqu'à 25%. Continue !" });
-    if (weekStats.avgStress < 3) insights.push({ icon: "🌿", color: "#F59E0B",
+    if (weekStats.avgStress < 3) insights.push({ icon: "detente" as IconName, color: "#B8973E",
       title: "Le Pilates anti-stress",
       text: "3 séances par semaine réduisent l'anxiété de 40% en 8 semaines. Chaque respiration compte." });
-    if (weekStats.avgEnergy >= 4) insights.push({ icon: "⚡", color: "#F59E0B",
+    if (weekStats.avgEnergy >= 4) insights.push({ icon: "bolt" as IconName, color: "#B8973E",
       title: "Énergie au top",
       text: "Ton niveau d'énergie élevé est idéal pour progresser. C'est le moment de pousser tes limites !" });
-    if (weekStats.avgMood >= 4) insights.push({ icon: "✨", color: "#EC4899",
+    if (weekStats.avgMood >= 4) insights.push({ icon: "sparkles" as IconName, color: "#B8973E",
       title: "Bonne humeur = meilleurs résultats",
       text: "La bonne humeur libère des endorphines qui amplifient les bénéfices du Pilates. Garde cette énergie !" });
-    if (weekStats.streak >= 5) insights.push({ icon: "🔥", color: "#EF4444",
+    if (weekStats.streak >= 5) insights.push({ icon: "flame" as IconName, color: "#B8973E",
       title: weekStats.streak + " jours d'affilée !",
       text: "La régularité est la clé. Après 21 jours de pratique continue, le Pilates devient un besoin naturel." });
-    if (weekStats.totalEntries >= 10) insights.push({ icon: "💎", color: "#B8973E",
+    if (weekStats.totalEntries >= 10) insights.push({ icon: "diamond" as IconName, color: "#B8973E",
       title: "Tu te connais mieux",
       text: weekStats.totalEntries + " journaux complétés ! La connaissance de ton corps est le premier secret de la progression." });
 
     // Toujours au moins 2 insights
     if (insights.length === 0) insights.push(
-      { icon: "🌱", color: "#10B981", title: "Commence ton suivi", text: "Le journal bien-être t'aide à comprendre comment ton corps réagit au Pilates et à optimiser ta pratique." },
-      { icon: "💪", color: "#B8973E", title: "Le Pilates transforme", text: "4 à 6 semaines de pratique régulière suffisent pour voir des changements visibles sur la posture et la silhouette." }
+      { icon: "sprout" as IconName, color: "#B8973E", title: "Commence ton suivi", text: "Le journal bien-être t'aide à comprendre comment ton corps réagit au Pilates et à optimiser ta pratique." },
+      { icon: "strength" as IconName, color: "#B8973E", title: "Le Pilates transforme", text: "4 à 6 semaines de pratique régulière suffisent pour voir des changements visibles sur la posture et la silhouette." }
     );
 
     return insights.slice(0, 3);
@@ -294,7 +295,7 @@ export default function Wellness() {
                     color: on ? "#1C1B19" : "#6B6560",
                     boxShadow: on ? "0 2px 8px rgba(184,151,62,0.25)" : "none",
                     transition: "all .15s ease" }}>
-                  {g.emoji} {g.label}
+                  <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={g.icon} size={15} color={on ? "#1C1B19" : "#B8973E"} />{g.label}</span>
                 </button>
               );
             })}
@@ -509,7 +510,7 @@ export default function Wellness() {
               <button onClick={() => navigate("/measurements")}
                 style={{ width: "100%", padding: "14px 16px", backgroundColor: "white", border: "1px solid rgba(28,27,25,0.07)", borderRadius: 16, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📏</div>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><AppIcon name="ruler" size={18} /></div>
                   <div style={{ textAlign: "left" }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Mes mensurations</p>
                     <p style={{ fontSize: 12, color: "#8B8578", margin: 0 }}>Suivre poids, taille, hanches...</p>

@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 interface Category { id: string; slug: string; name_fr: string; emoji: string; color: string; order_index: number; }
 interface Session { id: string; name_fr: string; description_fr: string; duration_minutes: number; difficulty: string; estimated_calories: number; is_free: boolean; video_path: string | null; category_id: string; session_number: number; equipment?: string | null; discipline?: string | null; body_zone?: string | null; }
@@ -217,7 +218,7 @@ export default function VideoLibrary() {
 
               {sessions.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "60px 20px" }}>
-                  <p style={{ fontSize: 32, marginBottom: 8 }}>🎬</p>
+                  <p style={{ marginBottom: 8, display:"flex", justifyContent:"center" }}><AppIcon name="video" size={32} /></p>
                   <p style={{ fontSize: 15, fontWeight: 600, color: "#1C1B19", marginBottom: 4 }}>{t("Séances à venir", "Upcoming sessions")}</p>
                   <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.5 }}>{t("Les vidéos de ce programme sont en cours de production.", "Videos for this program are being produced.")}</p>
                 </div>
@@ -373,7 +374,7 @@ export default function VideoLibrary() {
               {showResults && (
                 filtered.length === 0 ? (
                   <div style={{ textAlign:"center", padding:"60px 20px" }}>
-                    <p style={{ fontSize:32, marginBottom:8 }}>🔍</p>
+                    <p style={{ marginBottom:8, display:"flex", justifyContent:"center" }}><AppIcon name="search" size={32} /></p>
                     <p style={{ fontSize:15, fontWeight:600, color:"#1C1B19", marginBottom:4 }}>{t("Aucune séance", "No session")}</p>
                     <p style={{ fontSize:13, color:"#8B8578" }}>{t("Essaie d'élargir tes filtres.", "Try broadening your filters.")}</p>
                     <button onClick={() => setShowResults(false)} style={{ marginTop:16, padding:"11px 22px", borderRadius:999, border:"none", backgroundColor:"#1C1B19", color:"white", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>{t("Modifier les filtres", "Edit filters")}</button>

@@ -11,6 +11,7 @@ import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/i18n/LanguageContext";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 // ── Catégories ────────────────────────────────────────────────
 const CATEGORIES = [
@@ -404,13 +405,13 @@ export default function Achievements() {
         {/* Stats rapides */}
         <div className="flex gap-2 px-5 mb-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {[
-            { label: "Séances", value: stats.sessions, icon: "⚡" },
-            { label: "Série",   value: stats.streak + "j", icon: "🔥" },
-            { label: "Journaux", value: stats.wellness, icon: "💛" },
-            { label: "Parrainages", value: stats.referrals, icon: "✨" },
+            { label: "Séances", value: stats.sessions, icon: "bolt" as IconName },
+            { label: "Série",   value: stats.streak + "j", icon: "flame" as IconName },
+            { label: "Journaux", value: stats.wellness, icon: "heart" as IconName },
+            { label: "Parrainages", value: stats.referrals, icon: "sparkles" as IconName },
           ].map((s, i) => (
             <div key={i} className="bg-card rounded-2xl border border-border flex-shrink-0" style={{ padding: "10px 14px", textAlign: "center", minWidth: 72 }}>
-              <p style={{ fontSize: 18, marginBottom: 1 }}>{s.icon}</p>
+              <p style={{ marginBottom: 1, display:"flex", justifyContent:"center" }}><AppIcon name={s.icon} size={18} /></p>
               <p className="font-body text-base font-semibold text-foreground">{s.value}</p>
               <p className="font-body text-[10px] text-muted-foreground">{s.label}</p>
             </div>

@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 const QUOTES = [
   { text: "Le corps s'adapte à tout ce que tu lui demandes régulièrement.", author: "Joseph Pilates" },
@@ -82,7 +83,7 @@ export default function Home() {
         return {
           ...sess,
           name: (wo as any)?.name_fr || (cat as any)?.name_fr || t("Séance", "Session"),
-          emoji: (cat as any)?.emoji || "🏃",
+          icon: ((cat as any)?.icon || "activity") as IconName,
           dur: (sess as any).duration_minutes,
         };
       });
@@ -168,7 +169,7 @@ export default function Home() {
         {/* Header */}
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} className="mb-6">
           <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-            {profile?.first_name ? `${t("Bonjour", "Hello")}, ${profile.first_name} 👋` : `${t("Bonjour", "Hello")} 👋`}
+            {profile?.first_name ? `${t("Bonjour", "Hello")}, ${profile.first_name}` : `${t("Bonjour", "Hello")}`}
           </p>
           <h1 className="font-display text-3xl font-light text-foreground">{t("Prête à bouger ?", "Ready to move?")}</h1>
         </motion.div>

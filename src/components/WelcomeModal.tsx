@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Play, Calendar, Heart, ChevronRight } from "lucide-react";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 interface WelcomeModalProps {
   firstName?: string;
@@ -9,25 +10,25 @@ interface WelcomeModalProps {
 
 const STEPS = [
   {
-    icon: "🎉",
+    icon: "confetti" as IconName,
     title: "Bienvenue sur Connect Reformer !",
     description: "Votre espace Pilates personnel est prêt. Découvrez une expérience unique depuis chez vous.",
     color: "#B8973E",
   },
   {
-    icon: "🎬",
+    icon: "video" as IconName,
     title: "Des séances pour tous les niveaux",
     description: "Accédez à une bibliothèque complète de séances Pilates Reformer, du débutant à l'expert.",
     color: "#8B5CF6",
   },
   {
-    icon: "📅",
+    icon: "calendar" as IconName,
     title: "Suivez votre progression",
     description: "Programmes structurés, journal bien-être et suivi de vos mensurations pour atteindre vos objectifs.",
     color: "#10B981",
   },
   {
-    icon: "❤️",
+    icon: "heart" as IconName,
     title: "Commençons ensemble",
     description: "Votre machine est prête, vos séances vous attendent. Prenez soin de vous — chaque jour compte.",
     color: "#EC4899",
@@ -88,7 +89,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
               fontSize: 36,
             }}
           >
-            {current.icon}
+            <AppIcon name={current.icon} size={40} />
           </motion.div>
 
           {/* Titre */}
@@ -102,7 +103,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
               fontFamily: "inherit",
             }}
           >
-            {step === 0 && firstName ? `Bonjour ${firstName} ! 👋` : current.title}
+            {step === 0 && firstName ? `Bonjour ${firstName} !` : current.title}
           </motion.h2>
 
           {/* Description */}
@@ -148,7 +149,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
               justifyContent: "center", gap: 8,
             }}
           >
-            {isLast ? "C'est parti ! 🚀" : "Suivant"}
+            {isLast ? "C'est parti !" : "Suivant"}
             {!isLast && <ChevronRight size={16} />}
           </button>
 

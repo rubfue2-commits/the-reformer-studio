@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useProfile } from '@/hooks/useProfile';
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ⚠️  MODE PRÉ-LANCEMENT
@@ -23,8 +24,8 @@ const PLANS = [
     per_month: 49,
     label_fr: 'Payé en une fois',
     label_en: 'Paid once',
-    badge_fr: '⭐ Recommandé',
-    badge_en: '⭐ Recommended',
+    badge_fr: 'Recommandé',
+    badge_en: 'Recommended',
     desc_fr: "49€/mois · 12 mois d\u2019accès · Sans engagement",
     desc_en: '49€/month · 12 months access · No commitment',
     color: '#B8973E',
@@ -67,7 +68,7 @@ export default function Subscription() {
   if (registered) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-        <span className="text-6xl mb-4">🎉</span>
+        <span className="mb-4" style={{ display:"flex", justifyContent:"center" }}><AppIcon name="confetti" size={56} /></span>
         <h1 className="font-display text-3xl text-foreground mb-2">
           {t('Préinscription confirmée !', 'Pre-registration confirmed!')}
         </h1>
@@ -85,7 +86,7 @@ export default function Subscription() {
         {/* Header */}
         <div className="text-center mb-2">
           <div className="inline-block bg-yellow-500/20 border border-yellow-500/40 text-yellow-500 font-body text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-            🚀 {t('Lancement bientôt', 'Launching soon')}
+            <span style={{display:"inline-flex",alignItems:"center",gap:6}}><AppIcon name="rocket" size={16} />{t('Lancement bientôt', 'Launching soon')}</span>
           </div>
           <h1 className="font-display text-4xl text-foreground mb-2">
             {t('Choisir ta formule', 'Choose your plan')}
@@ -100,7 +101,7 @@ export default function Subscription() {
 
         {/* Caution info */}
         <div className="rounded-2xl bg-card border border-border px-4 py-4 my-6 flex items-start gap-3">
-          <span className="text-xl mt-0.5">🔐</span>
+          <span className="mt-0.5" style={{ display:"flex" }}><AppIcon name="lock" size={18} /></span>
           <div>
             <p className="font-body text-sm font-semibold text-foreground">
               {t('Caution bancaire 500€', 'Bank deposit 500€')}

@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
+import AppIcon from "@/components/AppIcon";
 
 // Pages qui affichent la bottom nav
 const TABS = [
@@ -48,7 +49,7 @@ export function IOSLayout({ children }: IOSLayoutProps) {
           <div className="ios-status-icons">
             <span>●●●</span>
             <span>WiFi</span>
-            <span>🔋</span>
+            <AppIcon name="battery" size={16} color="currentColor" />
           </div>
         </div>
       )}

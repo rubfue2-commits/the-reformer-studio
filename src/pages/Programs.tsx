@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 interface Program {
   id: string; slug: string; name_fr: string; description_fr: string;
@@ -76,7 +77,7 @@ export default function Programs() {
           </div>
         ) : programs.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 28 }}>📋</div>
+            <div style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><AppIcon name="clipboard" size={28} /></div>
             <p style={{ fontSize: 16, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>{t("Programmes à venir", "Upcoming programs")}</p>
             <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.6, maxWidth: 260, margin: "0 auto" }}>
               Tes premiers programmes seront disponibles dès que les séances vidéo seront prêtes.
@@ -104,7 +105,7 @@ export default function Programs() {
                       <p className="font-body text-xs text-muted-foreground leading-relaxed mb-3">{program.description_fr}</p>
                     )}
                     <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
-                      <span style={{ fontSize: 12, color: "#8B8578" }}>📅 {program.duration_weeks} semaines</span>
+                      <span style={{ fontSize: 12, color: "#8B8578" }}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><AppIcon name="calendar" size={12} />{program.duration_weeks} semaines</span></span>
                     </div>
 
                     {/* Barre de progression si démarré */}

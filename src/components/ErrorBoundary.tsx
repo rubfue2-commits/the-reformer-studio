@@ -1,4 +1,5 @@
 import React from "react";
+import AppIcon, { type IconName } from "@/components/AppIcon";
 
 interface State { error: Error | null }
 
@@ -17,7 +18,7 @@ export default class ErrorBoundary extends React.Component<{ children: React.Rea
     if (this.state.error) {
       return (
         <div style={{ minHeight: "100dvh", backgroundColor: "#F5F3EE", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "system-ui, sans-serif" }}>
-          <p style={{ fontSize: 28, marginBottom: 8 }}>😵</p>
+          <p style={{ marginBottom: 8, display:"flex", justifyContent:"center" }}><AppIcon name="activity" size={28} /></p>
           <p style={{ fontSize: 16, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>Oups, une erreur est survenue</p>
           <p style={{ fontSize: 12, color: "#8B8578", textAlign: "center", marginBottom: 16, wordBreak: "break-word", maxWidth: 300 }}>
             {this.state.error.message}
