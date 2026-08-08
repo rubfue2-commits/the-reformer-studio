@@ -4,7 +4,8 @@ import {
   Moon, Scale, Diamond, Sprout, Activity, Heart, PartyPopper, CheckCircle2,
   Rocket, Clapperboard, Bell, Award, Hand, Frown, Meh, Smile, Laugh,
   Footprints, Wind, Timer, BatteryFull, Sun, Star, ClipboardList,
-  type LucideProps,
+  Waves, Move, HeartPulse, Orbit, Hourglass,
+  type LucideProps, type LucideIcon,
 } from "lucide-react";
 
 /**
@@ -78,4 +79,31 @@ interface AppIconProps extends Omit<LucideProps, "ref"> {
 export default function AppIcon({ name, size = 24, color = BRAND_GOLD, strokeWidth = 1.75, ...rest }: AppIconProps) {
   const Cmp = MAP[name] || Sparkles;
   return <Cmp size={size} color={color} strokeWidth={strokeWidth} {...rest} />;
+}
+
+/**
+ * Icône associée à une catégorie de séance (MOBILITY, STRONG, FIRE...).
+ * Mappe par slug/nom pour ignorer l'emoji stocké en base et afficher
+ * une icône premium cohérente. Repli intelligent par mots-clés.
+ */
+export function categoryIcon(slugOrName: string | null | undefined): LucideIcon {
+  const k = (slugOrName || "").toLowerCase();
+  const table: { match: string[]; icon: LucideIcon }[] = [
+    { match: ["mobility", "mobilite", "mobilité"], icon: Move },
+    { match: ["full", "body", "complet"], icon: PersonStanding },
+    { match: ["strong", "strength", "force", "muscu"], icon: Dumbbell },
+    { match: ["fire", "cardio", "burn", "hiit"], icon: Flame },
+    { match: ["pulse", "rythm", "tempo", "energie", "énergie"], icon: HeartPulse },
+    { match: ["stretch", "etirement", "étirement", "souplesse"], icon: PersonStanding },
+    { match: ["abs", "core", "abdo", "ventre", "gainage"], icon: Target },
+    { match: ["booty", "glute", "fessier", "jambe", "leg"], icon: Activity },
+    { match: ["arms", "bras", "haut"], icon: Dumbbell },
+    { match: ["flow", "yoga", "zen", "detente", "détente", "relax"], icon: Leaf },
+    { match: ["balance", "equilibre", "équilibre"], icon: Orbit },
+    { match: ["breath", "respir", "calm"], icon: Wind },
+  ];
+  for (const entry of table) {
+    if (entry.match.some((m) => k.includes(m))) return entry.icon;
+  }
+  return Sparkles; // repli élégant
 }

@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import AppIcon, { type IconName } from "@/components/AppIcon";
+import { categoryIcon, BRAND_GOLD } from "@/components/AppIcon";
 
 interface Category { id: string; slug: string; name_fr: string; emoji: string; color: string; order_index: number; }
 interface Session { id: string; name_fr: string; description_fr: string; duration_minutes: number; difficulty: string; estimated_calories: number; is_free: boolean; video_path: string | null; category_id: string; session_number: number; equipment?: string | null; discipline?: string | null; body_zone?: string | null; }
@@ -183,8 +184,8 @@ export default function VideoLibrary() {
                       initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.04 }}
                       style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                       <div style={{ backgroundColor: "white", borderRadius: 20, padding: "16px 12px", border: "1px solid rgba(28,27,25,0.07)", boxShadow: "0 1px 8px rgba(0,0,0,0.04)", textAlign: "center" }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: cat.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 8px" }}>
-                          {cat.emoji}
+                        <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: cat.color + "18", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                          {(() => { const CatIcon = categoryIcon(cat.slug || cat.name_fr); return <CatIcon size={24} color={cat.color || BRAND_GOLD} strokeWidth={1.75} />; })()}
                         </div>
                         <div style={{ height: 2, width: 24, backgroundColor: cat.color, borderRadius: 2, margin: "0 auto 8px" }} />
                         <p style={{ fontSize: 11, fontWeight: 700, color: "#1C1B19", letterSpacing: "0.04em", fontFamily: "inherit" }}>{cat.name_fr}</p>
@@ -206,8 +207,8 @@ export default function VideoLibrary() {
                   <ChevronLeft size={18} className="text-muted-foreground" />
                 </button>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCat.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                    {selectedCat.emoji}
+                  <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCat.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {(() => { const CatIcon = categoryIcon(selectedCat.slug || selectedCat.name_fr); return <CatIcon size={20} color={selectedCat.color || BRAND_GOLD} strokeWidth={1.75} />; })()}
                   </div>
                   <div>
                     <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">{t("Séances", "Sessions")}</p>
@@ -400,7 +401,7 @@ export default function VideoLibrary() {
                             <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor:diff.bg, color:diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
                             <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : t("Pilates au sol", "Mat Pilates")}</span>
                             {s.body_zone && <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"rgba(28,27,25,0.06)", color:"#6B6560" }}>{(ZONES.find(z => z.key === s.body_zone)?.label) || s.body_zone}</span>}
-                            {cat && <span style={{ fontSize:11, color:"#B8973E" }}>{cat.emoji} {cat.name_fr}</span>}
+                            {cat && <span style={{ fontSize:11, color:"#B8973E", display:"inline-flex", alignItems:"center", gap:5 }}>{(() => { const CatIcon = categoryIcon(cat.slug || cat.name_fr); return <CatIcon size={12} color="#B8973E" strokeWidth={1.75} />; })()}{cat.name_fr}</span>}
                           </div>
                         </motion.button>
                       );
