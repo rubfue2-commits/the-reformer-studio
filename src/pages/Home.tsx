@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { motion } from "framer-motion";
-import { Play, Flame, ChevronRight, CheckCircle, Clock, Zap } from "lucide-react";
+import { Flame, ChevronRight, CheckCircle, Clock, Clapperboard as ClapperboardIcon, Layers } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MobileLayout from "@/components/MobileLayout";
@@ -177,41 +177,29 @@ export default function Home() {
         {/* ── 1. SÉANCE RECOMMANDÉE ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }} className="mb-4">
           {recommended ? (
-            <div style={{ borderRadius:20, overflow:"hidden", border:"0.5px solid rgba(184,151,62,0.3)" }}>
-              {/* Bandeau label */}
-              <div style={{ backgroundColor:"#B8973E", padding:"6px 16px", display:"flex", alignItems:"center", gap:6 }}>
-                <Zap size={11} fill="#1C1B19" color="#1C1B19"/>
-                <span style={{ fontSize:10, fontWeight:700, color:"#1C1B19", letterSpacing:"0.08em", textTransform:"uppercase" }}>
-                  {t("Recommandée pour toi", "Recommended for you")}
+            <div style={{ background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", borderRadius:18, padding:"16px 18px" }}>
+              <p style={{ fontSize:9, color:"#B8973E", letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 10px" }}>
+                {t("Votre séance du jour", "Your session today")}
+              </p>
+              <p className="font-display" style={{ fontSize:19, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 8px", lineHeight:1.3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                {recommended.name_fr}
+              </p>
+              <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                <span style={{ fontSize:11, color:"var(--color-text-secondary)", display:"flex", alignItems:"center", gap:4 }}>
+                  <Clock size={12}/>{recommended.duration_minutes || "—"} min
                 </span>
-              </div>
-              {/* Corps carte */}
-              <div style={{ backgroundColor:"#1C1B19", padding:"18px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ fontSize:18, fontWeight:500, color:"#fff", margin:"0 0 4px", lineHeight:1.2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-                    {recommended.name_fr}
-                  </p>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                    <span style={{ fontSize:11, color:"rgba(255,255,255,0.45)", display:"flex", alignItems:"center", gap:4 }}>
-                      <Clock size={11}/>{recommended.duration_minutes || "—"} min
-                    </span>
-                    <span style={{ fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor: diff.bg, color: diff.color }}>
-                      {t(diff.label, diff.labelEn)}
-                    </span>
-                    {recommended.catName && (
-                      <span style={{ fontSize:10, color:"rgba(255,255,255,0.35)" }}>{recommended.catName}</span>
-                    )}
-                  </div>
-                </div>
+                {recommended.catName && (
+                  <span style={{ fontSize:11, color:"var(--color-text-tertiary)" }}>{recommended.catName}</span>
+                )}
                 <button
                   onClick={() => navigate("/library")}
-                  style={{ width:48, height:48, borderRadius:"50%", backgroundColor:"#B8973E", border:"none", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, cursor:"pointer", boxShadow:"0 0 0 4px rgba(184,151,62,0.2)" }}>
-                  <Play size={18} fill="#1C1B19" color="#1C1B19"/>
+                  style={{ marginLeft:"auto", background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#B8973E", display:"flex", alignItems:"center", gap:5, padding:0, fontFamily:"inherit" }}>
+                  {t("Commencer", "Start")}<ChevronRight size={14}/>
                 </button>
               </div>
             </div>
           ) : (
-            <div style={{ borderRadius:20, backgroundColor:"rgba(28,27,25,0.04)", padding:"20px 16px", textAlign:"center" }}>
+            <div style={{ borderRadius:18, background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", padding:"20px 18px", textAlign:"center" }}>
               <p style={{ fontSize:13, color:"var(--color-text-secondary)", margin:0 }}>{t("Aucune séance disponible", "No session available")}</p>
             </div>
           )}
@@ -219,26 +207,26 @@ export default function Home() {
 
         {/* ── 2. STATS ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-card rounded-3xl p-4 border border-border shadow-sm">
-            <div style={{ width:32, height:32, borderRadius:"50%", backgroundColor:"#B8973E20", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
-              <Flame size={16} style={{ color:"#B8973E" }}/>
+          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px 16px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:8 }}>
+              <Flame size={15} style={{ color:"#B8973E" }}/>
+              <span style={{ fontSize:11, color:"var(--color-text-secondary)" }}>Streak</span>
             </div>
-            <p className="font-body text-xl font-semibold text-foreground">{streak} {t("jours", "days")}</p>
-            <p className="font-body text-xs text-muted-foreground">Streak</p>
+            <p className="font-display" style={{ fontSize:26, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{streak} {t("jours", "days")}</p>
           </div>
-          <div className="bg-card rounded-3xl p-4 border border-border shadow-sm">
-            <div style={{ width:32, height:32, borderRadius:"50%", backgroundColor:"#10B98120", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:8 }}>
-              <CheckCircle size={16} style={{ color:"#10B981" }}/>
+          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px 16px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:8 }}>
+              <CheckCircle size={15} style={{ color:"#B8973E" }}/>
+              <span style={{ fontSize:11, color:"var(--color-text-secondary)" }}>{t("Ce mois", "This month")}</span>
             </div>
-            <p className="font-body text-xl font-semibold text-foreground">{monthSessions}</p>
-            <p className="font-body text-xs text-muted-foreground">{t("séances ce mois", "sessions this month")}</p>
+            <p className="font-display" style={{ fontSize:26, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{monthSessions}</p>
           </div>
         </motion.div>
 
         {/* ── 3. PROGRAMME EN COURS ── */}
         {currentProg && (
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }}
-            className="bg-card rounded-3xl border border-border shadow-sm p-4 mb-4">
+            style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px", marginBottom:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
               <p className="font-body text-sm font-semibold text-foreground">{t("Mon programme", "My program")}</p>
               <button onClick={() => navigate("/programs")} style={{ display:"flex", alignItems:"center", gap:3, background:"none", border:"none", cursor:"pointer", padding:0 }}>
@@ -265,7 +253,7 @@ export default function Home() {
         {/* ── 4. SÉANCES RÉCENTES ── */}
         {recentSessions.length > 0 && (
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
-            className="bg-card rounded-3xl border border-border shadow-sm p-4 mb-4">
+            style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px", marginBottom:16 }}>
             <p className="font-body text-sm font-semibold text-foreground mb-3">{t("Séances récentes", "Recent sessions")}</p>
             <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
               {recentSessions.map((sess, i) => {
@@ -305,13 +293,21 @@ export default function Home() {
 
         {/* ── 6. ACTIONS RAPIDES ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3 }} className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate("/library")} className="bg-foreground text-background rounded-3xl p-4 text-left">
-            <p className="font-body text-sm font-semibold mb-1">{t("Séances", "Sessions")}</p>
-            <p className="font-body text-xs opacity-60">{t("Bibliothèque complète", "Full library")}</p>
+          <button onClick={() => navigate("/library")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:18, padding:"16px", textAlign:"left", cursor:"pointer" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+              <ClapperboardIcon size={16} style={{ color:"#B8973E" }}/>
+              <ChevronRight size={14} style={{ color:"var(--color-text-tertiary)" }}/>
+            </div>
+            <p className="font-display" style={{ fontSize:15, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 2px" }}>{t("Séances", "Sessions")}</p>
+            <p style={{ fontSize:11, color:"var(--color-text-secondary)", margin:0 }}>{t("Bibliothèque complète", "Full library")}</p>
           </button>
-          <button onClick={() => navigate("/programs")} style={{ backgroundColor:"#B8973E" }} className="rounded-3xl p-4 text-left">
-            <p className="font-body text-sm font-semibold text-foreground mb-1">{t("Programmes", "Programs")}</p>
-            <p className="font-body text-xs text-foreground opacity-60">{t("Suivre un plan", "Follow a plan")}</p>
+          <button onClick={() => navigate("/programs")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:18, padding:"16px", textAlign:"left", cursor:"pointer" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+              <Layers size={16} style={{ color:"#B8973E" }}/>
+              <ChevronRight size={14} style={{ color:"var(--color-text-tertiary)" }}/>
+            </div>
+            <p className="font-display" style={{ fontSize:15, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 2px" }}>{t("Programmes", "Programs")}</p>
+            <p style={{ fontSize:11, color:"var(--color-text-secondary)", margin:0 }}>{t("Suivre un plan", "Follow a plan")}</p>
           </button>
         </motion.div>
 
