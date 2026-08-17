@@ -177,3 +177,23 @@ input, textarea, select, button {
   html, body, #root { background-color: #E8E4DE !important; }
   .shadow-sm { box-shadow: 0 2px 16px rgba(0,0,0,0.08) !important; }
 }
+
+/* ══ MICRO-ANIMATIONS PREMIUM ══ */
+/* Feedback tactile : léger effet de pression sur les éléments cliquables */
+button, a, [role="button"], .tappable {
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.12s ease;
+}
+button:active, a:active, [role="button"]:active, .tappable:active {
+  transform: scale(0.97);
+}
+/* Ne pas presser les zones de saisie ni les gros conteneurs */
+input:active, textarea:active, select:active { transform: none; }
+
+/* Respecte le réglage d'accessibilité "réduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
