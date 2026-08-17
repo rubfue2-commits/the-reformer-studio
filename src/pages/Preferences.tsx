@@ -1,13 +1,21 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, FileText, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Trash2, Sun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { getStoredTheme, setTheme, type Theme } from "@/lib/theme";
 
 const Preferences = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [theme, setThemeState] = useState<Theme>(getStoredTheme());
+
+  const chooseTheme = (next: Theme) => {
+    setTheme(next);
+    setThemeState(next);
+  };
 
   return (
     <MobileLayout>
@@ -23,6 +31,30 @@ const Preferences = () => {
             <h1 className="font-display text-2xl font-light text-foreground">{t("Préférences", "Preferences")}</h1>
           </div>
         </div>
+
+        {/* Apparence */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-2 px-1">{t("Apparence", "Appearance")}</p>
+          <div className="rounded-2xl bg-card p-2 shadow-sm border border-border flex gap-2">
+            <button onClick={() => chooseTheme("light")}
+              className="flex-1 rounded-xl py-3 flex flex-col items-center gap-1.5 transition-colors"
+              style={theme === "light"
+                ? { backgroundColor: "rgba(184,151,62,0.12)", border: "1px solid rgba(184,151,62,0.4)" }
+                : { border: "1px solid transparent" }}>
+              <Sun size={20} strokeWidth={1.5} style={{ color: theme === "light" ? "#B8973E" : undefined }} className={theme === "light" ? "" : "text-muted-foreground"} />
+              <span className="font-body text-xs font-medium" style={{ color: theme === "light" ? "#B8973E" : undefined }}>{t("Clair", "Light")}</span>
+            </button>
+            <button onClick={() => chooseTheme("dark")}
+              className="flex-1 rounded-xl py-3 flex flex-col items-center gap-1.5 transition-colors"
+              style={theme === "dark"
+                ? { backgroundColor: "rgba(184,151,62,0.12)", border: "1px solid rgba(184,151,62,0.4)" }
+                : { border: "1px solid transparent" }}>
+              <Moon size={20} strokeWidth={1.5} style={{ color: theme === "dark" ? "#B8973E" : undefined }} className={theme === "dark" ? "" : "text-muted-foreground"} />
+              <span className="font-body text-xs font-medium" style={{ color: theme === "dark" ? "#B8973E" : undefined }}>{t("Sombre", "Dark")}</span>
+            </button>
+          </div>
+          <p className="font-body text-[10px] text-muted-foreground mt-2 px-1">{t("Le mode sombre est idéal pour les séances du soir.", "Dark mode is ideal for evening sessions.")}</p>
+        </motion.div>
 
         {/* Légal */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
