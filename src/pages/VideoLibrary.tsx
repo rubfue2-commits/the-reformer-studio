@@ -8,9 +8,11 @@ import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
 import AppIcon, { type IconName } from "@/components/AppIcon";
 import { categoryIcon, BRAND_GOLD } from "@/components/AppIcon";
+import VideoPlayer from "@/components/VideoPlayer";
+import { getVideoUrl } from "@/hooks/useVideo";
 
 interface Category { id: string; slug: string; name_fr: string; emoji: string; color: string; order_index: number; }
-interface Session { id: string; name_fr: string; description_fr: string; duration_minutes: number; difficulty: string; estimated_calories: number; is_free: boolean; video_path: string | null; category_id: string; session_number: number; equipment?: string | null; discipline?: string | null; body_zone?: string | null; }
+interface Session { id: string; name_fr: string; name_en?: string; description_fr: string; duration_minutes: number; difficulty: string; estimated_calories: number; is_free: boolean; video_path: string | null; video_url?: string | null; category_id: string; session_number: number; equipment?: string | null; discipline?: string | null; body_zone?: string | null; }
 interface Review { rating: number; comment: string | null; }
 
 const DIFF: Record<string, { label: string; color: string; bg: string }> = {
@@ -48,6 +50,21 @@ export default function VideoLibrary() {
   const [showFilters, setShowFilters] = useState(false);
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [fSearch, setFSearch] = useState("");
+
+  // ── Lecteur vidéo ──
+  const [player, setPlayer] = useState<{ url: string; title: string } | null>(null);
+  const [loadingVideo, setLoadingVideo] = useState<string | null>(null);
+
+  const openSession = async (session: Session, locked: boolean) => {
+    if (locked) return;
+    const storagePath = session.video_url || session.video_path;
+    if (!storagePath) { alert(t("Vidéo bientôt disponible", "Video coming soon")); return; }
+    setLoadingVideo(session.id);
+    const signed = await getVideoUrl(storagePath);
+    setLoadingVideo(null);
+    if (!signed) { alert(t("Impossible de charger la vidéo", "Could not load video")); return; }
+    setPlayer({ url: signed, title: session.name_fr });
+  };
   const [fDur, setFDur] = useState<string[]>([]);
   const [fInt, setFInt] = useState<string[]>([]);
   const [fEquip, setFEquip] = useState<string[]>([]);
@@ -243,9 +260,13 @@ export default function VideoLibrary() {
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
                                 <h3 className="font-display text-base font-light text-foreground">{session.name_fr}</h3>
-                                <div style={{ width: 34, height: 34, borderRadius: "50%", backgroundColor: locked ? "rgba(28,27,25,0.06)" : selectedCat.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                  {locked ? <Lock size={13} className="text-muted-foreground" /> : <Play size={13} color="white" fill="white" />}
-                                </div>
+                                <button
+                                  onClick={() => openSession(session, locked)}
+                                  disabled={locked || loadingVideo === session.id}
+                                  aria-label={t("Lancer la séance", "Start session")}
+                                  style={{ width: 34, height: 34, borderRadius: "50%", backgroundColor: locked ? "rgba(28,27,25,0.06)" : selectedCat.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "none", cursor: locked ? "default" : "pointer", padding: 0 }}>
+                                  {locked ? <Lock size={13} className="text-muted-foreground" /> : (loadingVideo === session.id ? <RotateCcw size={13} color="white" className="animate-spin" /> : <Play size={13} color="white" fill="white" />)}
+                                </button>
                               </div>
                               {session.description_fr && (
                                 <p className="font-body text-xs text-muted-foreground leading-relaxed mb-2"
@@ -426,6 +447,14 @@ export default function VideoLibrary() {
 
       <BottomNav />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {player && (
+        <VideoPlayer
+          url={player.url}
+          title={player.title}
+          onClose={() => setPlayer(null)}
+        />
+      )}
     </MobileLayout>
   );
 }

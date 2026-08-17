@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Play, Pause, Maximize2, Volume2, VolumeX, RotateCcw, Airplay, Cast } from "lucide-react";
+import { X, Play, Pause, Maximize2, Volume2, VolumeX, RotateCcw, Airplay, Cast, RotateCw } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+
+export interface Chapter {
+  label: string;
+  start: number;
+}
 
 interface VideoPlayerProps {
   url: string;
   title: string;
   onClose: () => void;
+  chapters?: Chapter[];
 }
 
-export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
+const SPEEDS = [0.75, 1, 1.25, 1.5];
+
+export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlayerProps) {
   const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -17,6 +25,8 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [isLandscape, setIsLandscape] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [speed, setSpeed] = useState(1);
+  const [now, setNow] = useState(0);
   const hideControlsTimer = useRef<NodeJS.Timeout>();
 
   // ── Diffusion TV (AirPlay iOS / Cast Android) ────
@@ -110,8 +120,40 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
     setMuted(!muted);
   };
 
+  const skip = (seconds: number) => {
+    if (!videoRef.current) return;
+    const d = videoRef.current.duration || 0;
+    let target = videoRef.current.currentTime + seconds;
+    if (target < 0) target = 0;
+    if (target > d) target = d;
+    videoRef.current.currentTime = target;
+    resetControlsTimer();
+  };
+
+  const cycleSpeed = () => {
+    if (!videoRef.current) return;
+    const idx = SPEEDS.indexOf(speed);
+    const next = SPEEDS[(idx + 1) % SPEEDS.length];
+    videoRef.current.playbackRate = next;
+    setSpeed(next);
+    resetControlsTimer();
+  };
+
+  const jumpToChapter = (start: number) => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = start;
+    if (!playing) { videoRef.current.play(); setPlaying(true); }
+    resetControlsTimer();
+  };
+
+  // Chapitre courant (dernier dont le start est <= temps actuel)
+  const activeChapterIndex = chapters && chapters.length
+    ? chapters.reduce((acc, ch, i) => (now >= ch.start ? i : acc), 0)
+    : -1;
+
   const handleProgress = () => {
     if (!videoRef.current) return;
+    setNow(videoRef.current.currentTime);
     const p = (videoRef.current.currentTime / videoRef.current.duration) * 100;
     setProgress(isNaN(p) ? 0 : p);
   };
@@ -150,7 +192,7 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
     return m + ':' + String(sec).padStart(2, '0');
   };
 
-  const currentTime = videoRef.current?.currentTime ?? 0;
+  const currentTime = now;
 
   // ── Styles dynamiques ────────────────────────────
   const overlay: React.CSSProperties = {
@@ -249,32 +291,66 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
       {/* Contrôles bas */}
       <div style={controlsStyle}>
 
-        {/* Barre de progression */}
-        <input
-          type="range"
-          min="0" max="100"
-          value={progress}
-          onChange={handleSeek}
-          style={{
-            width: '100%',
-            height: 3,
-            accentColor: '#B8973E',
-            marginBottom: 12,
-            cursor: 'pointer',
-          }}
-        />
+        {/* Badge chapitre actif */}
+        {chapters && chapters.length > 0 && activeChapterIndex >= 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+            <span style={{
+              backgroundColor: 'rgba(184,151,62,0.9)', color: '#1C1B19',
+              fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+            }}>
+              {chapters[activeChapterIndex].label}
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>
+              {activeChapterIndex + 1}/{chapters.length}
+            </span>
+          </div>
+        )}
+
+        {/* Barre de chapitres (segments cliquables) */}
+        {chapters && chapters.length > 0 && duration > 0 ? (
+          <div style={{ display: 'flex', gap: 3, marginBottom: 12, cursor: 'pointer' }}>
+            {chapters.map((ch, i) => {
+              const start = ch.start;
+              const end = i < chapters.length - 1 ? chapters[i + 1].start : duration;
+              const flexBasis = Math.max(0.5, end - start);
+              const isPast = now >= end;
+              const isCurrent = i === activeChapterIndex;
+              const fillPct = isCurrent ? Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)) : (isPast ? 100 : 0);
+              return (
+                <div key={i} onClick={() => jumpToChapter(start)}
+                  style={{ flexGrow: flexBasis, flexBasis: 0, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
+                  <div style={{ width: fillPct + '%', height: '100%', backgroundColor: '#B8973E', borderRadius: 2, transition: 'width 0.2s' }} />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <input
+            type="range"
+            min="0" max="100"
+            value={progress}
+            onChange={handleSeek}
+            style={{ width: '100%', height: 3, accentColor: '#B8973E', marginBottom: 12, cursor: 'pointer' }}
+          />
+        )}
 
         {/* Boutons + temps */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button onClick={() => skip(-10)} aria-label={t("Reculer de 10 secondes", "Back 10 seconds")} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', position: 'relative' }}>
+            <RotateCcw size={20} color="rgba(255,255,255,0.85)" />
+            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
+          </button>
+
           <button onClick={togglePlay} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
             {playing
-              ? <Pause size={22} color="white" fill="white" />
-              : <Play size={22} color="white" fill="white" />
+              ? <Pause size={24} color="white" fill="white" />
+              : <Play size={24} color="white" fill="white" />
             }
           </button>
 
-          <button onClick={restart} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <RotateCcw size={18} color="rgba(255,255,255,0.7)" />
+          <button onClick={() => skip(10)} aria-label={t("Avancer de 10 secondes", "Forward 10 seconds")} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', position: 'relative' }}>
+            <RotateCw size={20} color="rgba(255,255,255,0.85)" />
+            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
           </button>
 
           <button onClick={toggleMute} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -282,6 +358,13 @@ export default function VideoPlayer({ url, title, onClose }: VideoPlayerProps) {
               ? <VolumeX size={18} color="rgba(255,255,255,0.7)" />
               : <Volume2 size={18} color="rgba(255,255,255,0.7)" />
             }
+          </button>
+
+          {/* Vitesse de lecture */}
+          <button onClick={cycleSpeed} aria-label={t("Vitesse de lecture", "Playback speed")} style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.3)', borderRadius: 12, cursor: 'pointer', padding: '2px 8px', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 600 }}>
+              {speed}×
+            </span>
           </button>
 
           {/* Diffusion TV — AirPlay (iOS) / Cast (Android) */}
