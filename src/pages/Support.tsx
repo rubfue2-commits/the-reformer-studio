@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, Mail, Copy, Check, MessageCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Mail, Copy, Check, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileLayout from "@/components/MobileLayout";
 import BottomNav from "@/components/BottomNav";
@@ -45,6 +45,21 @@ const Support = () => {
             <h1 className="font-display text-2xl font-light text-foreground">{t("Aide & support", "Help & support")}</h1>
           </div>
         </div>
+
+        {/* Discuter avec nous — chat en direct */}
+        <motion.button initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+          onClick={() => navigate("/support-chat")}
+          className="w-full rounded-3xl p-5 mb-4 flex items-center gap-3"
+          style={{ backgroundColor: "rgba(184,151,62,0.08)", border: "0.5px solid rgba(184,151,62,0.3)", cursor: "pointer" }}>
+          <div className="flex h-11 w-11 items-center justify-center rounded-full flex-shrink-0" style={{ backgroundColor: "rgba(184,151,62,0.15)" }}>
+            <MessageCircle size={20} strokeWidth={1.5} style={{ color: "#B8973E" }} />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-body text-sm font-medium text-foreground">{t("Discuter avec nous", "Chat with us")}</p>
+            <p className="font-body text-[11px] text-muted-foreground">{t("Tous les jours de 9h à 18h", "Every day from 9:00 to 18:00")}</p>
+          </div>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </motion.button>
 
         {/* Carte contact */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

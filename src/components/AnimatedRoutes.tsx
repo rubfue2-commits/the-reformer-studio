@@ -19,6 +19,7 @@ import Onboarding from "@/pages/Onboarding";
 import Subscription from "@/pages/Subscription";
 import Preferences from "@/pages/Preferences";
 import Support from "@/pages/Support";
+import SupportChat from "@/pages/SupportChat";
 import Planner from "@/pages/Planner";
 import NotFound from "@/pages/NotFound";
 import LanguageSelect from "@/pages/LanguageSelect";
@@ -51,6 +52,7 @@ export default function AnimatedRoutes() {
         <Route path="/subscription" element={<ProtectedRoute><P><Subscription /></P></ProtectedRoute>} />
         <Route path="/preferences" element={<ProtectedRoute><P><Preferences /></P></ProtectedRoute>} />
         <Route path="/support" element={<ProtectedRoute><P><Support /></P></ProtectedRoute>} />
+        <Route path="/support-chat" element={<ProtectedRoute><P><SupportChat /></P></ProtectedRoute>} />
         <Route path="/planner" element={<ProtectedRoute><P><Planner /></P></ProtectedRoute>} />
 
         <Route path="*" element={<P><NotFound /></P>} />
