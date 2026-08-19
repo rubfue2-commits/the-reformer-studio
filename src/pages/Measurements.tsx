@@ -71,7 +71,7 @@ function MetricChart({ data, field, color, label, unit }: {
     <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-4">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
         <div>
-          <p className="font-body text-sm font-semibold text-foreground">{t(label_fr, label_en)}</p>
+          <p className="font-body text-sm font-semibold text-foreground">{label}</p>
           <p className="font-body text-[11px] text-muted-foreground">
             {values.length} mesures · depuis {new Date(data[0].measured_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}
           </p>
@@ -251,7 +251,7 @@ export default function Measurements() {
           </button>
           <div className="flex-1">
             <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest">Bien-être</p>
-            <h1 className="font-display text-2xl font-light text-foreground">t("Mensurations", "Measurements")</h1>
+            <h1 className="font-display text-2xl font-light text-foreground">{t("Mensurations", "Measurements")}</h1>
           </div>
           <button onClick={() => setShowForm(true)}
             style={{ width:36, height:36, borderRadius:"50%", backgroundColor:"#B8973E", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -263,7 +263,7 @@ export default function Measurements() {
         {measurements.length === 0 && !showForm && (
           <div style={{ textAlign:"center", padding:"48px 20px" }}>
             <p style={{ marginBottom:16, display:"flex", justifyContent:"center" }}><AppIcon name="ruler" size={40} /></p>
-            <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>t("Première prise", "First entry")</p>
+            <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>{t("Première prise", "First entry")}</p>
             <p style={{ fontSize:13, color:"#8B8578", lineHeight:1.7, maxWidth:240, margin:"0 auto 24px" }}>
               Enregistre tes premières mensurations pour visualiser ton évolution au fil du temps.
             </p>
@@ -314,7 +314,7 @@ export default function Measurements() {
             {/* Graphique */}
             {availableMetrics.length > 0 && (
               <>
-                <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">t("Évolution", "Progress")</p>
+                <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">{t("Évolution", "Progress")}</p>
                 <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth:"none" }}>
                   {availableMetrics.map(f => (
                     <button key={f.key} onClick={() => setActiveMetric(f.key)}
@@ -343,7 +343,7 @@ export default function Measurements() {
               return (
                 <div style={{ marginTop:24, marginBottom:8 }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
-                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>t("Mon évolution en photos", "My photo progress")</p>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest" style={{ margin:0 }}>{t("Mon évolution en photos", "My photo progress")}</p>
                     <div style={{ display:"flex", gap:6 }}>
                       {(["front","side"] as const).map(k => (
                         <button key={k} onClick={() => setCompareMode(k)}
@@ -397,8 +397,8 @@ export default function Measurements() {
               <div style={{ width:36, height:4, borderRadius:2, backgroundColor:"#D1CCC5", margin:"0 auto 20px" }}/>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
                 <div>
-                  <h3 style={{ fontSize:18, fontWeight:600, color:"#1C1B19", margin:0 }}>t("Nouvelle prise", "New entry")</h3>
-                  <p style={{ fontSize:12, color:"#8B8578", margin:"2px 0 0" }}>t("Remplis uniquement ce que tu connais", "Fill in only what you know")</p>
+                  <h3 style={{ fontSize:18, fontWeight:600, color:"#1C1B19", margin:0 }}>{t("Nouvelle prise", "New entry")}</h3>
+                  <p style={{ fontSize:12, color:"#8B8578", margin:"2px 0 0" }}>{t("Remplis uniquement ce que tu connais", "Fill in only what you know")}</p>
                 </div>
                 <button onClick={() => setShowForm(false)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:"#8B8578", lineHeight:1 }}>×</button>
               </div>
