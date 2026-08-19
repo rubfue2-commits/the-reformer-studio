@@ -78,7 +78,7 @@ export default function Programs() {
         ) : programs.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><AppIcon name="clipboard" size={28} /></div>
-            <p style={{ fontSize: 16, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>{t("Programmes à venir", "Upcoming programs")}</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "#1C1B19", marginBottom: 6 }}>{t("Programmes à venir", "Upcoming programs")}</p>
             <p style={{ fontSize: 13, color: "#8B8578", lineHeight: 1.6, maxWidth: 260, margin: "0 auto" }}>
               Tes premiers programmes seront disponibles dès que les séances vidéo seront prêtes.
             </p>
@@ -97,7 +97,7 @@ export default function Programs() {
                   <div className="p-5">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                       <h3 className="font-display text-xl font-light text-foreground">{program.name_fr}</h3>
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, backgroundColor: lvl.bg, color: lvl.color, flexShrink: 0, marginLeft: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 8, backgroundColor: lvl.bg, color: lvl.color, flexShrink: 0, marginLeft: 8 }}>
                         {t(lvl.label_fr, lvl.label_en)}
                       </span>
                     </div>
@@ -105,14 +105,14 @@ export default function Programs() {
                       <p className="font-body text-xs text-muted-foreground leading-relaxed mb-3">{program.description_fr}</p>
                     )}
                     <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
-                      <span style={{ fontSize: 12, color: "#8B8578" }}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><AppIcon name="calendar" size={12} />{program.duration_weeks} semaines</span></span>
+                      <span style={{ fontSize: 13, color: "#8B8578" }}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><AppIcon name="calendar" size={12} />{program.duration_weeks} semaines</span></span>
                     </div>
 
                     {/* Barre de progression si démarré */}
                     {isStarted && (
                       <div style={{ marginBottom: 14 }}>
-                        <div style={{ height: 4, backgroundColor: "rgba(28,27,25,0.06)", borderRadius: 2, marginBottom: 6 }}>
-                          <div style={{ height: "100%", backgroundColor: "#B8973E", borderRadius: 2, width: `${Math.min(100, ((progress.completed_sessions || 0) / (program.duration_weeks * 3)) * 100)}%`, transition: "width 0.4s" }} />
+                        <div style={{ height: 4, backgroundColor: "rgba(28,27,25,0.06)", borderRadius: 4, marginBottom: 6 }}>
+                          <div style={{ height: "100%", backgroundColor: "#B8973E", borderRadius: 4, width: `${Math.min(100, ((progress.completed_sessions || 0) / (program.duration_weeks * 3)) * 100)}%`, transition: "width 0.4s" }} />
                         </div>
                         <p style={{ fontSize: 11, color: "#8B8578" }}>{progress.completed_sessions || 0} séances complétées</p>
                       </div>
@@ -120,7 +120,7 @@ export default function Programs() {
 
                     {/* Bouton voir séances */}
                     <button onClick={() => loadProgramSessions(program.id)}
-                      style={{ width: "100%", padding: "10px", border: "1px solid rgba(28,27,25,0.1)", borderRadius: 10, backgroundColor: "transparent", fontSize: 13, color: "#6B6560", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8 }}>
+                      style={{ width: "100%", padding: "10px", border: "1px solid rgba(28,27,25,0.1)", borderRadius: 12, backgroundColor: "transparent", fontSize: 13, color: "#6B6560", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8 }}>
                       <span>{expandedId === program.id ? "▲" : "▼"}</span>
                       {expandedId === program.id ? "Masquer les séances" : "Voir les séances"}
                     </button>
@@ -129,13 +129,13 @@ export default function Programs() {
                     {expandedId === program.id && programSessions[program.id] && (
                       <div style={{ backgroundColor: "rgba(28,27,25,0.03)", borderRadius: 12, padding: "8px 12px", marginBottom: 8 }}>
                         {programSessions[program.id].length === 0 ? (
-                          <p style={{ fontSize: 12, color: "#8B8578", textAlign: "center", padding: "8px 0" }}>{t("Séances à venir", "Upcoming sessions")}</p>
+                          <p style={{ fontSize: 13, color: "#8B8578", textAlign: "center", padding: "8px 0" }}>{t("Séances à venir", "Upcoming sessions")}</p>
                         ) : (
                           programSessions[program.id].map((ps, i) => (
                             <div key={ps.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: i < programSessions[program.id].length - 1 ? "1px solid rgba(28,27,25,0.05)" : "none" }}>
                               <span style={{ width: 20, height: 20, borderRadius: "50%", backgroundColor: "#B8973E22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#B8973E", flexShrink: 0 }}>{i+1}</span>
                               <div style={{ flex: 1 }}>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#1C1B19", margin: 0 }}>{ps.workouts?.name_fr || "Séance"}</p>
+                                <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19", margin: 0 }}>{ps.workouts?.name_fr || "Séance"}</p>
                                 <p style={{ fontSize: 11, color: "#8B8578", margin: 0 }}>{ps.workouts?.duration_minutes || 0} min · Sem. {ps.week_number}</p>
                               </div>
                             </div>

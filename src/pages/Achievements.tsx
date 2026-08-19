@@ -395,8 +395,8 @@ export default function Achievements() {
               <p className="font-body text-xl font-semibold text-white">{totalXP.toLocaleString()} XP</p>
             </div>
           </div>
-          <div style={{ height: 4, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 2, marginBottom: 6 }}>
-            <div style={{ height: "100%", backgroundColor: "#B8973E", borderRadius: 2, width: (xpProgress / 10) + "%", transition: "width 0.6s ease" }} />
+          <div style={{ height: 4, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: 6 }}>
+            <div style={{ height: "100%", backgroundColor: "#B8973E", borderRadius: 4, width: (xpProgress / 10) + "%", transition: "width 0.6s ease" }} />
           </div>
           <div className="flex justify-between">
             <p className="font-body text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>{xpProgress} / 1000 XP → Niv. {level + 1}</p>
@@ -483,16 +483,16 @@ export default function Achievements() {
                   {!unlocked && progress > 0 && (
                     <div style={{ position: "absolute", bottom: 0, left: 0, height: 3, width: progress + "%", backgroundColor: badge.color, opacity: 0.5, borderRadius: "0 0 0 20px" }} />
                   )}
-                  <div style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: unlocked ? badge.color + "22" : "rgba(28,27,25,0.06)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: unlocked ? badge.color + "22" : "rgba(28,27,25,0.06)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
                     {unlocked ? <Icon size={22} color={badge.color} /> : <Lock size={16} color="#C4BDB5" />}
                   </div>
                   <p style={{ fontSize: 10, fontWeight: 600, color: unlocked ? "#1C1B19" : "#8B8578", lineHeight: 1.3, fontFamily: "inherit", marginBottom: 2 }}>
                     {t(badge.titleFr, badge.titleEn)}
                   </p>
                   {unlocked ? (
-                    <p style={{ fontSize: 9, color: badge.color, fontWeight: 700, fontFamily: "inherit" }}>+{badge.xp} XP</p>
+                    <p style={{ fontSize: 10, color: badge.color, fontWeight: 700, fontFamily: "inherit" }}>+{badge.xp} XP</p>
                   ) : (
-                    <p style={{ fontSize: 9, color: "#B8B0A6", fontFamily: "inherit" }}>{val}/{badge.threshold}</p>
+                    <p style={{ fontSize: 10, color: "#B8B0A6", fontFamily: "inherit" }}>{val}/{badge.threshold}</p>
                   )}
                 </div>
               </motion.button>
@@ -510,11 +510,11 @@ export default function Achievements() {
             style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              style={{ backgroundColor: "white", borderRadius: 28, padding: "32px 24px", width: "100%", maxWidth: 320, textAlign: "center", position: "relative" }}>
+              style={{ backgroundColor: "white", borderRadius: 20, padding: "32px 24px", width: "100%", maxWidth: 320, textAlign: "center", position: "relative" }}>
               <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", color: "#8B8578" }}>
                 <X size={20} />
               </button>
-              <div style={{ width: 72, height: 72, borderRadius: 22, backgroundColor: selected.bg, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <div style={{ width: 72, height: 72, borderRadius: 20, backgroundColor: selected.bg, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 {isUnlocked(selected) ? <selected.icon size={36} color={selected.color} /> : <Lock size={30} color="#C4BDB5" />}
               </div>
               <p style={{ fontSize: 11, fontWeight: 600, color: selected.color, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
@@ -527,14 +527,14 @@ export default function Achievements() {
                 {t(selected.descFr, selected.descEn)}
               </p>
               {isUnlocked(selected) ? (
-                <div style={{ display: "inline-flex", padding: "8px 20px", backgroundColor: selected.bg, borderRadius: 24, border: `1px solid ${selected.color}30` }}>
+                <div style={{ display: "inline-flex", padding: "8px 20px", backgroundColor: selected.bg, borderRadius: 20, border: `1px solid ${selected.color}30` }}>
                   <p style={{ fontSize: 15, fontWeight: 700, color: selected.color }}>+{selected.xp} XP débloqués ✓</p>
                 </div>
               ) : (
-                <div style={{ backgroundColor: "#F5F3EE", borderRadius: 14, padding: "12px 16px" }}>
-                  <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>{t("Progression", "Progress")}</p>
-                  <div style={{ height: 6, backgroundColor: "#E8E4DE", borderRadius: 3, marginBottom: 6 }}>
-                    <div style={{ height: "100%", backgroundColor: selected.color, borderRadius: 3, width: Math.min(100, Math.round((getStatValue(selected) / selected.threshold) * 100)) + "%" }} />
+                <div style={{ backgroundColor: "#F5F3EE", borderRadius: 12, padding: "12px 16px" }}>
+                  <p style={{ fontSize: 13, color: "#6B6560", marginBottom: 6 }}>{t("Progression", "Progress")}</p>
+                  <div style={{ height: 6, backgroundColor: "#E8E4DE", borderRadius: 4, marginBottom: 6 }}>
+                    <div style={{ height: "100%", backgroundColor: selected.color, borderRadius: 4, width: Math.min(100, Math.round((getStatValue(selected) / selected.threshold) * 100)) + "%" }} />
                   </div>
                   <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19" }}>
                     {getStatValue(selected)} / {selected.threshold}

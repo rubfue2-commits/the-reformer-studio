@@ -81,10 +81,10 @@ export default function Auth() {
             <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: 4, color: "#B8922A", textTransform: "uppercase", marginBottom: 6 }}>
               Connect Reformer
             </div>
-            <div style={{ fontSize: 22, color: "#B8922A" }}>/ /</div>
+            <div style={{ fontSize: 20, color: "#B8922A" }}>/ /</div>
           </div>
 
-          <div style={{ backgroundColor: "white", borderRadius: 24, padding: "36px 28px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}>
+          <div style={{ backgroundColor: "white", borderRadius: 20, padding: "36px 28px", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: "#1C1B19", marginBottom: 6, textAlign: "center" }}>
               {mode === "login" ? "Connexion" : mode === "signup" ? "Créer un compte" : "Mot de passe oublié"}
             </h2>
@@ -95,10 +95,10 @@ export default function Auth() {
             {success ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
                 <div style={{ marginBottom: 16, display:"flex", justifyContent:"center" }}><AppIcon name="mail" size={40} /></div>
-                <p style={{ color: "#2E7D32", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>{success}</p>
+                <p style={{ color: "#2E7D32", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{success}</p>
                 <button
                   onClick={() => { setMode("login"); setSuccess(""); setEmail(""); }}
-                  style={{ background: "none", border: "none", color: "#B8922A", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+                  style={{ background: "none", border: "none", color: "#B8922A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
                 >
                   Retour à la connexion →
                 </button>

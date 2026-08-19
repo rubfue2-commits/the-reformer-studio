@@ -28,7 +28,7 @@ function StarRating({ value, onChange, readonly = false }: { value: number; onCh
       {[1,2,3,4,5].map(i => (
         <span key={i} onClick={() => !readonly && onChange?.(i)}
           onMouseEnter={() => !readonly && setHovered(i)} onMouseLeave={() => !readonly && setHovered(0)}
-          style={{ cursor: readonly ? "default" : "pointer", fontSize: 16, color: i <= (hovered || value) ? "#B8973E" : "#D1CCC5", transition: "color 0.15s" }}>★</span>
+          style={{ cursor: readonly ? "default" : "pointer", fontSize: 15, color: i <= (hovered || value) ? "#B8973E" : "#D1CCC5", transition: "color 0.15s" }}>★</span>
       ))}
     </div>
   );
@@ -184,8 +184,8 @@ export default function VideoLibrary() {
               <button onClick={openFilters}
                 style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"14px 18px", backgroundColor:"hsl(var(--card))", border:"1px solid hsl(var(--border))", borderRadius:999, marginBottom:20, cursor:"pointer", fontFamily:"inherit", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
                 <Search size={17} color="hsl(var(--muted-foreground))"/>
-                <span style={{ flex:1, textAlign:"left", fontSize:14, color:"hsl(var(--muted-foreground))" }}>{t("Rechercher une séance", "Search for a session")}</span>
-                <span style={{ display:"flex", alignItems:"center", gap:5, fontSize:12, fontWeight:600, color:"#B8973E" }}>
+                <span style={{ flex:1, textAlign:"left", fontSize:13, color:"hsl(var(--muted-foreground))" }}>{t("Rechercher une séance", "Search for a session")}</span>
+                <span style={{ display:"flex", alignItems:"center", gap:5, fontSize:13, fontWeight:600, color:"#B8973E" }}>
                   <SlidersHorizontal size={14}/> Filtres
                 </span>
               </button>
@@ -201,10 +201,10 @@ export default function VideoLibrary() {
                       initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.04 }}
                       style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                       <div style={{ backgroundColor:"hsl(var(--card))", borderRadius: 20, padding: "16px 12px", border: "1px solid hsl(var(--border))", boxShadow: "0 1px 8px rgba(0,0,0,0.04)", textAlign: "center" }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: cat.color + "18", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: cat.color + "18", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
                           {(() => { const CatIcon = categoryIcon(cat.slug || cat.name_fr); return <CatIcon size={24} color={cat.color || BRAND_GOLD} strokeWidth={1.75} />; })()}
                         </div>
-                        <div style={{ height: 2, width: 24, backgroundColor: cat.color, borderRadius: 2, margin: "0 auto 8px" }} />
+                        <div style={{ height: 2, width: 24, backgroundColor: cat.color, borderRadius: 4, margin: "0 auto 8px" }} />
                         <p style={{ fontSize: 11, fontWeight: 700, color:"hsl(var(--foreground))", letterSpacing: "0.04em", fontFamily: "inherit" }}>{cat.name_fr}</p>
                       </div>
                     </motion.button>
@@ -224,7 +224,7 @@ export default function VideoLibrary() {
                   <ChevronLeft size={18} className="text-muted-foreground" />
                 </button>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCat.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: selectedCat.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {(() => { const CatIcon = categoryIcon(selectedCat.slug || selectedCat.name_fr); return <CatIcon size={20} color={selectedCat.color || BRAND_GOLD} strokeWidth={1.75} />; })()}
                   </div>
                   <div>
@@ -279,7 +279,7 @@ export default function VideoLibrary() {
                                   <Clock size={11} /> {session.duration_minutes} min
                                 </span>
                                 {session.estimated_calories && <span style={{ fontSize: 11, color:"hsl(var(--muted-foreground))" }}>~{session.estimated_calories} kcal</span>}
-                                <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6, backgroundColor: diff.bg, color: diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
+                                <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 8, backgroundColor: diff.bg, color: diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
                               </div>
                             </div>
                           </div>
@@ -296,21 +296,21 @@ export default function VideoLibrary() {
                               <button onClick={() => { setReviewingId(session.id); setTempRating(0); setTempComment(""); }}
                                 style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
                                 <MessageSquare size={12} color="#B8973E" />
-                                <span style={{ fontSize: 12, color: "#B8973E", fontWeight: 600 }}>{t("Mon avis", "My review")}</span>
+                                <span style={{ fontSize: 13, color: "#B8973E", fontWeight: 600 }}>{t("Mon avis", "My review")}</span>
                               </button>
                             ) : null}
                             <AnimatePresence>
                               {isReviewing && (
                                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
                                   <div style={{ paddingTop: 8 }}>
-                                    <p style={{ fontSize: 12, color: "#6B6560", marginBottom: 6 }}>{t("Comment tu as trouvé cette séance ?", "How did you find this session?")}</p>
+                                    <p style={{ fontSize: 13, color: "#6B6560", marginBottom: 6 }}>{t("Comment tu as trouvé cette séance ?", "How did you find this session?")}</p>
                                     <StarRating value={tempRating} onChange={setTempRating} />
                                     <textarea value={tempComment} onChange={e => setTempComment(e.target.value)} placeholder="Un commentaire ? (optionnel)" rows={2}
-                                      style={{ width: "100%", marginTop: 8, padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12, fontFamily: "inherit", resize: "none", outline: "none", backgroundColor: "#FAFAF8", boxSizing: "border-box" as const }} />
+                                      style={{ width: "100%", marginTop: 8, padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13, fontFamily: "inherit", resize: "none", outline: "none", backgroundColor: "#FAFAF8", boxSizing: "border-box" as const }} />
                                     <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                                      <button onClick={() => setReviewingId(null)} style={{ flex: 1, padding: "8px", border: "1px solid hsl(var(--border))", borderRadius: 8, backgroundColor: "transparent", fontSize: 12, color: "#6B6560", cursor: "pointer", fontFamily: "inherit" }}>Annuler</button>
+                                      <button onClick={() => setReviewingId(null)} style={{ flex: 1, padding: "8px", border: "1px solid hsl(var(--border))", borderRadius: 8, backgroundColor: "transparent", fontSize: 13, color: "#6B6560", cursor: "pointer", fontFamily: "inherit" }}>Annuler</button>
                                       <button onClick={() => submitReview(session.id)} disabled={!tempRating}
-                                        style={{ flex: 2, padding: "8px", border: "none", borderRadius: 8, backgroundColor: tempRating ? "#B8973E" : "#D1CCC5", color:"hsl(var(--foreground))", fontSize: 12, fontWeight: 600, cursor: tempRating ? "pointer" : "default", fontFamily: "inherit" }}>
+                                        style={{ flex: 2, padding: "8px", border: "none", borderRadius: 8, backgroundColor: tempRating ? "#B8973E" : "#D1CCC5", color:"hsl(var(--foreground))", fontSize: 13, fontWeight: 600, cursor: tempRating ? "pointer" : "default", fontFamily: "inherit" }}>
                                         Publier
                                       </button>
                                     </div>
@@ -341,7 +341,7 @@ export default function VideoLibrary() {
                 style={{ width:38, height:38, borderRadius:"50%", backgroundColor:"hsl(var(--foreground))", border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
                 <ChevronLeft size={18} color="white"/>
               </button>
-              <h2 style={{ flex:1, fontSize:22, fontWeight:700, color:"hsl(var(--foreground))", margin:0, fontFamily:"inherit" }}>
+              <h2 style={{ flex:1, fontSize:20, fontWeight:700, color:"hsl(var(--foreground))", margin:0, fontFamily:"inherit" }}>
                 {showResults ? `${filtered.length} séance${filtered.length > 1 ? "s" : ""}` : t("Toutes les vidéos", "All videos")}
               </h2>
               <button onClick={resetFilters}
@@ -378,7 +378,7 @@ export default function VideoLibrary() {
                         const on = (selected as string[]).includes(o.key);
                         return (
                           <button key={o.key} onClick={() => toggle(selected as string[], setter as any, o.key)}
-                            style={{ padding:"11px 20px", borderRadius:999, fontSize:14, fontWeight:500, fontFamily:"inherit", cursor:"pointer",
+                            style={{ padding:"11px 20px", borderRadius:999, fontSize:13, fontWeight:500, fontFamily:"inherit", cursor:"pointer",
                               border: on ? "1.5px solid #B8973E" : "1.5px solid hsl(var(--border))",
                               backgroundColor: on ? "#B8973E" : "transparent",
                               color: "hsl(var(--foreground))",
@@ -419,9 +419,9 @@ export default function VideoLibrary() {
                           </div>
                           <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
                             <span style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"hsl(var(--muted-foreground))" }}><Clock size={11}/> {s.duration_minutes} min</span>
-                            <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:6, backgroundColor:diff.bg, color:diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
-                            <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"hsl(var(--border))", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : t("Pilates au sol", "Mat Pilates")}</span>
-                            {s.body_zone && <span style={{ fontSize:11, padding:"2px 8px", borderRadius:6, backgroundColor:"hsl(var(--border))", color:"#6B6560" }}>{(ZONES.find(z => z.key === s.body_zone)?.label) || s.body_zone}</span>}
+                            <span style={{ fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:8, backgroundColor:diff.bg, color:diff.color }}>{t(diff.label_fr, diff.label_en)}</span>
+                            <span style={{ fontSize:11, padding:"2px 8px", borderRadius:8, backgroundColor:"hsl(var(--border))", color:"#6B6560" }}>{(s.equipment || "reformer") === "reformer" ? "Reformer" : t("Pilates au sol", "Mat Pilates")}</span>
+                            {s.body_zone && <span style={{ fontSize:11, padding:"2px 8px", borderRadius:8, backgroundColor:"hsl(var(--border))", color:"#6B6560" }}>{(ZONES.find(z => z.key === s.body_zone)?.label) || s.body_zone}</span>}
                             {cat && <span style={{ fontSize:11, color:"#B8973E", display:"inline-flex", alignItems:"center", gap:5 }}>{(() => { const CatIcon = categoryIcon(cat.slug || cat.name_fr); return <CatIcon size={12} color="#B8973E" strokeWidth={1.75} />; })()}{cat.name_fr}</span>}
                           </div>
                         </motion.button>
@@ -436,7 +436,7 @@ export default function VideoLibrary() {
             {!showResults && (
               <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"14px 20px 34px", background:"linear-gradient(transparent, #F5F3EE 30%)" }}>
                 <button onClick={() => setShowResults(true)}
-                  style={{ width:"100%", padding:"17px", backgroundColor:"hsl(var(--foreground))", color:"hsl(var(--background))", border:"none", borderRadius:999, fontSize:16, fontWeight:600, cursor:"pointer", fontFamily:"inherit", boxShadow:"0 4px 16px rgba(0,0,0,0.18)" }}>
+                  style={{ width:"100%", padding:"17px", backgroundColor:"hsl(var(--foreground))", color:"hsl(var(--background))", border:"none", borderRadius:999, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", boxShadow:"0 4px 16px rgba(0,0,0,0.18)" }}>
                   Voir toutes les vidéos{activeFilterCount ? ` (${filtered.length})` : ""}
                 </button>
               </div>

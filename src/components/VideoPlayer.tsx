@@ -244,7 +244,7 @@ export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlay
         opacity: showControls ? 1 : 0,
         transition: 'opacity 0.3s',
       }}>
-        <p style={{ color: 'white', fontSize: 14, fontWeight: 500, margin: 0, maxWidth: '70%' }}>
+        <p style={{ color: 'white', fontSize: 13, fontWeight: 500, margin: 0, maxWidth: '70%' }}>
           {title}
         </p>
         <button onClick={onClose} style={{
@@ -318,8 +318,8 @@ export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlay
               const fillPct = isCurrent ? Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)) : (isPast ? 100 : 0);
               return (
                 <div key={i} onClick={() => jumpToChapter(start)}
-                  style={{ flexGrow: flexBasis, flexBasis: 0, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
-                  <div style={{ width: fillPct + '%', height: '100%', backgroundColor: '#B8973E', borderRadius: 2, transition: 'width 0.2s' }} />
+                  style={{ flexGrow: flexBasis, flexBasis: 0, height: 4, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
+                  <div style={{ width: fillPct + '%', height: '100%', backgroundColor: '#B8973E', borderRadius: 4, transition: 'width 0.2s' }} />
                 </div>
               );
             })}
@@ -338,7 +338,7 @@ export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlay
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button onClick={() => skip(-10)} aria-label={t("Reculer de 10 secondes", "Back 10 seconds")} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', position: 'relative' }}>
             <RotateCcw size={20} color="rgba(255,255,255,0.85)" />
-            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
+            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
           </button>
 
           <button onClick={togglePlay} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -350,7 +350,7 @@ export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlay
 
           <button onClick={() => skip(10)} aria-label={t("Avancer de 10 secondes", "Forward 10 seconds")} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', position: 'relative' }}>
             <RotateCw size={20} color="rgba(255,255,255,0.85)" />
-            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
+            <span style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>10</span>
           </button>
 
           <button onClick={toggleMute} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -381,7 +381,7 @@ export default function VideoPlayer({ url, title, onClose, chapters }: VideoPlay
             </button>
           )}
 
-          <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginLeft: 'auto' }}>
+          <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginLeft: 'auto' }}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
 

@@ -77,7 +77,7 @@ function MetricChart({ data, field, color, label, unit }: {
           </p>
         </div>
         <div style={{ textAlign:"right" }}>
-          <p style={{ fontSize:22, fontWeight:700, color, lineHeight:1 }}>
+          <p style={{ fontSize:20, fontWeight:700, color, lineHeight:1 }}>
             {values[values.length-1]}
             <span style={{ fontSize:11, color:"#8B8578", fontWeight:400 }}> {unit}</span>
           </p>
@@ -263,12 +263,12 @@ export default function Measurements() {
         {measurements.length === 0 && !showForm && (
           <div style={{ textAlign:"center", padding:"48px 20px" }}>
             <p style={{ marginBottom:16, display:"flex", justifyContent:"center" }}><AppIcon name="ruler" size={40} /></p>
-            <p style={{ fontSize:16, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>{t("Première prise", "First entry")}</p>
+            <p style={{ fontSize:15, fontWeight:600, color:"#1C1B19", marginBottom:8 }}>{t("Première prise", "First entry")}</p>
             <p style={{ fontSize:13, color:"#8B8578", lineHeight:1.7, maxWidth:240, margin:"0 auto 24px" }}>
               Enregistre tes premières mensurations pour visualiser ton évolution au fil du temps.
             </p>
             <button onClick={() => setShowForm(true)}
-              style={{ padding:"13px 28px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:14, fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+              style={{ padding:"13px 28px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:12, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
               Commencer le suivi
             </button>
           </div>
@@ -292,7 +292,7 @@ export default function Measurements() {
                     return (
                       <button key={f.key} onClick={() => setActiveMetric(f.key)}
                         style={{ background: selectedMetric===f.key ? f.color+"15" : "white", borderRadius:16, padding:"12px 14px", border: selectedMetric===f.key ? `1.5px solid ${f.color}40` : "1px solid rgba(28,27,25,0.08)", cursor:"pointer", textAlign:"left", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
-                        <p style={{ fontSize:12, color:"#8B8578", marginBottom:4 }}><span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span></p>
+                        <p style={{ fontSize:13, color:"#8B8578", marginBottom:4 }}><span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span></p>
                         <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between" }}>
                           <p style={{ fontSize:20, fontWeight:700, color:"#1C1B19", margin:0 }}>
                             {val}<span style={{ fontSize:11, color:"#8B8578", fontWeight:400 }}> {f.unit}</span>
@@ -394,39 +394,39 @@ export default function Measurements() {
               initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
               transition={{ type:"spring", damping:28, stiffness:300 }}
               style={{ position:"fixed", left:0, right:0, bottom: keyboardHeight > 0 ? keyboardHeight : 0, zIndex:999, backgroundColor:"white", borderRadius:"24px 24px 0 0", maxHeight:"85vh", overflowY:"auto", WebkitOverflowScrolling:"touch" as any, padding:"20px 20px 44px" }}>
-              <div style={{ width:36, height:4, borderRadius:2, backgroundColor:"#D1CCC5", margin:"0 auto 20px" }}/>
+              <div style={{ width:36, height:4, borderRadius:4, backgroundColor:"#D1CCC5", margin:"0 auto 20px" }}/>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
                 <div>
-                  <h3 style={{ fontSize:18, fontWeight:600, color:"#1C1B19", margin:0 }}>{t("Nouvelle prise", "New entry")}</h3>
-                  <p style={{ fontSize:12, color:"#8B8578", margin:"2px 0 0" }}>{t("Remplis uniquement ce que tu connais", "Fill in only what you know")}</p>
+                  <h3 style={{ fontSize:17, fontWeight:600, color:"#1C1B19", margin:0 }}>{t("Nouvelle prise", "New entry")}</h3>
+                  <p style={{ fontSize:13, color:"#8B8578", margin:"2px 0 0" }}>{t("Remplis uniquement ce que tu connais", "Fill in only what you know")}</p>
                 </div>
-                <button onClick={() => setShowForm(false)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:"#8B8578", lineHeight:1 }}>×</button>
+                <button onClick={() => setShowForm(false)} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#8B8578", lineHeight:1 }}>×</button>
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
                 {FIELDS.map(f => (
                   <div key={f.key}>
-                    <label style={{ fontSize:12, color:"#6B6560", display:"block", marginBottom:6, fontWeight:500 }}>
+                    <label style={{ fontSize:13, color:"#6B6560", display:"block", marginBottom:6, fontWeight:500 }}>
                       <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><AppIcon name={f.icon} size={14} />{t(f.label_fr, f.label_en)}</span> <span style={{ color:"#B8B0A6" }}>({f.unit})</span>
                     </label>
                     <div style={{ display:"flex", alignItems:"center", border:"1px solid rgba(28,27,25,0.12)", borderRadius:12, overflow:"hidden", backgroundColor:"#FAFAF8" }}>
                       <input type="number" inputMode="decimal" step="0.1" placeholder="—" value={form[f.key] || ""}
                         onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                         onFocus={handleFocus}
-                        style={{ flex:1, padding:"14px 16px", border:"none", outline:"none", fontSize:16, color:"#1C1B19", fontFamily:"inherit", backgroundColor:"transparent" }}/>
+                        style={{ flex:1, padding:"14px 16px", border:"none", outline:"none", fontSize:15, color:"#1C1B19", fontFamily:"inherit", backgroundColor:"transparent" }}/>
                       <span style={{ paddingRight:14, fontSize:13, color:"#B8B0A6", fontWeight:500 }}>{f.unit}</span>
                     </div>
                   </div>
                 ))}
                 {/* Photos de suivi (optionnel) */}
                 <div style={{ marginTop:4 }}>
-                  <p style={{ fontSize:12, color:"#8B8578", marginBottom:8, fontWeight:500 }}>Photos de suivi (optionnel)</p>
+                  <p style={{ fontSize:13, color:"#8B8578", marginBottom:8, fontWeight:500 }}>Photos de suivi (optionnel)</p>
                   <div style={{ display:"flex", gap:10 }}>
                     {([["front","De face","Front view",photoFront,setPhotoFront],["side","De profil","Side view",photoSide,setPhotoSide]] as const).map(([kind,label_fr,label_en,file,setter]) => (
-                      <label key={kind} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6, padding:"18px 10px", borderRadius:14, border: file ? "1.5px solid #B8973E" : "1.5px dashed rgba(28,27,25,0.18)", backgroundColor: file ? "#B8973E12" : "white", cursor:"pointer" }}>
+                      <label key={kind} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6, padding:"18px 10px", borderRadius:12, border: file ? "1.5px solid #B8973E" : "1.5px dashed rgba(28,27,25,0.18)", backgroundColor: file ? "#B8973E12" : "white", cursor:"pointer" }}>
                         <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
                           onChange={e => { const f = e.target.files?.[0]; if (f) (setter as any)(f); }}/>
                         <span style={{ display:"flex" }}>{file ? <AppIcon name="check" size={22} /> : <AppIcon name="camera" size={22} />}</span>
-                        <span style={{ fontSize:12, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{t(label_fr, label_en)}</span>
+                        <span style={{ fontSize:13, fontWeight:600, color: file ? "#B8973E" : "#6B6560" }}>{t(label_fr, label_en)}</span>
                         <span style={{ fontSize:10, color:"#B8B0A6" }}>{file ? t("Photo prête", "Photo ready") : t("Prendre une photo", "Take a photo")}</span>
                       </label>
                     ))}
@@ -434,7 +434,7 @@ export default function Measurements() {
                 </div>
 
                 <button onClick={save} disabled={saving}
-                  style={{ width:"100%", padding:"15px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:14, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", marginTop:6, opacity: saving?0.7:1 }}>
+                  style={{ width:"100%", padding:"15px", backgroundColor:"#B8973E", color:"#1C1B19", border:"none", borderRadius:12, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", marginTop:6, opacity: saving?0.7:1 }}>
                   {saving ? t("Sauvegarde...", "Saving...") : t("Enregistrer mes mensurations", "Save measurements")}
                 </button>
               </div>

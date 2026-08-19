@@ -177,11 +177,11 @@ export default function Home() {
         {/* ── 1. SÉANCE RECOMMANDÉE ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }} className="mb-4">
           {recommended ? (
-            <div style={{ background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", borderRadius:18, padding:"16px 18px" }}>
-              <p style={{ fontSize:9, color:"#B8973E", letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 10px" }}>
+            <div style={{ background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", borderRadius:16, padding:"16px 18px" }}>
+              <p style={{ fontSize:10, color:"#B8973E", letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 10px" }}>
                 {t("Votre séance du jour", "Your session today")}
               </p>
-              <p className="font-display" style={{ fontSize:19, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 8px", lineHeight:1.3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+              <p className="font-display" style={{ fontSize:17, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 8px", lineHeight:1.3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
                 {recommended.name_fr}
               </p>
               <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
@@ -193,13 +193,13 @@ export default function Home() {
                 )}
                 <button
                   onClick={() => navigate("/library")}
-                  style={{ marginLeft:"auto", background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#B8973E", display:"flex", alignItems:"center", gap:5, padding:0, fontFamily:"inherit" }}>
+                  style={{ marginLeft:"auto", background:"none", border:"none", cursor:"pointer", fontSize:13, color:"#B8973E", display:"flex", alignItems:"center", gap:5, padding:0, fontFamily:"inherit" }}>
                   {t("Commencer", "Start")}<ChevronRight size={14}/>
                 </button>
               </div>
             </div>
           ) : (
-            <div style={{ borderRadius:18, background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", padding:"20px 18px", textAlign:"center" }}>
+            <div style={{ borderRadius:16, background:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", padding:"20px 18px", textAlign:"center" }}>
               <p style={{ fontSize:13, color:"var(--color-text-secondary)", margin:0 }}>{t("Aucune séance disponible", "No session available")}</p>
             </div>
           )}
@@ -207,26 +207,26 @@ export default function Home() {
 
         {/* ── 2. STATS ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} className="grid grid-cols-2 gap-3 mb-4">
-          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px 16px" }}>
+          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:16, padding:"16px 16px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:8 }}>
               <Flame size={15} style={{ color:"#B8973E" }}/>
               <span style={{ fontSize:11, color:"var(--color-text-secondary)" }}>Streak</span>
             </div>
-            <p className="font-display" style={{ fontSize:26, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{streak} {t("jours", "days")}</p>
+            <p className="font-display" style={{ fontSize:24, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{streak} {t("jours", "days")}</p>
           </div>
-          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px 16px" }}>
+          <div style={{ background:"rgba(184,151,62,0.04)", borderRadius:16, padding:"16px 16px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:8 }}>
               <CheckCircle size={15} style={{ color:"#B8973E" }}/>
               <span style={{ fontSize:11, color:"var(--color-text-secondary)" }}>{t("Ce mois", "This month")}</span>
             </div>
-            <p className="font-display" style={{ fontSize:26, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{monthSessions}</p>
+            <p className="font-display" style={{ fontSize:24, fontWeight:400, color:"var(--color-text-primary)", margin:0 }}>{monthSessions}</p>
           </div>
         </motion.div>
 
         {/* ── 3. PROGRAMME EN COURS ── */}
         {currentProg && (
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }}
-            style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px", marginBottom:16 }}>
+            style={{ background:"rgba(184,151,62,0.04)", borderRadius:16, padding:"16px", marginBottom:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
               <p className="font-body text-sm font-semibold text-foreground">{t("Mon programme", "My program")}</p>
               <button onClick={() => navigate("/programs")} style={{ display:"flex", alignItems:"center", gap:3, background:"none", border:"none", cursor:"pointer", padding:0 }}>
@@ -234,15 +234,15 @@ export default function Home() {
                 <ChevronRight size={12} color="#B8973E"/>
               </button>
             </div>
-            <p style={{ fontSize:12, color:"var(--color-text-secondary)", margin:"0 0 10px", lineHeight:1.4 }}>
+            <p style={{ fontSize:13, color:"var(--color-text-secondary)", margin:"0 0 10px", lineHeight:1.4 }}>
               {(currentProg.prog as any).name_fr}
               {currentProg.nextName && (
                 <span style={{ color:"var(--color-text-tertiary)" }}> · {t("Prochaine", "Next")} : {currentProg.nextName}</span>
               )}
             </p>
             {/* Barre */}
-            <div style={{ height:5, backgroundColor:"rgba(28,27,25,0.07)", borderRadius:99, overflow:"hidden", marginBottom:6 }}>
-              <div style={{ height:"100%", width:`${currentProg.pct}%`, backgroundColor:"#B8973E", borderRadius:99, transition:"width 0.8s ease" }}/>
+            <div style={{ height:5, backgroundColor:"rgba(28,27,25,0.07)", borderRadius:999, overflow:"hidden", marginBottom:6 }}>
+              <div style={{ height:"100%", width:`${currentProg.pct}%`, backgroundColor:"#B8973E", borderRadius:999, transition:"width 0.8s ease" }}/>
             </div>
             <p style={{ fontSize:10, color:"var(--color-text-tertiary)", margin:0 }}>
               {currentProg.done}/{currentProg.total} {t("séances · ", "sessions · ")}{currentProg.pct}% {t("complété", "completed")}
@@ -253,7 +253,7 @@ export default function Home() {
         {/* ── 4. SÉANCES RÉCENTES ── */}
         {recentSessions.length > 0 && (
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
-            style={{ background:"rgba(184,151,62,0.04)", borderRadius:18, padding:"16px", marginBottom:16 }}>
+            style={{ background:"rgba(184,151,62,0.04)", borderRadius:16, padding:"16px", marginBottom:16 }}>
             <p className="font-body text-sm font-semibold text-foreground mb-3">{t("Séances récentes", "Recent sessions")}</p>
             <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
               {recentSessions.map((sess, i) => {
@@ -282,7 +282,7 @@ export default function Home() {
         {/* ── 5. CITATION DU JOUR ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.25 }}
           style={{ backgroundColor:"rgba(184,151,62,0.06)", border:"0.5px solid rgba(184,151,62,0.2)", borderRadius:20, padding:"14px 16px", marginBottom:16 }}>
-          <p style={{ fontSize:9, color:"#B8973E", textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 6px" }}>
+          <p style={{ fontSize:10, color:"#B8973E", textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 6px" }}>
             {t("Citation du jour", "Quote of the day")}
           </p>
           <p style={{ fontSize:13, fontStyle:"italic", color:"var(--color-text-primary)", margin:"0 0 4px", lineHeight:1.6 }}>
@@ -293,7 +293,7 @@ export default function Home() {
 
         {/* ── 6. ACTIONS RAPIDES ── */}
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3 }} className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate("/library")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:18, padding:"16px", textAlign:"left", cursor:"pointer" }}>
+          <button onClick={() => navigate("/library")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:16, padding:"16px", textAlign:"left", cursor:"pointer" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
               <ClapperboardIcon size={16} style={{ color:"#B8973E" }}/>
               <ChevronRight size={14} style={{ color:"var(--color-text-tertiary)" }}/>
@@ -301,7 +301,7 @@ export default function Home() {
             <p className="font-display" style={{ fontSize:15, fontWeight:400, color:"var(--color-text-primary)", margin:"0 0 2px" }}>{t("Séances", "Sessions")}</p>
             <p style={{ fontSize:11, color:"var(--color-text-secondary)", margin:0 }}>{t("Bibliothèque complète", "Full library")}</p>
           </button>
-          <button onClick={() => navigate("/programs")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:18, padding:"16px", textAlign:"left", cursor:"pointer" }}>
+          <button onClick={() => navigate("/programs")} style={{ background:"rgba(184,151,62,0.04)", border:"none", borderRadius:16, padding:"16px", textAlign:"left", cursor:"pointer" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
               <Layers size={16} style={{ color:"#B8973E" }}/>
               <ChevronRight size={14} style={{ color:"var(--color-text-tertiary)" }}/>

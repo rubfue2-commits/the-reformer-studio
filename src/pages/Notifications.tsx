@@ -39,12 +39,12 @@ function TimePicker({ value, onChange }: { value: string; onChange: (v: string) 
   return (
     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
       <select value={h} onChange={e => onChange(e.target.value + ":" + m)}
-        style={{ padding: "6px 8px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 8, fontSize: 14, color: "#1C1B19", backgroundColor: "white", fontFamily: "inherit", appearance: "none", WebkitAppearance: "none" }}>
+        style={{ padding: "6px 8px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 8, fontSize: 13, color: "#1C1B19", backgroundColor: "white", fontFamily: "inherit", appearance: "none", WebkitAppearance: "none" }}>
         {hours.map(hh => <option key={hh} value={hh}>{hh}</option>)}
       </select>
-      <span style={{ fontSize: 14, color: "#8B8578", fontWeight: 600 }}>:</span>
+      <span style={{ fontSize: 13, color: "#8B8578", fontWeight: 600 }}>:</span>
       <select value={m} onChange={e => onChange(h + ":" + e.target.value)}
-        style={{ padding: "6px 8px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 8, fontSize: 14, color: "#1C1B19", backgroundColor: "white", fontFamily: "inherit", appearance: "none", WebkitAppearance: "none" }}>
+        style={{ padding: "6px 8px", border: "1px solid rgba(28,27,25,0.12)", borderRadius: 8, fontSize: 13, color: "#1C1B19", backgroundColor: "white", fontFamily: "inherit", appearance: "none", WebkitAppearance: "none" }}>
         {minutes.map(mm => <option key={mm} value={mm}>{mm}</option>)}
       </select>
     </div>
@@ -55,7 +55,7 @@ function TimePicker({ value, onChange }: { value: string; onChange: (v: string) 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div onClick={() => onChange(!value)}
-      style={{ width: 50, height: 28, borderRadius: 14, backgroundColor: value ? "#B8973E" : "#D1CCC5", cursor: "pointer", position: "relative", transition: "background-color 0.2s", flexShrink: 0 }}>
+      style={{ width: 50, height: 28, borderRadius: 12, backgroundColor: value ? "#B8973E" : "#D1CCC5", cursor: "pointer", position: "relative", transition: "background-color 0.2s", flexShrink: 0 }}>
       <div style={{ position: "absolute", top: 3, left: value ? 24 : 3, width: 22, height: 22, borderRadius: "50%", backgroundColor: "white", transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.15)" }} />
     </div>
   );
@@ -134,11 +134,11 @@ export default function Notifications() {
             <BellOff size={18} color="#B8973E" style={{ flexShrink: 0, marginTop: 1 }} />
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19", margin: "0 0 3px" }}>{t("Notifications désactivées", "Notifications disabled")}</p>
-              <p style={{ fontSize: 12, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: "#8B8578", margin: "0 0 10px", lineHeight: 1.5 }}>
                 Autorisez les notifications pour recevoir vos rappels.
               </p>
               <button onClick={requestPermission}
-                style={{ padding: "8px 16px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ padding: "8px 16px", backgroundColor: "#B8973E", color: "#1C1B19", border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                 Autoriser les notifications
               </button>
             </div>
@@ -167,7 +167,7 @@ export default function Notifications() {
                   {/* Texte */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 15, fontWeight: 600, color: "#1C1B19", margin: 0, lineHeight: 1.2 }}>{notif.label}</p>
-                    <p style={{ fontSize: 12, color: "#8B8578", margin: "2px 0 0", lineHeight: 1.4 }}>{notif.desc}</p>
+                    <p style={{ fontSize: 13, color: "#8B8578", margin: "2px 0 0", lineHeight: 1.4 }}>{notif.desc}</p>
                   </div>
 
                   {/* Heure + Toggle */}
@@ -205,10 +205,10 @@ export default function Notifications() {
         </div>
 
         {/* Info bas de page */}
-        <div style={{ marginTop: 20, padding: "14px 16px", borderRadius: 14, backgroundColor: "rgba(184,151,62,0.05)", border: "1px solid rgba(184,151,62,0.12)" }}>
+        <div style={{ marginTop: 20, padding: "14px 16px", borderRadius: 12, backgroundColor: "rgba(184,151,62,0.05)", border: "1px solid rgba(184,151,62,0.12)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Bell size={14} color="#B8973E" style={{ flexShrink: 0, marginTop: 1 }} />
-            <p style={{ fontSize: 12, color: "#8B8578", margin: 0, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: "#8B8578", margin: 0, lineHeight: 1.6 }}>
               Les modifications sont sauvegardées automatiquement et synchronisées sur tous vos appareils.
             </p>
           </div>

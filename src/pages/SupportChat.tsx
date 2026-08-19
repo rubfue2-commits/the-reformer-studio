@@ -128,7 +128,7 @@ export default function SupportChat() {
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder={t("Écris ton message…", "Write your message…")}
             rows={1}
-            style={{ flex: 1, resize: "none", maxHeight: 100, padding: "10px 14px", borderRadius: 20, border: "0.5px solid hsl(var(--border))", backgroundColor: "hsl(var(--background))", color: "hsl(var(--foreground))", fontSize: 14, outline: "none" }}
+            style={{ flex: 1, resize: "none", maxHeight: 100, padding: "10px 14px", borderRadius: 20, border: "0.5px solid hsl(var(--border))", backgroundColor: "hsl(var(--background))", color: "hsl(var(--foreground))", fontSize: 13, outline: "none" }}
           />
           <button onClick={handleSend} disabled={!draft.trim() || sending}
             aria-label={t("Envoyer", "Send")}

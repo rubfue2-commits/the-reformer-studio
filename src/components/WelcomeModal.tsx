@@ -67,7 +67,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
           onClick={e => e.stopPropagation()}
           style={{
             backgroundColor: "white",
-            borderRadius: 28,
+            borderRadius: 20,
             padding: "32px 28px 28px",
             width: "calc(100% - 40px)",
             maxWidth: 400,
@@ -113,7 +113,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
             style={{
-              fontSize: 14, color: "#6B6560", textAlign: "center",
+              fontSize: 13, color: "#6B6560", textAlign: "center",
               lineHeight: 1.6, margin: "0 0 28px",
               fontFamily: "inherit",
             }}
@@ -128,7 +128,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
             {STEPS.map((_, i) => (
               <div key={i} style={{
                 width: i === step ? 20 : 6, height: 6,
-                borderRadius: 3,
+                borderRadius: 4,
                 backgroundColor: i === step ? current.color : "#E5E0D8",
                 transition: "all 0.3s ease",
               }} />
@@ -142,7 +142,7 @@ export default function WelcomeModal({ firstName, onClose }: WelcomeModalProps) 
               width: "100%", padding: "15px",
               backgroundColor: current.color,
               color: "#1C1B19",
-              border: "none", borderRadius: 14,
+              border: "none", borderRadius: 12,
               fontSize: 15, fontWeight: 700,
               cursor: "pointer", fontFamily: "inherit",
               display: "flex", alignItems: "center",

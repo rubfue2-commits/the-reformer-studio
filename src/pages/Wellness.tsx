@@ -79,7 +79,7 @@ function ScoreSlider({ label, sub, value, onChange, labels }: {
 function StatCard({ icon: Icon, label, value, color, sub }: { icon: any; label: string; value: string; color: string; sub?: string }) {
   return (
     <div className="bg-card rounded-2xl p-4 border border-border shadow-sm flex flex-col gap-2">
-      <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Icon size={18} style={{ color }} />
       </div>
       <p className="font-body text-xs text-muted-foreground">{label}</p>
@@ -343,7 +343,7 @@ export default function Wellness() {
               <div className="bg-card rounded-2xl p-4 border border-border mb-4">
                 <p className="font-body text-sm font-semibold text-foreground mb-2">{t("Note personnelle", "Personal note")}</p>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Je me sens..."
-                  rows={3} style={{ width: "100%", border: "none", outline: "none", resize: "none", fontSize: 14, color: "#1C1B19", fontFamily: "inherit", backgroundColor: "transparent", lineHeight: 1.6 }} />
+                  rows={3} style={{ width: "100%", border: "none", outline: "none", resize: "none", fontSize: 13, color: "#1C1B19", fontFamily: "inherit", backgroundColor: "transparent", lineHeight: 1.6 }} />
               </div>
 
               <button onClick={save} disabled={saving}
@@ -382,7 +382,7 @@ export default function Wellness() {
                     { label: "Stress", value: todayEntry.stress, color: "#B8973E" },
                   ].map(s => (
                     <div key={s.label} style={{ flex: 1, textAlign: "center" }}>
-                      <p style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}/5</p>
+                      <p style={{ fontSize: 17, fontWeight: 700, color: s.color }}>{s.value}/5</p>
                       <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
                     </div>
                   ))}
@@ -430,7 +430,7 @@ export default function Wellness() {
                         <p className="font-body text-[11px] text-muted-foreground">Score global — {data.length} derniers jours</p>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <p style={{ fontSize: 22, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{todayScore}</p>
+                        <p style={{ fontSize: 20, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{todayScore}</p>
                         <p style={{ fontSize: 10, color: "#8B8578" }}>/ 100</p>
                       </div>
                     </div>
@@ -512,8 +512,8 @@ export default function Wellness() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(184,151,62,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}><AppIcon name="ruler" size={18} /></div>
                   <div style={{ textAlign: "left" }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Mes mensurations</p>
-                    <p style={{ fontSize: 12, color: "#8B8578", margin: 0 }}>Suivre poids, taille, hanches...</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: "#1C1B19", margin: 0 }}>Mes mensurations</p>
+                    <p style={{ fontSize: 13, color: "#8B8578", margin: 0 }}>Suivre poids, taille, hanches...</p>
                   </div>
                 </div>
                 <ChevronRight size={16} color="#B8B0A6" />
