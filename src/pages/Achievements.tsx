@@ -11,6 +11,7 @@ import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useSessions } from "@/hooks/useSessions";
 import AppIcon, { type IconName } from "@/components/AppIcon";
 
 // ── Catégories ────────────────────────────────────────────────
@@ -241,6 +242,7 @@ export default function Achievements() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { stats: sessionStats } = useSessions();
   const [selected, setSelected] = useState<BadgeData | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [stats, setStats] = useState<UserStats>({
@@ -402,8 +404,42 @@ export default function Achievements() {
           </div>
         </div>
 
+        {/* Ma progression — statistiques de séances */}
+        <div className="mx-5 mb-4">
+          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-2 px-1">{t("Ma progression", "My progress")}</p>
+
+          {/* Chiffre héros : séances depuis le début */}
+          <div className="rounded-3xl p-5 mb-3" style={{ background: "rgba(184,151,62,0.06)", border: "0.5px solid rgba(184,151,62,0.25)" }}>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="font-display font-light" style={{ fontSize: 44, lineHeight: 1, color: "#B8973E" }}>{sessionStats.totalSessions}</p>
+                <p className="font-body text-xs text-muted-foreground mt-1">{t("séances depuis le début", "sessions since the start")}</p>
+              </div>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(184,151,62,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AppIcon name={"trophy" as IconName} size={24} style={{ color: "#B8973E" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Trois stats secondaires */}
+          <div className="grid grid-cols-3 gap-2.5">
+            <div className="rounded-2xl p-3.5 text-center" style={{ background: "hsl(var(--card))", border: "0.5px solid hsl(var(--border))" }}>
+              <p className="font-display font-light" style={{ fontSize: 24, lineHeight: 1, color: "hsl(var(--foreground))" }}>{sessionStats.currentStreakDays}</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-1.5">{t("jours de suite", "day streak")}</p>
+            </div>
+            <div className="rounded-2xl p-3.5 text-center" style={{ background: "hsl(var(--card))", border: "0.5px solid hsl(var(--border))" }}>
+              <p className="font-display font-light" style={{ fontSize: 24, lineHeight: 1, color: "hsl(var(--foreground))" }}>{sessionStats.totalMinutes}</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-1.5">{t("minutes au total", "total minutes")}</p>
+            </div>
+            <div className="rounded-2xl p-3.5 text-center" style={{ background: "hsl(var(--card))", border: "0.5px solid hsl(var(--border))" }}>
+              <p className="font-display font-light" style={{ fontSize: 24, lineHeight: 1, color: "hsl(var(--foreground))" }}>{sessionStats.thisWeekCount}</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-1.5">{t("cette semaine", "this week")}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Stats rapides */}
-        <div className="flex gap-2 px-5 mb-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        <div className="flex gap-2 px-5 mb-4 overflow-x-auto" style={{ scrollbarWidth: "none", display: "none" }}>
           {[
             { label: "Séances", value: stats.sessions, icon: "bolt" as IconName },
             { label: "Série",   value: stats.streak + "j", icon: "flame" as IconName },
