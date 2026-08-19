@@ -220,7 +220,7 @@ export default function VideoLibrary() {
               {/* Header avec retour */}
               <div className="flex items-center gap-3 mb-6">
                 <button onClick={() => setSelectedCat(null)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
                   <ChevronLeft size={18} className="text-muted-foreground" />
                 </button>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>

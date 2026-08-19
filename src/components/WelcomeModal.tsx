@@ -19,19 +19,19 @@ const STEPS = [
     icon: "video" as IconName,
     title: "Des séances pour tous les niveaux",
     description: "Accédez à une bibliothèque complète de séances Pilates Reformer, du débutant à l'expert.",
-    color: "#8B5CF6",
+    color: "#B8973E",
   },
   {
     icon: "calendar" as IconName,
     title: "Suivez votre progression",
     description: "Programmes structurés, journal bien-être et suivi de vos mensurations pour atteindre vos objectifs.",
-    color: "#10B981",
+    color: "#B8973E",
   },
   {
     icon: "heart" as IconName,
     title: "Commençons ensemble",
     description: "Votre machine est prête, vos séances vous attendent. Prenez soin de vous — chaque jour compte.",
-    color: "#EC4899",
+    color: "#B8973E",
   },
 ];
 

@@ -82,7 +82,7 @@ export function useScore(isDemo = false): DayScore {
       label = "Bon"; color = "#B8973E";
       advice = "Bonne forme générale. Une séance modérée sera idéale aujourd'hui.";
     } else if (score >= 40) {
-      label = "Correct"; color = "#F59E0B";
+      label = "Correct"; color = "#B8973E";
       advice = "Journée correcte. Écoute ton corps avant de choisir ta séance.";
     } else {
       label = "Repos"; color = "#EF4444";

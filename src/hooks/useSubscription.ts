@@ -54,7 +54,7 @@ export const PLANS = {
     badge_en: '12-month commitment',
     description_fr: 'Prélevé chaque mois · Engagement contractuel obligatoire',
     description_en: 'Billed monthly · Mandatory contractual commitment',
-    color: '#8B5CF6',
+    color: '#B8973E',
     popular: false,
   },
 } as const;

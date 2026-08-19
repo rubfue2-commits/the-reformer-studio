@@ -44,7 +44,7 @@ const PLANS = [
     badge_en: '12-month commitment',
     desc_fr: 'Engagement contractuel · 56€ × 12 = 672€/an',
     desc_en: 'Contractual commitment · 56€ × 12 = 672€/year',
-    color: '#8B5CF6',
+    color: '#B8973E',
     popular: false,
   },
 ] as const;

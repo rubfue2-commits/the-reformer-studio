@@ -43,8 +43,8 @@ export default function EmailPending() {
             Clique sur le lien dans l'email pour activer ton compte, puis reviens sur l'app.
           </p>
           {sent ? (
-            <div style={{ backgroundColor: "#10B98115", borderRadius: 12, padding: "12px 16px", marginBottom: 12 }}>
-              <p style={{ fontSize: 13, color: "#10B981", fontWeight: 600, margin: 0 }}>Email renvoyé !</p>
+            <div style={{ backgroundColor: "#B8973E15", borderRadius: 12, padding: "12px 16px", marginBottom: 12 }}>
+              <p style={{ fontSize: 13, color: "#B8973E", fontWeight: 600, margin: 0 }}>Email renvoyé !</p>
             </div>
           ) : (
             <button onClick={resend} disabled={loading}

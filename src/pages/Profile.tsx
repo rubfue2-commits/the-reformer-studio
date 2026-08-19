@@ -59,8 +59,8 @@ const Profile = () => {
 
   const quickLinks = [
     { icon: Award,  label: t("Badges & Réussites", "Badges & Achievements"), sub: t("Niveau 3 · 1 525 XP", "Level 3 · 1,525 XP"), path: "/achievements", color: "#B8973E", bg: "#FAEEDA", extra: "" },
-    { icon: Heart,  label: t("Journal bien-être", "Wellness journal"),        sub: t("Énergie, humeur, sommeil...", "Energy, mood, sleep..."), path: "/wellness", color: "#EC4899", bg: "#FDF2F8", extra: "" },
-    { icon: Layers, label: t("Mes programmes", "My programs"),               sub: t("Débutante · Semaine 2/4", "Beginner · Week 2/4"), path: "/programs", color: "#6366F1", bg: "#EEF2FF", extra: "50%" },
+    { icon: Heart,  label: t("Journal bien-être", "Wellness journal"),        sub: t("Énergie, humeur, sommeil...", "Energy, mood, sleep..."), path: "/wellness", color: "#B8973E", bg: "#FAEEDA", extra: "" },
+    { icon: Layers, label: t("Mes programmes", "My programs"),               sub: t("Débutante · Semaine 2/4", "Beginner · Week 2/4"), path: "/programs", color: "#B8973E", bg: "#FAEEDA", extra: "50%" },
   ];
 
   const initials = displayName

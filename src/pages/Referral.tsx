@@ -74,7 +74,7 @@ export default function Referral() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border">
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>
@@ -202,7 +202,7 @@ export default function Referral() {
         {isAnnualUpfront && (
           <div className="rounded-2xl border border-pink-100 bg-pink-50/50 p-5 mb-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-100 flex-shrink-0">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-pink-100 flex-shrink-0">
                 <Gift size={18} className="text-pink-400" strokeWidth={1.5} />
               </div>
               <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">

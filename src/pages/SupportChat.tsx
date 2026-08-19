@@ -47,7 +47,7 @@ export default function SupportChat() {
 
         {/* Header */}
         <div className="flex items-center gap-3 px-5 pt-12 pb-3 border-b border-border flex-shrink-0" style={{ backgroundColor: "hsl(var(--card))" }}>
-          <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+          <button onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div className="flex-1">

@@ -42,7 +42,7 @@ const ENERGY_LABELS: Record<number, string> = { 1:"Épuisée", 2:"Fatiguée", 3:
 
 const FEELINGS = ["Courbatures","Digestion","Stress","Manque de sommeil","Bonne forme","Motivée","Hydratée","Relâchée","Légère","Forte"];
 
-const sliderColors = ["#EF4444","#F97316","#F59E0B","#84CC16","#22C55E"];
+const sliderColors = ["#C77B62","#D19B70","#C9A96E","#A8A870","#7A9578"];
 
 // ── Composant slider ──────────────────────────────────────────
 function ScoreSlider({ label, sub, value, onChange, labels }: {
@@ -376,10 +376,10 @@ export default function Wellness() {
                 {/* Mini scores */}
                 <div className="flex gap-3 mt-4">
                   {[
-                    { label: t("Humeur", "Mood"), value: todayEntry.mood, color: "#EC4899" },
-                    { label: t("Énergie", "Energy"), value: todayEntry.energy, color: "#F59E0B" },
-                    { label: t("Sommeil", "Sleep"), value: todayEntry.sleep, color: "#6366F1" },
-                    { label: "Stress", value: todayEntry.stress, color: "#10B981" },
+                    { label: t("Humeur", "Mood"), value: todayEntry.mood, color: "#B8973E" },
+                    { label: t("Énergie", "Energy"), value: todayEntry.energy, color: "#B8973E" },
+                    { label: t("Sommeil", "Sleep"), value: todayEntry.sleep, color: "#B8973E" },
+                    { label: "Stress", value: todayEntry.stress, color: "#B8973E" },
                   ].map(s => (
                     <div key={s.label} style={{ flex: 1, textAlign: "center" }}>
                       <p style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}/5</p>
@@ -394,10 +394,10 @@ export default function Wellness() {
                 <>
                   <p className="font-body text-[10px] text-muted-foreground uppercase tracking-widest mb-3">Tendances — 7 derniers jours</p>
                   <div className="grid grid-cols-2 gap-3 mb-5">
-                    <StatCard icon={Heart}     label="Humeur moyenne"  value={weekStats.avgMood + "/5"}   color="#EC4899" sub={weekStats.avgMood >= 4 ? "Excellente forme !" : "En progression"} />
-                    <StatCard icon={Flame}      label="Énergie moyenne" value={weekStats.avgEnergy + "/5"} color="#F59E0B" sub={weekStats.avgEnergy >= 4 ? "Tu es en feu !" : "Garde le rythme"} />
-                    <StatCard icon={Moon}       label="Qualité sommeil" value={weekStats.avgSleep + "/5"}  color="#6366F1" sub={weekStats.avgSleep >= 4 ? "Récupération top" : "Essaie de dormir plus"} />
-                    <StatCard icon={Wind}       label="Niveau de stress" value={weekStats.avgStress + "/5"} color="#10B981" sub={weekStats.avgStress >= 4 ? "Très sereine" : "Le Pilates aide !"} />
+                    <StatCard icon={Heart}     label="Humeur moyenne"  value={weekStats.avgMood + "/5"}   color="#B8973E" sub={weekStats.avgMood >= 4 ? "Excellente forme !" : "En progression"} />
+                    <StatCard icon={Flame}      label="Énergie moyenne" value={weekStats.avgEnergy + "/5"} color="#B8973E" sub={weekStats.avgEnergy >= 4 ? "Tu es en feu !" : "Garde le rythme"} />
+                    <StatCard icon={Moon}       label="Qualité sommeil" value={weekStats.avgSleep + "/5"}  color="#B8973E" sub={weekStats.avgSleep >= 4 ? "Récupération top" : "Essaie de dormir plus"} />
+                    <StatCard icon={Wind}       label="Niveau de stress" value={weekStats.avgStress + "/5"} color="#B8973E" sub={weekStats.avgStress >= 4 ? "Très sereine" : "Le Pilates aide !"} />
                   </div>
                 </>
               )}
@@ -421,7 +421,7 @@ export default function Wellness() {
                 }, "");
                 const areaPath = path + ` L ${pts[pts.length-1][0]} ${H - PAD} L ${PAD} ${H - PAD} Z`;
                 const todayScore = scores[scores.length - 1];
-                const scoreColor = todayScore >= 75 ? "#22C55E" : todayScore >= 50 ? "#B8973E" : "#EF4444";
+                const scoreColor = todayScore >= 75 ? "#7A9578" : todayScore >= 50 ? "#B8973E" : "#C77B62";
                 return (
                   <div className="bg-card rounded-3xl p-4 border border-border shadow-sm mb-5">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
@@ -474,10 +474,10 @@ export default function Wellness() {
                     {/* Légende métriques */}
                     <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
                       {[
-                        { label: t("Humeur", "Mood"), value: data[data.length-1]?.mood, color: "#EC4899" },
-                        { label: t("Énergie", "Energy"), value: data[data.length-1]?.energy, color: "#F59E0B" },
-                        { label: t("Sommeil", "Sleep"), value: data[data.length-1]?.sleep, color: "#6366F1" },
-                        { label: "Stress", value: data[data.length-1]?.stress, color: "#10B981" },
+                        { label: t("Humeur", "Mood"), value: data[data.length-1]?.mood, color: "#B8973E" },
+                        { label: t("Énergie", "Energy"), value: data[data.length-1]?.energy, color: "#B8973E" },
+                        { label: t("Sommeil", "Sleep"), value: data[data.length-1]?.sleep, color: "#B8973E" },
+                        { label: "Stress", value: data[data.length-1]?.stress, color: "#B8973E" },
                       ].map(m => (
                         <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                           <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: m.color }} />

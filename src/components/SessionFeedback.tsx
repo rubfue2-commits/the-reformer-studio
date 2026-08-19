@@ -79,7 +79,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
         {[...Array(12)].map((_, i) => (
           <motion.div key={i}
             className="absolute h-2 w-2 rounded-full"
-            style={{ backgroundColor: ["#B8973E","#4CAF50","#6366F1","#EC4899","#F97316"][i % 5] }}
+            style={{ backgroundColor: ["#B8973E","#4CAF50","#B8973E","#B8973E","#B8973E"][i % 5] }}
             initial={{ opacity: 0, y: 0, x: 0, scale: 0 }}
             animate={{ opacity: [0, 1, 0], y: -200 - Math.random() * 200, x: (Math.random() - 0.5) * 300, scale: [0, 1, 0.5] }}
             transition={{ duration: 1.5, delay: i * 0.08, ease: "easeOut" }}
@@ -159,7 +159,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
             <p className="font-body text-xs text-muted-foreground">{result.videoTitle}</p>
           </div>
           <button onClick={() => setStep("celebration")}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border">
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border">
             <X size={16} strokeWidth={1.5} className="text-muted-foreground" />
           </button>
         </div>
@@ -173,7 +173,7 @@ const SessionFeedback = ({ result, onClose, onReplay }: SessionFeedbackProps) =>
             <div className="flex gap-2">
               {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(level => {
                 const labels = ["Trop facile", "Facile", "Adapté", "Intense", "Trop dur"];
-                const colors = ["#60A5FA", "#4CAF50", "#B8973E", "#F97316", "#EF4444"];
+                const colors = ["#60A5FA", "#4CAF50", "#B8973E", "#B8973E", "#EF4444"];
                 return (
                   <button key={level} onClick={() => setDifficulty(level)}
                     className={`flex-1 flex flex-col items-center gap-1 rounded-xl py-3 transition-all ${

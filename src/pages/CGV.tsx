@@ -109,7 +109,7 @@ export default function CGV() {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+          <button onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div>

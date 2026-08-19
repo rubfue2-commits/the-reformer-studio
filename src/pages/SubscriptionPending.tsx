@@ -52,10 +52,10 @@ export default function SubscriptionPending() {
             { step: "4", label: "Accès à l'application", done: false },
           ].map((s, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: i < 3 ? "1px solid rgba(28,27,25,0.06)" : "none", textAlign: "left" }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: s.done ? "#10B981" : "#E5E0D8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: s.done ? "#B8973E" : "#E5E0D8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 {s.done ? <span style={{ color: "white", fontSize: 12 }}>✓</span> : <span style={{ color: "#8B8578", fontSize: 11, fontWeight: 700 }}>{s.step}</span>}
               </div>
-              <p style={{ fontSize: 13, color: s.done ? "#10B981" : "#1C1B19", fontWeight: s.done ? 600 : 400, margin: 0 }}>{s.label}</p>
+              <p style={{ fontSize: 13, color: s.done ? "#B8973E" : "#1C1B19", fontWeight: s.done ? 600 : 400, margin: 0 }}>{s.label}</p>
             </div>
           ))}
 

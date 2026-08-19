@@ -23,10 +23,10 @@ interface NotifConfig {
 }
 
 const NOTIF_CONFIG: NotifConfig[] = [
-  { key: "session_reminder",  timeKey: "session_reminder_time",  icon: "reminder" as IconName, iconBg: "#FFF7ED", iconColor: "#B8973E", label: "Rappels de séance",      desc: "Notification avant chaque séance planifiée" },
+  { key: "session_reminder",  timeKey: "session_reminder_time",  icon: "reminder" as IconName, iconBg: "#FAEEDA", iconColor: "#B8973E", label: "Rappels de séance",      desc: "Notification avant chaque séance planifiée" },
   { key: "streak_alert",      timeKey: "streak_alert_time",      icon: "flame" as IconName, iconBg: "#FFF1F0", iconColor: "#EF4444", label: "Série en danger",        desc: "Alert si tu risques de briser ta série" },
-  { key: "badge_notification",                                    icon: "badge" as IconName, iconBg: "#F3F0FF", iconColor: "#7C3AED", label: "Nouveaux badges",        desc: "Félicitations quand tu débloqucs un achievement" },
-  { key: "wellness_reminder", timeKey: "wellness_reminder_time", icon: "heart" as IconName, iconBg: "#FFF0F5", iconColor: "#EC4899", label: "Journal bien-être",      desc: "Rappel pour remplir ton bilan quotidien" },
+  { key: "badge_notification",                                    icon: "badge" as IconName, iconBg: "#F3F0FF", iconColor: "#B8973E", label: "Nouveaux badges",        desc: "Félicitations quand tu débloqucs un achievement" },
+  { key: "wellness_reminder", timeKey: "wellness_reminder_time", icon: "heart" as IconName, iconBg: "#FAEEDA", iconColor: "#B8973E", label: "Journal bien-être",      desc: "Rappel pour remplir ton bilan quotidien" },
   { key: "progress_report",                                       icon: "progress" as IconName, iconBg: "#F0FFF4", iconColor: "#16A34A", label: "Rapports de progression", desc: "Bilan hebdomadaire de tes progrès" },
 ];
 
@@ -106,7 +106,7 @@ export default function Notifications() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border flex-shrink-0">
             <ChevronLeft size={18} className="text-muted-foreground" />
           </button>
           <div className="flex-1">

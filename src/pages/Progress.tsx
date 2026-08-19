@@ -7,10 +7,10 @@ import { useMeasurements } from "@/hooks/useMeasurements";
 const METRICS = [
   { key: "weight", fr: "Poids",    en: "Weight",  unit: "kg", color: "#B8973E" },
   { key: "waist",  fr: "Taille",   en: "Waist",   unit: "cm", color: "#22C55E" },
-  { key: "hips",   fr: "Hanches",  en: "Hips",    unit: "cm", color: "#EC4899" },
-  { key: "chest",  fr: "Poitrine", en: "Chest",   unit: "cm", color: "#8B5CF6" },
-  { key: "thigh",  fr: "Cuisse",   en: "Thigh",   unit: "cm", color: "#F97316" },
-  { key: "arm",    fr: "Bras",     en: "Arm",     unit: "cm", color: "#3B82F6" },
+  { key: "hips",   fr: "Hanches",  en: "Hips",    unit: "cm", color: "#B8973E" },
+  { key: "chest",  fr: "Poitrine", en: "Chest",   unit: "cm", color: "#B8973E" },
+  { key: "thigh",  fr: "Cuisse",   en: "Thigh",   unit: "cm", color: "#B8973E" },
+  { key: "arm",    fr: "Bras",     en: "Arm",     unit: "cm", color: "#B8973E" },
 ];
 
 export default function Progress() {
